@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "adviz"
+  site-url: "https://eliasdabbas.github.io/adviz"
+  description: "advertools visualizations"
+  repo-branch: main
+  repo-url: "https://github.com/eliasdabbas/adviz"

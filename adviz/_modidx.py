@@ -5,4 +5,6 @@ d = { 'settings': { 'branch': 'main',
                 'doc_host': 'https://eliasdabbas.github.io',
                 'git_url': 'https://github.com/eliasdabbas/adviz',
                 'lib_path': 'adviz'},
-  'syms': {'adviz.core': {'adviz.core.foo': ('core.html#foo', 'adviz/core.py')}}}
+  'syms': { 'adviz.core': {'adviz.core.foo': ('core.html#foo', 'adviz/core.py')},
+            'adviz.value_counts_plus': { 'adviz.value_counts_plus.value_counts_plus': ( 'value_counts_plus.html#value_counts_plus',
+                                                                                        'adviz/value_counts_plus.py')}}}

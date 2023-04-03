@@ -34,18 +34,17 @@ def value_counts_plus(
 
     Returns
     -------
-    value_counts_df : a pandas.DataFrame showing counts based on the provided arguments        
+    value_counts_df : a pandas.DataFrame showing counts based on the provided arguments
     """
-    series = pd.Series(series)
-    series.name = series.name or 'data'
-    col = series.name or 'data'
+    series = pd.Series(series).rename('data')
+    col = 'data'
     val_counts = series.value_counts(dropna=dropna)
     if len(val_counts) > show_top:
         val_counts = pd.concat([
             val_counts[:show_top],
             pd.Series(val_counts[show_top:].sum(), index=['Others:'], name=col)])
         if sort_others:
-            val_counts = val_counts.sort_values(ascending=False)                                                
+            val_counts = val_counts.sort_values(ascending=False)
         show_top += 1
     count_df = (val_counts
                 .to_frame()

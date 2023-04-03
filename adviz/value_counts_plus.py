@@ -44,7 +44,7 @@ def value_counts_plus(
         val_counts = pd.concat([
             val_counts[:show_top],
             pd.Series(val_counts[show_top:].sum(), index=['Others:'], name=col)])
-        if sort_others:                                                
+        if sort_others:
             val_counts = val_counts.sort_values(ascending=False)                                                
         show_top += 1
     count_df = (val_counts

@@ -3,3 +3,4 @@ website:
     contents:
       - index.ipynb
       - 00_value_counts_plus.ipynb
+      - 01_status_codes.ipynb

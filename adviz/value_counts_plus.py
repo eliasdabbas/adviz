@@ -16,7 +16,7 @@ def value_counts_plus(
     background_gradient='cividis'):
     """
     Provide a few ways of showing counts of values of items in ``series``.
-    
+
     Parameters
     ----------
     series : pandas Series or list

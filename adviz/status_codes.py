@@ -47,6 +47,7 @@ def status_codes(
     """
     status_counts = (
         pd.Series(status_list)
+        .rename('count')
         .value_counts()
         .reset_index()
         .rename(columns={'index': 'status', 'status': 'count'})

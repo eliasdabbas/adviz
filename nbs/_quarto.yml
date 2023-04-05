@@ -8,7 +8,8 @@ format:
     toc: true
 
 website:
-  twitter-card: true
+  twitter-card:
+     creator: "@eliasdabbas"
   open-graph: true
   repo-actions: [issue]
   navbar:
@@ -16,5 +17,6 @@ website:
     search: true
   sidebar:
     style: floating
+  google-analytics: "G-N2M6ZCQTX5"
 
 metadata-files: [nbdev.yml, sidebar.yml]

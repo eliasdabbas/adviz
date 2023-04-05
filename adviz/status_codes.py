@@ -47,10 +47,10 @@ def status_codes(
     """
     status_counts = (
         pd.Series(status_list)
-        .rename('count')
         .value_counts()
+        .rename_axis('index')
         .reset_index()
-        .rename(columns={'index': 'status', 'status': 'count'})
+        .rename(columns={'index': 'status'})
         .assign(status_cat=lambda df: df['status'].astype(int).round(-2))
         .assign(status_desc=lambda df: [responses[int(code)] for code in df['status']])
     )

@@ -13,6 +13,7 @@ def value_counts_plus(
     show_top=10,
     sort_others=False,
     style=True,
+    name='data',
     background_gradient='cividis'):
     """
     Provide a few ways of showing counts of values of items in ``series``.
@@ -26,33 +27,42 @@ def value_counts_plus(
     show_top : int
         How many of the top rows to display.
     sort_others : bool
-        Whether or not to place "Others" in the bottom (default) or in its sorted order position
+        Whether or not to place "Others" in the bottom (default) or in its
+        sorted order position.
     style : bool
-        Whether or not to style values for easier reading. If set to ``True`` the result would
-        not be a DataFrame, and cannot be further manipulated. Set the value to ``False`` to
-        get aDataFrame as the return value.
+        Whether or not to style values for easier reading. If set to ``True``
+        the result would not be a DataFrame, and cannot be further manipulated.
+        Set the value to ``False`` to get aDataFrame as the return value.
+    name : str
+        The name of the column that you want displayed in the final table. It
+        appears in the caption and defaults to "data".
+    background_gradient: str
+        The name of the color map to be used as the gradient. Many color maps
+        are available: cividis, viridis, copper, cool, magma, and more. You can
+        reverse the color by appending _r to the end of the colormap name
+        cividis_r for example. Enter a random string to get an error message
+        with all available colormaps.
 
     Returns
     -------
     value_counts_df : a pandas.DataFrame showing counts based on the provided arguments
     """
-    series = pd.Series(series).rename('data')
-    col = 'data'
+    series = pd.Series(series).rename(name)
     val_counts = series.value_counts(dropna=dropna)
     if len(val_counts) > show_top:
         val_counts = pd.concat([
             val_counts[:show_top],
-            pd.Series(val_counts[show_top:].sum(), index=['Others:'], name=col)])
+            pd.Series(val_counts[show_top:].sum(), index=['Others:'])]).rename(name)
         if sort_others:
             val_counts = val_counts.sort_values(ascending=False)
         show_top += 1
     count_df = (val_counts
                 .to_frame()
-                .assign(cum_count=lambda df: df[col].cumsum(),
-                        perc=lambda df: df[col].div(df[col].sum()),
+                .assign(cum_count=lambda df: df[name].cumsum(),
+                        perc=lambda df: df[name].div(df[name].sum()),
                         cum_perc=lambda df: df['perc'].cumsum())
                 .reset_index()
-                .rename(columns={'index': col, col: 'count'}))
+                .rename(columns={'index': name, name: 'count'}))
     if not style:
         return count_df.head(show_top)
     return (count_df.

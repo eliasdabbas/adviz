@@ -47,21 +47,19 @@ def value_counts_plus(
     -------
     value_counts_df : a pandas.DataFrame showing counts based on the provided arguments
     """
-    series = pd.Series(series).rename(name)
-    val_counts = series.value_counts(dropna=dropna)
+    val_counts = pd.Series(series).value_counts(dropna=dropna).rename(name)
     if len(val_counts) > show_top:
         val_counts = pd.concat([
-            val_counts[:show_top],
-            pd.Series(val_counts[show_top:].sum(), index=['Others:'])]).rename(name)
+            val_counts.iloc[:show_top],
+            pd.Series(val_counts.iloc[show_top:].sum(), index=['Others:'])]).rename(name)
         if sort_others:
             val_counts = val_counts.sort_values(ascending=False)
         show_top += 1
     count_df = (val_counts
-                .to_frame()
+                .reset_index()
                 .assign(cum_count=lambda df: df[name].cumsum(),
                         perc=lambda df: df[name].div(df[name].sum()),
                         cum_perc=lambda df: df['perc'].cumsum())
-                .reset_index()
                 .rename(columns={'index': name, name: 'count'}))
     if not style:
         return count_df.head(show_top)
@@ -73,5 +71,5 @@ def value_counts_plus(
                      'cum_perc': '{:.1%}'})
             .background_gradient(background_gradient)
             .highlight_null()
-            .set_caption(f'<h2>Counts of <b>{series.name}</b></h2>'))
+            .set_caption(f'<h2>Counts of <b>{name}</b></h2>'))
 

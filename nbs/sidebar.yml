@@ -3,7 +3,5 @@ website:
     contents:
       - index.ipynb
       - 00_value_counts_plus.ipynb
-      - text: "Counting values (slides)"
-        file: 00_value_counts_plus_slides.ipynb
+      - 00_value_counts_plus_slides.ipynb
       - 01_status_codes.ipynb
-

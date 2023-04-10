@@ -45,12 +45,9 @@ def status_codes(
     -------
     status_codes_figure : plotly.graph_objects.Figure
     """
-    status_counts = (
-        pd.Series(status_list)
-        .value_counts()
-        .rename_axis('index')
-        .reset_index()
-        .rename(columns={'index': 'status'})
+    status_counts = pd.Series(status_list).value_counts().reset_index()
+    status_counts.columns = ['status', 'count']
+    status_counts = (status_counts
         .assign(status_cat=lambda df: df['status'].astype(int).round(-2))
         .assign(status_desc=lambda df: [responses[int(code)] for code in df['status']])
     )

@@ -65,6 +65,7 @@ def value_counts_plus(
     if name in final_col_names:
         raise ValueError(f"Please make sure you use a name other than {final_col_names}")
     val_counts = pd.Series(series).rename(name).value_counts(dropna=dropna).reset_index()
+    val_counts.columns = [name, 'count']
     if len(val_counts) > show_top:
         others_df = pd.DataFrame({
             name: ['Others:'],
@@ -85,6 +86,8 @@ def value_counts_plus(
                 )
     if not style:
         return count_df
+    count_df.index = range(1, len(count_df)+1)
+    count_df.columns = [name, 'count', 'cum. count', '%', 'cum. %']
     return (count_df
             .style
             .format({'count': '{:,}', 'cumsum': '{:,}', 
@@ -94,8 +97,6 @@ def value_counts_plus(
                     thousands=thousands,
                     decimal=decimal)
             .background_gradient(background_gradient)
-            .relabel_index(range(1, len(count_df)+1), axis=0)
-            .relabel_index([name, 'count', 'cum. count', '%', 'cum. %'], axis=1)
             .highlight_null()
             .set_caption(f'<h2>Counts of <b>{name}</b></h2>')
             .set_table_attributes(f'style=font-size:{size}pt;'))

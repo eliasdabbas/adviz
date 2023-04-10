@@ -13,6 +13,9 @@ def value_counts_plus(
     show_top=10,
     sort_others=False,
     style=True,
+    size=10,
+    thousands=',',
+    decimal='.',
     name='data',
     background_gradient='cividis'):
     """
@@ -33,6 +36,16 @@ def value_counts_plus(
         Whether or not to style values for easier reading. If set to ``True``
         the result would not be a DataFrame, and cannot be further manipulated.
         Set the value to ``False`` to get aDataFrame as the return value.
+    size : int
+        The size in points of the font of the table. This results in the whole
+        table being resized.
+    thousands : str
+        The character to use to separate thousands if `style=True`. Defaults to
+        `,` but you can change to `.` or space, or any oher character you want.
+    decimal : str
+        The character to use to display decimal number if `style=True`. Defaults to
+        `.` but you can change to `,`or any oher character you want.
+
     name : str
         The name of the column that you want displayed in the final table. It
         appears in the caption and defaults to "data".
@@ -45,31 +58,45 @@ def value_counts_plus(
 
     Returns
     -------
-    value_counts_df : a pandas.DataFrame showing counts based on the provided arguments
+    value_counts_df : pandas.DataFrame
+        A DataFrame showing counts based on the provided arguments
     """
-    val_counts = pd.Series(series).value_counts(dropna=dropna).rename(name)
+    final_col_names = ['count', 'cum_count', 'perc', 'cum_perc']
+    if name in final_col_names:
+        raise ValueError(f"Please make sure you use a name other than {final_col_names}")
+    val_counts = pd.Series(series).rename(name).value_counts(dropna=dropna).reset_index()
     if len(val_counts) > show_top:
+        others_df = pd.DataFrame({
+            name: ['Others:'],
+            'count': val_counts[show_top:]['count'].sum()
+            }, index=[show_top])
         val_counts = pd.concat([
-            val_counts.iloc[:show_top],
-            pd.Series(val_counts.iloc[show_top:].sum(), index=['Others:'])]).rename(name)
+            val_counts[:show_top],
+            others_df
+        ])
         if sort_others:
-            val_counts = val_counts.sort_values(ascending=False)
-        show_top += 1
+            val_counts = val_counts.sort_values(by=['count'], ascending=False)
+
     count_df = (val_counts
-                .reset_index()
-                .assign(cum_count=lambda df: df[name].cumsum(),
-                        perc=lambda df: df[name].div(df[name].sum()),
-                        cum_perc=lambda df: df['perc'].cumsum())
-                .rename(columns={'index': name, name: 'count'}))
+                .assign(
+                    cum_count=lambda df: df['count'].cumsum(),
+                    perc=lambda df: df['count'].div(df['count'].sum()),
+                    cum_perc=lambda df: df['perc'].cumsum())
+                )
     if not style:
-        return count_df.head(show_top)
-    return (count_df.
-            head(show_top).style
+        return count_df
+    return (count_df
+            .style
             .format({'count': '{:,}', 'cumsum': '{:,}', 
                      'perc': '{:.1%}',
                      'cum_count': '{:,}',
-                     'cum_perc': '{:.1%}'})
+                     'cum_perc': '{:.1%}'},
+                    thousands=thousands,
+                    decimal=decimal)
             .background_gradient(background_gradient)
+            .relabel_index(range(1, len(count_df)+1), axis=0)
+            .relabel_index([name, 'count', 'cum. count', '%', 'cum. %'], axis=1)
             .highlight_null()
-            .set_caption(f'<h2>Counts of <b>{name}</b></h2>'))
+            .set_caption(f'<h2>Counts of <b>{name}</b></h2>')
+            .set_table_attributes(f'style=font-size:{size}pt;'))
 

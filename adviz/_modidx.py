@@ -7,5 +7,6 @@ d = { 'settings': { 'branch': 'main',
                 'lib_path': 'adviz'},
   'syms': { 'adviz.core': {'adviz.core.foo': ('core.html#foo', 'adviz/core.py')},
             'adviz.status_codes': {'adviz.status_codes.status_codes': ('status_codes.html#status_codes', 'adviz/status_codes.py')},
+            'adviz.url_structure': {'adviz.url_structure.url_structure': ('url_structure.html#url_structure', 'adviz/url_structure.py')},
             'adviz.value_counts_plus': { 'adviz.value_counts_plus.value_counts_plus': ( 'value_counts_plus.html#value_counts_plus',
                                                                                         'adviz/value_counts_plus.py')}}}

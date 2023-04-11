@@ -195,7 +195,7 @@ adviz.value_counts_plus(list('aaaaaaaaabbbbcccddddddddddeeeeeeeeeeeeffffggghhhii
 </table>
 
 ``` python
-codes = pd.read_csv('_data/status_codes.csv')
+codes = pd.read_csv('data/status_codes.csv')
 codes
 ```
 

@@ -2,11 +2,19 @@ website:
   sidebar:
     contents:
       - index.ipynb
-      - 00_value_counts_plus.ipynb
-      - 00_value_counts_plus_slides.ipynb
+      - text: "Counting values"
+        file: 00_value_counts_plus.ipynb
+      - text: "Counting values (slides)"
+        file: 00_value_counts_plus_slides.ipynb
       - 01_status_codes.ipynb
-      - 02_url_structure.ipynb
-      - 02_url_structure_slides.ipynb
+      - text: "URL structure"
+        file: 02_url_structure.ipynb
+      - text: "URL structure (slides)"
+        file: 02_url_structure_slides.ipynb
       - section: data
         contents:
           - data/status_code_chart.html
+          - text: "Status code chart"
+            file: data/status_code_chart.html
+          - text: "URL list (apple.com)"
+            file: data/apple_url_list.csv

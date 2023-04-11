@@ -90,10 +90,10 @@ def value_counts_plus(
     count_df.columns = [name, 'count', 'cum. count', '%', 'cum. %']
     return (count_df
             .style
-            .format({'count': '{:,}', 'cumsum': '{:,}', 
-                     '%': '{:.1%}',
-                     'cum. count': '{:,}',
-                     'cum. %': '{:.1%}'},
+            .format({'count': '{:>,}',
+                     'cum. count': '{:>,}',
+                     '%': '{:>.1%}',
+                     'cum. %': '{:>.1%}'},
                     thousands=thousands,
                     decimal=decimal)
             .background_gradient(background_gradient)

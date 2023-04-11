@@ -14,7 +14,7 @@ website:
       - section: data
         contents:
           - data/status_code_chart.html
-          - text: "Example status code chart"
+          - text: "Status code chart"
             file: data/status_code_chart.html
           - text: "URL list (apple.com)"
             file: data/apple_url_list.csv

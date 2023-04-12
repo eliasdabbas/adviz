@@ -11,10 +11,14 @@ website:
         file: 02_url_structure.ipynb
       - text: "URL structure (slides)"
         file: 02_url_structure_slides.ipynb
-      - section: data
+      - section: "Sample charts & data"
         contents:
           - data/status_code_chart.html
           - text: "Status code chart"
             file: data/status_code_chart.html
           - text: "URL list (apple.com)"
             file: data/apple_url_list.csv
+          - text: "apple.com URL treemap"
+            file: data/url_structure_tremap_chart.html
+          - text: "toyota.com URL treemap"
+            file: data/toyota_url_treemap.html

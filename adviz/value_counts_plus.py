@@ -58,7 +58,7 @@ def value_counts_plus(
 
     Returns
     -------
-    value_counts_df : pandas.DataFrame
+    value_counts_df : pandas.io.formats.style.Styler
         A DataFrame showing counts based on the provided arguments
     """
     final_col_names = ['count', 'cum_count', 'perc', 'cum_perc']

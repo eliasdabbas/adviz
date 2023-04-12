@@ -23,7 +23,7 @@ def url_structure(
     domain='example.com',
     title='URL Structure'):
     """
-    Create a treemap for the first two URL path directories example.com/dir_1/dir_2/.
+    Create a treemap for the first two URL path directories `example.com/dir_1/dir_2/`.
 
     Parameters
     ----------

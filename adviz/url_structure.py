@@ -23,7 +23,33 @@ def url_structure(
     domain='example.com',
     title='URL Structure'):
     """
-    Create a treemap for each URL path directory /dir_1/dir_2/dir_3/...
+    Create a treemap for the first two URL path directories example.com/dir_1/dir_2/.
+
+    Parameters
+    ----------
+    url_list : list
+        Any list-like object with a bunch of URLs.
+    items_per_level : int
+        The number of items to display for each level of the treemap. All other
+        items will be grouped under a special item called "Others".
+    height : int
+        The height of the chart in pixels.
+    width : int
+        The width of the chart in pixels.
+    theme : str
+        Name of theme to use for the chart. Available themes:
+            ggplot2, seaborn, simple_white, plotly, plotly_white, plotly_dark,
+            presentation, xgridoff, ygridoff, gridon, none.
+    domain : str
+        The main domain of the URL list. This will be displayed at the top
+        panel in the treemap to display values like a breadcrumb.
+    title: str
+        The title of the figure. You can use/include the following HTML tags in
+        the title: `<a>`, `<b>`, `<br>`, `<i>`, `<sub>`, `<sup>`
+
+    Returns
+    -------
+    url_structure_treemap : plotly.graph_objects.Figure
     """
     urldf = adv.url_to_df(url_list)
     dir1_top_n = urldf['dir_1'].value_counts().head(items_per_level).index.tolist() + ['Others:']

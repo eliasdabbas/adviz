@@ -24,3 +24,7 @@ website:
             file: data/url_structure_tremap_chart.html
           - text: "toyota.com URL treemap"
             file: data/toyota_url_treemap.html
+          - text: 'GSC by country & month'
+            file: data/gsc_country_month_report.csv
+          - text: 'GSC by query & month'
+            file: data/gsc_query_month_report.csv

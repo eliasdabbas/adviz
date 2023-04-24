@@ -6,6 +6,7 @@ format:
     theme: cosmo
     css: styles.css
     toc: true
+    code-line-numbers: true
 
 website:
   twitter-card:
@@ -15,6 +16,20 @@ website:
   navbar:
     background: primary
     search: true
+    right:
+      - text: ""
+        href: /
+    tools:
+      - icon: twitter
+        href: https://twitter.com/eliasdabbas
+        text: EliasDabbas Twitter
+      - icon: linkedin
+        href: https://linkedin.com/in/eliasdabbas
+        text: EliasDabbas LinkedIn
+      - icon: github
+        href: https://github.com/eliasdabbas/adviz
+        text: adviz Github
+
   sidebar:
     style: floating
   google-analytics: "G-N2M6ZCQTX5"

@@ -13,6 +13,7 @@ def racing_chart(
     df,
     n=10,
     title="Racing Chart",
+    frame_duration=500,
     theme='none',
     width=None,
     height=600,
@@ -29,6 +30,9 @@ def racing_chart(
       The number of top items to display for each period.
     title : str
       The title of the chart.
+    frame_duration : int
+      The duration of each frame during animation, before transitioning to the
+      following frame, in milliseconds.
     theme : str
       The theme of the chart. Any of the following values can be used:
     width : int
@@ -43,6 +47,7 @@ def racing_chart(
     racing_barchart : plotly.graph_objects.Figure
     """
     period_totals = df.groupby(df.columns[2]).sum(df.columns[1]).reset_index()
+    # df[f'{df.columns[1]} %'] = df.groupby(df.columns[2])[df.columns[1]].transform(lambda x: x / x.sum())
     top_n_df = (df
         .sort_values([df.columns[2], df.columns[1]],
                      ascending=[True, False])
@@ -68,4 +73,7 @@ def racing_chart(
     fig.layout.sliders[0].currentvalue.font.size = font_size * 1.5
     fig.layout.sliders[0].bgcolor = '#D5D5D5'
     fig.layout.sliders[0].borderwidth = 0
+    fig.layout.updatemenus[0]['buttons'][0]['args'][1]['frame']['duration'] = frame_duration
+    for step, total in zip(fig.layout.sliders[0].steps, period_totals.iloc[:, 1]):
+        step['label'] = f"{step['label']}<br>Total: {total:,}"
     return fig

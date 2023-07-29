@@ -17,6 +17,10 @@ website:
         file: 04_flag.ipynb
       - text: "Flag Emoji (slides)"
         file: 04_flag_slides.ipynb
+      - text: "Styling tables"
+        file: 05_style_table.ipynb
+      - text: "Styling tables (slides)"
+        file: 05_style_table_slides.ipynb
       - section: "Sample charts & data"
         contents:
           - data/status_code_chart.html

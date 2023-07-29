@@ -7,6 +7,11 @@ format:
     css: styles.css
     toc: true
     code-line-numbers: true
+    grid:
+      sidebar-width: 200px
+      body-width: 1050px
+      margin-width: 200px
+      gutter-width: 1rem
 
 website:
   twitter-card:

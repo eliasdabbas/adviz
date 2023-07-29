@@ -9,6 +9,8 @@ d = { 'settings': { 'branch': 'main',
             'adviz.flag': {'adviz.flag.flag': ('flag.html#flag', 'adviz/flag.py')},
             'adviz.racing_chart': {'adviz.racing_chart.racing_chart': ('racing_chart.html#racing_chart', 'adviz/racing_chart.py')},
             'adviz.status_codes': {'adviz.status_codes.status_codes': ('status_codes.html#status_codes', 'adviz/status_codes.py')},
+            'adviz.style_table': { 'adviz.style_table._category_to_color': ('style_table.html#_category_to_color', 'adviz/style_table.py'),
+                                   'adviz.style_table.style_table': ('style_table.html#style_table', 'adviz/style_table.py')},
             'adviz.url_structure': {'adviz.url_structure.url_structure': ('url_structure.html#url_structure', 'adviz/url_structure.py')},
             'adviz.value_counts_plus': { 'adviz.value_counts_plus.value_counts_plus': ( 'value_counts_plus.html#value_counts_plus',
                                                                                         'adviz/value_counts_plus.py')}}}

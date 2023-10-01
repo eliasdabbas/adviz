@@ -3,16 +3,16 @@
 # %% auto 0
 __all__ = ['status_codes']
 
-# %% ../nbs/01_status_codes.ipynb 3
+# %% ../nbs/01_status_codes.ipynb 4
 from http.client import responses
 
 import pandas as pd
 import plotly.express as px
 
-# %% ../nbs/01_status_codes.ipynb 4
+# %% ../nbs/01_status_codes.ipynb 5
 _texttemplate = '<b>%{label} </b><br><br>Status code: %{label} %{customdata[0]}<br>Count: %{value:,}<br>%{percentParent:.1%} of %{parent}<br>' #%{percentRoot:.1%} of %{root}'
 
-# %% ../nbs/01_status_codes.ipynb 5
+# %% ../nbs/01_status_codes.ipynb 6
 def status_codes(
     status_list,
     height=600,

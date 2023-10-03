@@ -39,3 +39,5 @@ website:
             file: data/gsc_country_month_report.csv
           - text: 'GSC by query & month'
             file: data/gsc_query_month_report.csv
+          - text: 'SERP dataset'
+            file: data/serp_crypto.csv

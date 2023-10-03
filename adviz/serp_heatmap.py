@@ -12,7 +12,7 @@ pd.options.display.max_columns = None
 def serp_heatmap(
     serp_df,
     num_domains=10,
-    height=600,
+    height=650,
     width=None,
     title='SERP Heatmap',
     theme='none'):
@@ -39,49 +39,49 @@ def serp_heatmap(
     -------
     heatmap_fig : plotly.graph_objects.Figure
     """
-    df = serp_df.rename(columns={'searchTerms': 'keyword', 'displayLink': 'domain'})[['keyword', 'rank', 'domain']]
-    top_domains = df['domain'].value_counts()[:num_domains].index.tolist()
-    top_df = df[df['domain'].isin(top_domains) & df['domain'].ne('')]
+    df = serp_df[['searchTerms', 'rank', 'displayLink']]
+    top_domains = df['displayLink'].value_counts()[:num_domains].index.tolist()
+    top_df = df[df['displayLink'].isin(top_domains) & df['displayLink'].ne('')]
     top_df_counts_means = (
         top_df
-        .groupby('domain', as_index=False)
+        .groupby('displayLink', as_index=False)
         .agg({'rank': ['count', 'mean']}))
-    top_df_counts_means.columns = ['domain', 'rank_count', 'avg_pos']
+    top_df_counts_means.columns = ['displayLink', 'rank_count', 'avg_pos']
     top_df = (pd.merge(top_df, top_df_counts_means)
               .sort_values(['rank_count', 'avg_pos'],
                            ascending=[False, True]))
     rank_counts = (top_df
-                   .groupby(['domain', 'rank'])
+                   .groupby(['displayLink', 'rank'])
                    .agg({'rank': ['count']})
                    .reset_index())
-    rank_counts.columns = ['domain', 'rank', 'count']
+    rank_counts.columns = ['displayLink', 'rank', 'count']
     summary = (
         df
-        .groupby(['domain'], as_index=False)
+        .groupby(['displayLink'], as_index=False)
         .agg({'rank': ['count', 'mean']})
         .sort_values(('rank', 'count'), ascending=False)
         .assign(coverage=lambda df: (df[('rank', 'count')]
                                      .div(df[('rank', 'count')]
                                      .sum()))))
-    summary.columns = ['domain', 'count', 'avg_pos', 'coverage']
-    summary['domain'] = summary['domain'].str.replace('www.', '', regex=True)
+    summary.columns = ['displayLink', 'count', 'avg_pos', 'coverage']
+    summary['displayLink'] = summary['displayLink'].str.replace('www.', '', regex=True)
     summary['avg_pos'] = summary['avg_pos'].round(1)
     summary['coverage'] = (summary['coverage'].mul(100)
                            .round(1).astype(str).add('%'))
-    num_queries = df['keyword'].nunique()
+    num_queries = df['searchTerms'].nunique()
     
     fig = go.Figure()
     fig.add_scatter(
-        x=top_df['domain'].str.replace('www\.', '', regex=True),
+        x=top_df['displayLink'].str.replace('www\.', '', regex=True),
         y=top_df['rank'],
         mode='markers',
         marker={'size': 30, 'opacity': 1/rank_counts['count'].max()})
     fig.add_scatter(
-        x=rank_counts['domain'].str.replace('www\.', '', regex=True),
+        x=rank_counts['displayLink'].str.replace('www\.', '', regex=True),
         y=rank_counts['rank'], mode='text',
         text=rank_counts['count'])
-    for domain in rank_counts['domain'].unique():
-        rank_counts_subset = rank_counts[rank_counts['domain'] == domain]
+    for domain in rank_counts['displayLink'].unique():
+        rank_counts_subset = rank_counts[rank_counts['displayLink'] == domain]
         fig.add_scatter(
             x=[domain.replace('www.', '')],
             y=[0],
@@ -93,7 +93,6 @@ def serp_heatmap(
             y=[-1],
             mode='text',
             text=format(rank_counts_subset['count'].sum() / num_queries, '.1%'))
-    
         fig.add_scatter(
             x=[domain.replace('www.', '')],
             y=[-2],
@@ -119,4 +118,8 @@ def serp_heatmap(
     fig.layout.title = title
     fig.layout.height = height
     fig.layout.width = width
+    fig.layout.xaxis.showgrid  = False
+    fig.layout.yaxis.ticks = 'inside'
+    fig.layout.xaxis.ticks = 'inside'
+    fig.layout.yaxis.griddash = 'dot'
     return fig

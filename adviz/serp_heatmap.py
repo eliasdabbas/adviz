@@ -9,6 +9,10 @@ import pandas as pd
 pd.options.display.max_columns = None
 
 # %% ../nbs/06_serp_heatmap.ipynb 6
+def _concat(text):
+    return '<br>'.join(sorted(text))
+
+# %% ../nbs/06_serp_heatmap.ipynb 7
 def serp_heatmap(
     serp_df,
     num_domains=10,
@@ -50,6 +54,9 @@ def serp_heatmap(
     top_df = (pd.merge(top_df, top_df_counts_means)
               .sort_values(['rank_count', 'avg_pos'],
                            ascending=[False, True]))
+    hovertxt_df = (top_df
+                   .groupby(['rank', 'displayLink'], as_index=False)
+                   .agg({'searchTerms': _concat}))
     rank_counts = (top_df
                    .groupby(['displayLink', 'rank'])
                    .agg({'rank': ['count']})
@@ -69,12 +76,12 @@ def serp_heatmap(
     summary['coverage'] = (summary['coverage'].mul(100)
                            .round(1).astype(str).add('%'))
     num_queries = df['searchTerms'].nunique()
-    
     fig = go.Figure()
     fig.add_scatter(
         x=top_df['displayLink'].str.replace('www\.', '', regex=True),
         y=top_df['rank'],
         mode='markers',
+        hovertext=top_df['searchTerms'],
         marker={'size': 30, 'opacity': 1/rank_counts['count'].max()})
     fig.add_scatter(
         x=rank_counts['displayLink'].str.replace('www\.', '', regex=True),
@@ -102,6 +109,14 @@ def serp_heatmap(
                            .mul(rank_counts_subset['count'])
                            .sum() / rank_counts_subset['count']
                            .sum(), 1)))
+    fig.add_scatter(
+        x=hovertxt_df['displayLink'].str.replace('^www\.', '', regex=True),
+        y=hovertxt_df['rank'],
+        name='',
+        hovertemplate='<b>%{x}</b><br>%{hovertext}',
+        hoverlabel={'bgcolor': '#efefef'},
+        hovertext=hovertxt_df['searchTerms'],
+        mode='markers', marker={'opacity': 0, 'size': 30})
     minrank, maxrank = int(min(top_df['rank'].unique())), int(max(top_df['rank'].unique()))
     fig.layout.yaxis.tickvals = [-2, -1, 0] + list(range(minrank, maxrank+1))
     fig.layout.yaxis.ticktext = ['Avg. Pos.', 'Coverage', 'Total<br>appearances'] + list(range(minrank, maxrank+1))
@@ -111,7 +126,6 @@ def serp_heatmap(
     fig.layout.margin.r = 2
     fig.layout.margin.l = 120
     fig.layout.margin.pad = 0
-    fig.layout.hovermode = False
     fig.layout.yaxis.autorange = 'reversed'
     fig.layout.yaxis.zeroline = False
     fig.layout.template = theme

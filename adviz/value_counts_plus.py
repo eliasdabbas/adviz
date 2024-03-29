@@ -4,11 +4,13 @@
 __all__ = ['value_counts_plus']
 
 # %% ../nbs/00_value_counts_plus.ipynb 3
+import advertools as adv
 import pandas as pd
+from functools import partial
 
 # %% ../nbs/00_value_counts_plus.ipynb 4
 def value_counts_plus(
-    series,
+    data,
     dropna=False,
     show_top=10,
     sort_others=False,
@@ -23,7 +25,7 @@ def value_counts_plus(
 
     Parameters
     ----------
-    series : pandas Series or list
+    series : pandas.Series or pandas.DataFrame
         A sequence of items to count.
     dropna : bool
         Whether or not to drop missing values.
@@ -64,13 +66,13 @@ def value_counts_plus(
     final_col_names = ['count', 'cum_count', 'perc', 'cum_perc']
     if name in final_col_names:
         raise ValueError(f"Please make sure you use a name other than {final_col_names}")
-    val_counts = pd.Series(series).rename(name).value_counts(dropna=dropna).reset_index()
-    val_counts.columns = [name, 'count']
+    if not isinstance(data, pd.DataFrame):
+        data = pd.Series(data)
+    val_counts = data.value_counts(dropna=dropna).reset_index().rename(columns={'index': name})
     if len(val_counts) > show_top:
-        others_df = pd.DataFrame({
-            name: ['Others:'],
-            'count': val_counts[show_top:]['count'].sum()
-            }, index=[show_top])
+        others_df = pd.DataFrame(
+            [['Others:'] + ['' for i in range(len(val_counts.columns)-2)] + [val_counts[show_top:]['count'].sum()]],
+            columns=val_counts.columns)
         val_counts = pd.concat([
             val_counts[:show_top],
             others_df
@@ -87,7 +89,7 @@ def value_counts_plus(
     if not style:
         return count_df
     count_df.index = range(1, len(count_df)+1)
-    count_df.columns = [name, 'count', 'cum. count', '%', 'cum. %']
+    count_df = count_df.rename(columns={'cum_count': 'cum. count', 'perc': '%', 'cum_perc': 'cum. %'})
     return (count_df
             .style
             .format({'count': '{:>,}',

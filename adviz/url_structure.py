@@ -63,7 +63,7 @@ def url_structure(
         valcountsdf = adviz.value_counts_plus(tempdf['dir_2'], show_top=items_per_level, style=False)
         valcountsdf = valcountsdf.assign(dir_1_value=top_n)
         dir2_valcounts.append(valcountsdf)
-    dir2_df = pd.concat(dir2_valcounts, ignore_index=True)[['data', 'count', 'dir_1_value']]
+    dir2_df = pd.concat(dir2_valcounts, ignore_index=True)[['dir_2', 'count', 'dir_1_value']]
     treemap_df = pd.merge(
         top_n_df,
         dir2_df,
@@ -71,8 +71,8 @@ def url_structure(
         right_on='dir_1_value',
         how='left')
     fig = px.treemap(
-        treemap_df.dropna(), 
-        path=[px.Constant(domain), 'dir_1_top_n', 'data'], 
+        treemap_df.dropna(),
+        path=[px.Constant(domain), 'dir_1_top_n', 'dir_2'],
         branchvalues='total',
         maxdepth=2,
         width=width,

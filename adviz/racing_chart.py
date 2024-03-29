@@ -8,6 +8,7 @@ import pandas as pd
 import plotly.express as px
 from plotly.subplots import make_subplots
 import adviz
+from IPython.display import display_html
 
 # %% ../nbs/03_racing_chart.ipynb 4
 def racing_chart(

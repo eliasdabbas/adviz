@@ -1,4 +1,4 @@
-__version__ = "0.0.17"
+__version__ = "0.0.18"
 
 from .value_counts_plus import value_counts_plus
 from .status_codes import status_codes

@@ -14,5 +14,6 @@ d = { 'settings': { 'branch': 'main',
             'adviz.style_table': { 'adviz.style_table._category_to_color': ('style_table.html#_category_to_color', 'adviz/style_table.py'),
                                    'adviz.style_table.style_table': ('style_table.html#style_table', 'adviz/style_table.py')},
             'adviz.url_structure': {'adviz.url_structure.url_structure': ('url_structure.html#url_structure', 'adviz/url_structure.py')},
+            'adviz.value_counts': {'adviz.value_counts.value_counts': ('value_counts.html#value_counts', 'adviz/value_counts.py')},
             'adviz.value_counts_plus': { 'adviz.value_counts_plus.value_counts_plus': ( 'value_counts_plus.html#value_counts_plus',
                                                                                         'adviz/value_counts_plus.py')}}}

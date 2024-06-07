@@ -23,6 +23,8 @@ website:
         file: 05_style_table_slides.ipynb
       - text: "SERP Heatmap"
         file: 06_serp_heatmap.ipynb
+      - text: "Counting Values (new)"
+        file: 07_value_counts.ipynb
 
       - section: "Sample charts & data"
         contents:

@@ -3,12 +3,12 @@
 # %% auto 0
 __all__ = ['value_counts']
 
-# %% ../nbs/07_value_counts.ipynb 2
+# %% ../nbs/07_value_counts.ipynb 3
 import advertools as adv
 import pandas as pd
 from plotly.subplots import make_subplots
 
-# %% ../nbs/07_value_counts.ipynb 3
+# %% ../nbs/07_value_counts.ipynb 4
 def value_counts(
     data,
     dropna=False,

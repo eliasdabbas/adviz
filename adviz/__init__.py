@@ -1,4 +1,4 @@
-__version__ = "0.0.19"
+__version__ = "0.0.20"
 
 from .value_counts_plus import value_counts_plus
 from .value_counts import value_counts

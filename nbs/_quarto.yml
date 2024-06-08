@@ -3,7 +3,7 @@ project:
 
 format:
   html:
-    theme: cosmo
+    theme: flatly
     css: styles.css
     toc: true
     code-line-numbers: true

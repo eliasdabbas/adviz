@@ -8,3 +8,4 @@ from .racing_chart import racing_chart
 from .flag import flag, country_code_flag
 from .style_table import style_table
 from .serp_heatmap import serp_heatmap
+from .ecdf import ecdf

@@ -3,13 +3,40 @@
 # %% auto 0
 __all__ = ['ecdf']
 
-# %% ../nbs/08_ecdf.ipynb 3
+# %% ../nbs/08_ecdf.ipynb 4
 import advertools as adv
 import pandas as pd
 import plotly.express as px
 
-# %% ../nbs/08_ecdf.ipynb 5
-def ecdf(df, x, hover_name=None, height=None, width=None, **kwargs):
+# %% ../nbs/08_ecdf.ipynb 6
+def ecdf(
+    df,
+    x,
+    hover_name=None,
+    height=None,
+    width=None,
+    **kwargs):
+    """
+    Create an empirical cumulative distribution chart, a thin wrapper around px.ecdf.
+
+    Parameters
+    -----------
+    df : pandas.DataFrame
+        A DataFrame from which you want to visualize one of the columns' distribution.
+    x : str
+        The name of the column to visualize.
+    hover_name : str
+        The name of the column to use for labeling the markers on mouseover.
+    height : int
+        The height of the chart in pixels.
+    width : int
+        The width of the chart in pixels.
+
+    Returns
+    -------
+    ecdf : plotly.graph_objects.Figure
+        A plotly chart of the desired ecdf.
+    """
     df = df.sort_values(x)
     df['count below'] = range(len(df))
     df['count above'] = range(len(df)-1, -1, -1)
@@ -24,9 +51,21 @@ def ecdf(df, x, hover_name=None, height=None, width=None, **kwargs):
         hover_name=hover_name,
         height=height,
         width=width,
-        hover_data=['count below', 'count above', 'total count'],
+        hover_data=['count below', 'count above', 'total count', hover_name],
         ecdfnorm='percent', **kwargs)
-    # fig.data[0].hovertemplate = f'<b>{x.replace("_", " ").title()}</b><br><br>{x}' + ': %{x}<br>percent: %{y}<br><br>count below: %{customdata[0]:,}<br>count above: %{customdata[1]:,}<br>total count: %{customdata[2]:,}<extra></extra>'
+    # fig.data[0].hovertemplate = '%{customdata[3]}' + f'<b>{x.replace("_", " ").title()}</b><br><br>{x}' + ': %{x}<br>percent: %{y}<br><br>count below: %{customdata[0]:,}<br>count above: %{customdata[1]:,}<br>total count: %{customdata[2]:,}<extra></extra>'
+    for data in fig.data:
+        if data.type in ['scatter', 'scattergl']:
+            data.marker.symbol = "circle-open"
+            data.marker.size = 11
+            prefix = '<b>%{customdata[3]}</b>' if hover_name is not None else ''
+            data.hovertemplate = prefix  + f'<br><br>{x}' + ': %{x}<br>percent: %{y:.1f}%<br><br>count below: %{customdata[0]:,}<br>count above: %{customdata[1]:,}<br>total count: %{customdata[2]:,}<extra></extra>'
     fig.update_yaxes(ticksuffix='%', showspikes=True)
     fig.update_xaxes(showspikes=True)
+    if fig.data[-1].type == 'histogram':
+        fig.layout.yaxis2.showspikes = False
+        fig.layout.xaxis2.showspikes = False
+        fig.layout.yaxis2.ticksuffix = ''
+        fig.layout.yaxis2.showticklabels = True
+        fig.layout.yaxis2.title = 'count'
     return fig

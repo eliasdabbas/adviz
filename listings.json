@@ -1,0 +1,20 @@
+[
+  {
+    "listing": "/index.html",
+    "items": [
+      "/value_counts_plus.html",
+      "/value_counts.html",
+      "/value_counts_plus_slides.html",
+      "/flag_slides.html",
+      "/flag.html",
+      "/racing_chart.html",
+      "/serp_heatmap.html",
+      "/status_codes.html",
+      "/style_table.html",
+      "/style_table_slides.html",
+      "/url_structure.html",
+      "/url_structure_slides.html",
+      "/ecdf.html"
+    ]
+  }
+]

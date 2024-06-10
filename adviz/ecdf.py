@@ -20,7 +20,7 @@ def ecdf(
     Create an empirical cumulative distribution chart, a thin wrapper around px.ecdf.
 
     Parameters
-    -----------
+    ----------
     df : pandas.DataFrame
         A DataFrame from which you want to visualize one of the columns' distribution.
     x : str

@@ -41,6 +41,8 @@ def ecdf(
     df['count below'] = range(len(df))
     df['count above'] = range(len(df)-1, -1, -1)
     df['total count'] = len(df)
+    cdf = [x/len(df) for x in range(1, len(df)+1)]
+    cumsum = 0
     fig = px.ecdf(
         df.dropna(subset=[x]),
         x=x,
@@ -55,11 +57,16 @@ def ecdf(
         ecdfnorm='percent', **kwargs)
     # fig.data[0].hovertemplate = '%{customdata[3]}' + f'<b>{x.replace("_", " ").title()}</b><br><br>{x}' + ': %{x}<br>percent: %{y}<br><br>count below: %{customdata[0]:,}<br>count above: %{customdata[1]:,}<br>total count: %{customdata[2]:,}<extra></extra>'
     for data in fig.data:
+        if data.type == 'histogram':
+            data.opacity = 1
+            continue
         if data.type in ['scatter', 'scattergl']:
+            data.y = cdf[cumsum:cumsum+len(data.y)]
+            cumsum += len(data.y)
             data.marker.symbol = "circle-open"
             data.marker.size = 11
             prefix = '<b>%{customdata[3]}</b>' if hover_name is not None else ''
-            data.hovertemplate = prefix  + f'<br><br>{x}' + ': %{x}<br>percent: %{y:.1f}%<br><br>count below: %{customdata[0]:,}<br>count above: %{customdata[1]:,}<br>total count: %{customdata[2]:,}<extra></extra>'
+            data.hovertemplate = prefix  + f'<br><br>{x}' + ': %{x}<br>percent: %{y:.1%}%<br><br>count below: %{customdata[0]:,}<br>count above: %{customdata[1]:,}<br>total count: %{customdata[2]:,}<extra></extra>'
     fig.update_yaxes(ticksuffix='%', showspikes=True)
     fig.update_xaxes(showspikes=True)
     if fig.data[-1].type == 'histogram':

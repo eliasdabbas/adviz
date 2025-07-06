@@ -6,7 +6,6 @@
 __all__ = ['ecdf']
 
 # %% ../nbs/08_ecdf.ipynb 4
-import advertools as adv
 import pandas as pd
 import plotly.express as px
 

@@ -6,10 +6,6 @@
 __all__ = ['country_code_flag', 'flag']
 
 # %% ../nbs/04_flag.ipynb 4
-import pandas as pd
-import plotly.express as px
-from plotly.data import gapminder
-
 country_code_flag = {
     "AFGHANISTAN": "🇦🇫",
     "THE ISLAMIC REPUBLIC OF AFGHANISTAN": "🇦🇫",

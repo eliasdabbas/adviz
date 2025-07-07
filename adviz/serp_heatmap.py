@@ -8,20 +8,17 @@ __all__ = ['serp_heatmap']
 # %% ../nbs/06_serp_heatmap.ipynb 5
 import plotly.graph_objects as go
 import pandas as pd
+
 pd.options.display.max_columns = None
 
 # %% ../nbs/06_serp_heatmap.ipynb 6
 def _concat(text):
-    return '<br>'.join(sorted(text))
+    return "<br>".join(sorted(text))
 
 # %% ../nbs/06_serp_heatmap.ipynb 7
 def serp_heatmap(
-    serp_df,
-    num_domains=10,
-    height=650,
-    width=None,
-    title='SERP Heatmap',
-    theme='none'):
+    serp_df, num_domains=10, height=650, width=None, title="SERP Heatmap", theme="none"
+):
     """Create a heatmap for visualizing domain positions on SERPs.
 
     Parameters
@@ -45,97 +42,112 @@ def serp_heatmap(
     -------
     heatmap_fig : plotly.graph_objects.Figure
     """
-    df = serp_df[['searchTerms', 'rank', 'displayLink']]
-    top_domains = df['displayLink'].value_counts()[:num_domains].index.tolist()
-    top_df = df[df['displayLink'].isin(top_domains) & df['displayLink'].ne('')]
-    top_df_counts_means = (
-        top_df
-        .groupby('displayLink', as_index=False)
-        .agg({'rank': ['count', 'mean']}))
-    top_df_counts_means.columns = ['displayLink', 'rank_count', 'avg_pos']
-    top_df = (pd.merge(top_df, top_df_counts_means)
-              .sort_values(['rank_count', 'avg_pos'],
-                           ascending=[False, True]))
-    hovertxt_df = (top_df
-                   .groupby(['rank', 'displayLink'], as_index=False)
-                   .agg({'searchTerms': _concat}))
-    rank_counts = (top_df
-                   .groupby(['displayLink', 'rank'])
-                   .agg({'rank': ['count']})
-                   .reset_index())
-    rank_counts.columns = ['displayLink', 'rank', 'count']
+    df = serp_df[["searchTerms", "rank", "displayLink"]]
+    top_domains = df["displayLink"].value_counts()[:num_domains].index.tolist()
+    top_df = df[df["displayLink"].isin(top_domains) & df["displayLink"].ne("")]
+    top_df_counts_means = top_df.groupby("displayLink", as_index=False).agg(
+        {"rank": ["count", "mean"]}
+    )
+    top_df_counts_means.columns = ["displayLink", "rank_count", "avg_pos"]
+    top_df = pd.merge(top_df, top_df_counts_means).sort_values(
+        ["rank_count", "avg_pos"], ascending=[False, True]
+    )
+    hovertxt_df = top_df.groupby(["rank", "displayLink"], as_index=False).agg(
+        {"searchTerms": _concat}
+    )
+    rank_counts = (
+        top_df.groupby(["displayLink", "rank"]).agg({"rank": ["count"]}).reset_index()
+    )
+    rank_counts.columns = ["displayLink", "rank", "count"]
     summary = (
-        df
-        .groupby(['displayLink'], as_index=False)
-        .agg({'rank': ['count', 'mean']})
-        .sort_values(('rank', 'count'), ascending=False)
-        .assign(coverage=lambda df: (df[('rank', 'count')]
-                                     .div(df[('rank', 'count')]
-                                     .sum()))))
-    summary.columns = ['displayLink', 'count', 'avg_pos', 'coverage']
-    summary['displayLink'] = summary['displayLink'].str.replace('www.', '', regex=True)
-    summary['avg_pos'] = summary['avg_pos'].round(1)
-    summary['coverage'] = (summary['coverage'].mul(100)
-                           .round(1).astype(str).add('%'))
-    num_queries = df['searchTerms'].nunique()
+        df.groupby(["displayLink"], as_index=False)
+        .agg({"rank": ["count", "mean"]})
+        .sort_values(("rank", "count"), ascending=False)
+        .assign(
+            coverage=lambda df: (df[("rank", "count")].div(df[("rank", "count")].sum()))
+        )
+    )
+    summary.columns = ["displayLink", "count", "avg_pos", "coverage"]
+    summary["displayLink"] = summary["displayLink"].str.replace("www.", "", regex=True)
+    summary["avg_pos"] = summary["avg_pos"].round(1)
+    summary["coverage"] = summary["coverage"].mul(100).round(1).astype(str).add("%")
+    num_queries = df["searchTerms"].nunique()
     fig = go.Figure()
     fig.add_scatter(
-        x=top_df['displayLink'].str.replace('www\.', '', regex=True),
-        y=top_df['rank'],
-        mode='markers',
-        hovertext=top_df['searchTerms'],
-        marker={'size': 30, 'opacity': 1/rank_counts['count'].max()})
+        x=top_df["displayLink"].str.replace(r"www\.", "", regex=True),
+        y=top_df["rank"],
+        mode="markers",
+        hovertext=top_df["searchTerms"],
+        marker={"size": 30, "opacity": 1 / rank_counts["count"].max()},
+    )
     fig.add_scatter(
-        x=rank_counts['displayLink'].str.replace('www\.', '', regex=True),
-        y=rank_counts['rank'], mode='text',
-        text=rank_counts['count'])
-    for domain in rank_counts['displayLink'].unique():
-        rank_counts_subset = rank_counts[rank_counts['displayLink'] == domain]
+        x=rank_counts["displayLink"].str.replace(r"www\.", "", regex=True),
+        y=rank_counts["rank"],
+        mode="text",
+        text=rank_counts["count"],
+    )
+    for domain in rank_counts["displayLink"].unique():
+        rank_counts_subset = rank_counts[rank_counts["displayLink"] == domain]
         fig.add_scatter(
-            x=[domain.replace('www.', '')],
+            x=[domain.replace("www.", "")],
             y=[0],
-            mode='text',
-            marker={'size': 50},
-            text=str(rank_counts_subset['count'].sum()))
+            mode="text",
+            marker={"size": 50},
+            text=str(rank_counts_subset["count"].sum()),
+        )
         fig.add_scatter(
-            x=[domain.replace('www.', '')],
+            x=[domain.replace("www.", "")],
             y=[-1],
-            mode='text',
-            text=format(rank_counts_subset['count'].sum() / num_queries, '.1%'))
+            mode="text",
+            text=format(rank_counts_subset["count"].sum() / num_queries, ".1%"),
+        )
         fig.add_scatter(
-            x=[domain.replace('www.', '')],
+            x=[domain.replace("www.", "")],
             y=[-2],
-            mode='text',
-            marker={'size': 50},
-            text=str(round(rank_counts_subset['rank']
-                           .mul(rank_counts_subset['count'])
-                           .sum() / rank_counts_subset['count']
-                           .sum(), 1)))
+            mode="text",
+            marker={"size": 50},
+            text=str(
+                round(
+                    rank_counts_subset["rank"].mul(rank_counts_subset["count"]).sum()
+                    / rank_counts_subset["count"].sum(),
+                    1,
+                )
+            ),
+        )
     fig.add_scatter(
-        x=hovertxt_df['displayLink'].str.replace('^www\.', '', regex=True),
-        y=hovertxt_df['rank'],
-        name='',
-        hovertemplate='<b>%{x}</b><br>%{hovertext}',
-        hoverlabel={'bgcolor': '#efefef'},
-        hovertext=hovertxt_df['searchTerms'],
-        mode='markers', marker={'opacity': 0, 'size': 30})
-    minrank, maxrank = int(min(top_df['rank'].unique())), int(max(top_df['rank'].unique()))
-    fig.layout.yaxis.tickvals = [-2, -1, 0] + list(range(minrank, maxrank+1))
-    fig.layout.yaxis.ticktext = ['Avg. Pos.', 'Coverage', 'Total<br>appearances'] + list(range(minrank, maxrank+1))
+        x=hovertxt_df["displayLink"].str.replace(r"^www\.", "", regex=True),
+        y=hovertxt_df["rank"],
+        name="",
+        hovertemplate="<b>%{x}</b><br>%{hovertext}",
+        hoverlabel={"bgcolor": "#efefef"},
+        hovertext=hovertxt_df["searchTerms"],
+        mode="markers",
+        marker={"opacity": 0, "size": 30},
+    )
+    minrank, maxrank = (
+        int(min(top_df["rank"].unique())),
+        int(max(top_df["rank"].unique())),
+    )
+    fig.layout.yaxis.tickvals = [-2, -1, 0] + list(range(minrank, maxrank + 1))
+    fig.layout.yaxis.ticktext = [
+        "Avg. Pos.",
+        "Coverage",
+        "Total<br>appearances",
+    ] + list(range(minrank, maxrank + 1))
     fig.layout.height = max([600, 100 + ((maxrank - minrank) * 50)])
-    fig.layout.yaxis.title = 'SERP Rank<br>(number of appearances)'
+    fig.layout.yaxis.title = "SERP Rank<br>(number of appearances)"
     fig.layout.showlegend = False
     fig.layout.margin.r = 2
     fig.layout.margin.l = 120
     fig.layout.margin.pad = 0
-    fig.layout.yaxis.autorange = 'reversed'
+    fig.layout.yaxis.autorange = "reversed"
     fig.layout.yaxis.zeroline = False
     fig.layout.template = theme
     fig.layout.title = title
     fig.layout.height = height
     fig.layout.width = width
-    fig.layout.xaxis.showgrid  = False
-    fig.layout.yaxis.ticks = 'inside'
-    fig.layout.xaxis.ticks = 'inside'
-    fig.layout.yaxis.griddash = 'dot'
+    fig.layout.xaxis.showgrid = False
+    fig.layout.yaxis.ticks = "inside"
+    fig.layout.xaxis.ticks = "inside"
+    fig.layout.yaxis.griddash = "dot"
     return fig

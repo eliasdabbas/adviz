@@ -6,6 +6,15 @@
 __all__ = ['country_code_flag', 'flag']
 
 # %% ../nbs/04_flag.ipynb 4
+_manually_added = {
+    "UNITED STATES": "🇺🇲",
+    "UNITED KINGDOM": "🇬🇧",
+    "GREAT BRITAIN": "🇬🇧",
+    "RUSSIA": "🇷🇺",
+    "CZECH REPUBLIC": "🇨🇿",
+}
+
+
 country_code_flag = {
     "AFGHANISTAN": "🇦🇫",
     "THE ISLAMIC REPUBLIC OF AFGHANISTAN": "🇦🇫",
@@ -963,10 +972,10 @@ country_code_flag = {
     "THE REPUBLIC OF ZIMBABWE": "🇿🇼",
     "ZW": "🇿🇼",
     "ZWE": "🇿🇼",
-    "UNITED STATES": "🇺🇲",
-    "UNITED KINGDOM": "🇬🇧",
-    "GREAT BRITAIN": "🇬🇧",
 }
+
+
+country_code_flag.update(_manually_added)
 
 # %% ../nbs/04_flag.ipynb 5
 def flag(cc):

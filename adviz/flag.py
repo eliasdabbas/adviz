@@ -974,7 +974,6 @@ country_code_flag = {
     "ZWE": "🇿🇼",
 }
 
-
 country_code_flag.update(_manually_added)
 
 # %% ../nbs/04_flag.ipynb 5

@@ -22,9 +22,10 @@ def url_structure(
     items_per_level=10,
     height=600,
     width=None,
-    theme="none",
+    template="none",
     domain="example.com",
     title="URL Structure",
+    subtitle=None,
 ):
     """
     Create a treemap for the first two URL path directories `example.com/dir_1/dir_2/`.
@@ -40,16 +41,16 @@ def url_structure(
         The height of the chart in pixels.
     width : int
         The width of the chart in pixels.
-    theme : str
-        Name of theme to use for the chart. Available themes:
-            ggplot2, seaborn, simple_white, plotly, plotly_white, plotly_dark,
-            presentation, xgridoff, ygridoff, gridon, none.
+    template : str
+        Name of template to use for the chart.
     domain : str
         The main domain of the URL list. This will be displayed at the top
         panel in the treemap to display values like a breadcrumb.
-    title: str
+    title : str
         The title of the figure. You can use/include the following HTML tags in
         the title: `<a>`, `<b>`, `<br>`, `<i>`, `<sub>`, `<sup>`
+    subtitle : str
+        The subtitle of the figure.
 
     Returns
     -------
@@ -85,7 +86,8 @@ def url_structure(
         width=width,
         height=height,
         title=title,
-        template=theme,
+        subtitle=subtitle,
+        template=template,
         values="count",
     )
     fig.data[0].marker.line.width = 0.01

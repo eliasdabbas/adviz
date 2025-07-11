@@ -19,9 +19,9 @@ def status_codes(
     status_list,
     height=600,
     width=None,
-    theme="none",
+    template="none",
     title="Status Codes",
-    export_to_html=None,
+    subtitle=None,
 ):
     """Create a treemap to visualize a list of status codes.
 
@@ -34,15 +34,15 @@ def status_codes(
         The desired height of the figure in pixels
     width: integer
         The desired width of the figure in pixels
-    theme : str
-        Name of theme to use for the chart. Available themes:
+    template : str
+        Name of template to use for the chart. Available themes:
             ggplot2, seaborn, simple_white, plotly, plotly_white, plotly_dark,
             presentation, xgridoff, ygridoff, gridon, none
-    title: str
+    title : str
         The title of the figure. You can use/include the following HTML tags in
         the title: `<a>`, `<b>`, `<br>`, `<i>`, `<sub>`, `<sup>`
-    export_to_html: str, optional
-        The path to the HTML file if you want to save it as a shareable file
+    subtitle : str
+        The subtitle of the figure, by default 70% of the font size of the title
 
     Returns
     -------
@@ -63,12 +63,11 @@ def status_codes(
         custom_data=["status_desc"],
         values="count",
         title=title,
-        template=theme,
+        subtitle=subtitle,
+        template=template,
     )
     status_fig.data[0].marker.line.width = 0.01
     status_fig.data[0].marker.pad = dict.fromkeys("lrbt", 0)
     status_fig.data[0]["texttemplate"] = _texttemplate
     status_fig.data[0]["hovertemplate"] = _texttemplate
-    if export_to_html:
-        status_fig.write_html(export_to_html)
     return status_fig

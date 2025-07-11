@@ -17,10 +17,11 @@ def value_counts(
     show_top=10,
     sort_others=False,
     title=None,
+    subtitle=None,
     style=True,
     width=900,
     height=650,
-    colorscale='cividis',
+    colorscale="cividis",
 ):
     """
     Count the values of `data` and return a table of counts (absolute, cumulative, percentage, and cumulative percentage).
@@ -37,6 +38,8 @@ def value_counts(
         Whether or not to put "Others" in their sorted order. The default is to have this item at the bottom.
     title : str
         The title of the chart.
+    subtitle : str
+        The subtitle of the chart.
     style : bool
         Whether or not to style the resulting table with a heatmap.
     width : int
@@ -58,50 +61,66 @@ def value_counts(
     val_counts = data.value_counts(dropna=dropna).reset_index()
     if len(val_counts) > show_top:
         others_df = pd.DataFrame(
-            [['Others:'] + ['' for i in range(len(val_counts.columns)-2)] + [val_counts[show_top:]['count'].sum()]],
-            columns=val_counts.columns)
-        val_counts = pd.concat([
-            val_counts[:show_top],
-            others_df
-        ])
+            [
+                ["Others:"]
+                + ["" for i in range(len(val_counts.columns) - 2)]
+                + [val_counts[show_top:]["count"].sum()]
+            ],
+            columns=val_counts.columns,
+        )
+        val_counts = pd.concat([val_counts[:show_top], others_df])
         if sort_others:
-            val_counts = val_counts.sort_values(by=['count'], ascending=False)
+            val_counts = val_counts.sort_values(by=["count"], ascending=False)
 
-    count_df = (val_counts
-                .assign(
-                    cum_count=lambda df: df['count'].cumsum(),
-                    perc=lambda df: df['count'].div(df['count'].sum()),
-                    cum_perc=lambda df: df['perc'].cumsum())
-                )
+    count_df = val_counts.assign(
+        cum_count=lambda df: df["count"].cumsum(),
+        perc=lambda df: df["count"].div(df["count"].sum()),
+        cum_perc=lambda df: df["perc"].cumsum(),
+    )
     if not style:
         return count_df
 
-    count_df.insert(0, 'rank', range(1, len(count_df)+1))
+    count_df.insert(0, "rank", range(1, len(count_df) + 1))
     num_columns = count_df.shape[1]
-    count_df = count_df.rename(columns={'cum_count': 'cum. count', 'perc': '%', 'cum_perc': 'cum. %'})
+    count_df = count_df.rename(
+        columns={"cum_count": "cum. count", "perc": "%", "cum_perc": "cum. %"}
+    )
     subplot_titles = count_df.columns
     fig = make_subplots(
-        cols=num_columns, rows=1,
-        column_widths=[0.05] + [0.65/(num_dims) for d in range(num_dims)] + [.15, .15, .15, .15],
+        cols=num_columns,
+        rows=1,
+        column_widths=[0.05]
+        + [0.65 / (num_dims) for d in range(num_dims)]
+        + [0.15, 0.15, 0.15, 0.15],
         horizontal_spacing=0,
-        subplot_titles=subplot_titles
+        subplot_titles=subplot_titles,
     )
     for i in range(count_df.shape[1]):
         tempdf = count_df.iloc[:, i].to_frame()
         fig.add_heatmap(
-            z=[[100] for i in range(len(tempdf))] if i in range(num_dims+1) else tempdf,
-            col=i+1,
+            z=[[100] for i in range(len(tempdf))]
+            if i in range(num_dims + 1)
+            else tempdf,
+            col=i + 1,
             row=1,
-            hoverinfo='skip',
+            hoverinfo="text" if i == 1 else "skip",
             showscale=False,
             name=subplot_titles[i],
-            colorscale='RdBu' if i in range(num_dims+1) else colorscale,
-            texttemplate="%{text}" if i in range(num_dims+1) else "%{text:,.0f}" if subplot_titles[i].endswith('count') else "%{text:.1%}",
-            textfont={'size': 16},
-            text=tempdf)
+            colorscale="RdBu" if i in range(num_dims + 1) else colorscale,
+            texttemplate="%{text}"
+            if i in range(num_dims + 1)
+            else "%{text:,.0f}"
+            if subplot_titles[i].endswith("count")
+            else "%{text:.1%}",
+            textfont={"size": 16},
+            text=tempdf,
+        )
     fig.layout.width = width
     fig.layout.height = height
     fig.update_xaxes(showticklabels=False, showgrid=False, zeroline=False)
-    fig.update_yaxes(showticklabels=False, showgrid=False, zeroline=False, autorange='reversed')
+    fig.update_yaxes(
+        showticklabels=False, showgrid=False, zeroline=False, autorange="reversed"
+    )
     fig.layout.title = title
+    fig.layout.title.subtitle.text = subtitle
     return fig

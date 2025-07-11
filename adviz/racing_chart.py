@@ -8,7 +8,7 @@ __all__ = ['racing_chart']
 # %% ../nbs/03_racing_chart.ipynb 3
 import pandas as pd
 import plotly.express as px
-from plotly.subplots import make_subplots
+
 import adviz
 
 # %% ../nbs/03_racing_chart.ipynb 4
@@ -16,34 +16,39 @@ def racing_chart(
     df,
     n=10,
     title="Racing Chart",
+    subtitle=None,
     frame_duration=500,
-    theme='none',
+    template="none",
     width=None,
     height=600,
-    font_size=12):
+    font_size=12,
+    **kwargs,
+):
     """
     Create a racing bar chart showing the top `n` values for each period.
 
     Parameters
     ----------
     df : pandas.DataFrame
-      A DataFrame containing three columns for entity, metric, and period. The
-      names can be anything bu they have to be in this specific order.
+        A DataFrame containing three columns for entity, metric, and period. The
+        names can be anything bu they have to be in this specific order.
     n : int
-      The number of top items to display for each period.
+        The number of top items to display for each period.
     title : str
-      The title of the chart.
+        The title of the chart.
+    subtitle : str
+        The subtitle of the chart.
     frame_duration : int
-      The duration of each frame during animation, before transitioning to the
-      following frame, in milliseconds.
-    theme : str
-      The theme of the chart. Any of the following values can be used:
+        The duration of each frame during animation, before transitioning to the
+        following frame, in milliseconds.
+    template : str
+        The template of the chart.
     width : int
-      The width of the chart in pixels.
+        The width of the chart in pixels.
     height : int
-      The height of the chart in pixels.
+        The height of the chart in pixels.
     font_size : int
-      The size of the fonts in the chart.
+        The size of the fonts in the chart.
 
     Returns
     -------
@@ -51,11 +56,11 @@ def racing_chart(
     """
     period_totals = df.groupby(df.columns[2]).sum(df.columns[1]).reset_index()
     # df[f'{df.columns[1]} %'] = df.groupby(df.columns[2])[df.columns[1]].transform(lambda x: x / x.sum())
-    top_n_df = (df
-        .sort_values([df.columns[2], df.columns[1]],
-                     ascending=[True, False])
+    top_n_df = (
+        df.sort_values([df.columns[2], df.columns[1]], ascending=[True, False])
         .groupby(df.columns[2])
-        .head(n))
+        .head(n)
+    )
     fig = px.bar(
         top_n_df,
         x=df.columns[1],
@@ -66,17 +71,22 @@ def racing_chart(
         height=height,
         width=width,
         title=title,
-        template=theme,
-        range_x=[0,top_n_df[df.columns[1]].max() * 1.05],
+        template=template,
+        range_x=[0, top_n_df[df.columns[1]].max() * 1.05],
+        **kwargs,
     )
-    fig.layout.yaxis.autorange = 'reversed'
+    fig.layout.yaxis.autorange = "reversed"
     fig.layout.font.size = font_size
-    fig.layout.sliders[0].currentvalue.xanchor = 'right'
-    fig.layout.sliders[0].currentvalue.prefix = fig.layout.sliders[0].currentvalue.prefix.replace('=', ': ')
+    fig.layout.sliders[0].currentvalue.xanchor = "right"
+    fig.layout.sliders[0].currentvalue.prefix = fig.layout.sliders[
+        0
+    ].currentvalue.prefix.replace("=", ": ")
     fig.layout.sliders[0].currentvalue.font.size = font_size * 1.5
-    fig.layout.sliders[0].bgcolor = '#D5D5D5'
+    fig.layout.sliders[0].bgcolor = "#D5D5D5"
     fig.layout.sliders[0].borderwidth = 0
-    fig.layout.updatemenus[0]['buttons'][0]['args'][1]['frame']['duration'] = frame_duration
+    fig.layout.updatemenus[0]["buttons"][0]["args"][1]["frame"]["duration"] = (
+        frame_duration
+    )
     for step, total in zip(fig.layout.sliders[0].steps, period_totals.iloc[:, 1]):
-        step['label'] = f"{step['label']}<br>Total: {total:,}"
+        step["label"] = f"{step['label']}<br>Total: {total:,}"
     return fig

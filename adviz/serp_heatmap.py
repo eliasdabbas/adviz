@@ -17,7 +17,12 @@ def _concat(text):
 
 # %% ../nbs/06_serp_heatmap.ipynb 7
 def serp_heatmap(
-    serp_df, num_domains=10, height=650, width=None, title="SERP Heatmap", theme="none"
+    serp_df,
+    num_domains=10,
+    height=650,
+    width=None,
+    title="SERP Heatmap",
+    template="none",
 ):
     """Create a heatmap for visualizing domain positions on SERPs.
 
@@ -35,8 +40,8 @@ def serp_heatmap(
       The width in pixels of the chart.
     title : str
       The title of the chart.
-    theme : str
-      The theme to apply to the chart.
+    template : str
+      The template to apply to the chart.
 
     Returns
     -------
@@ -142,7 +147,7 @@ def serp_heatmap(
     fig.layout.margin.pad = 0
     fig.layout.yaxis.autorange = "reversed"
     fig.layout.yaxis.zeroline = False
-    fig.layout.template = theme
+    fig.layout.template = template
     fig.layout.title = title
     fig.layout.height = height
     fig.layout.width = width

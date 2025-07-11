@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Get the top n values per period, and create a “racing” bar chart across periods.">
+
+<title>Racing Bar Chart – adviz</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-695f0c965d6c72008aa9772ffdd5ba38.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-N2M6ZCQTX5"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-N2M6ZCQTX5', { 'anonymize_ip': true});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+<link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="Racing Bar Chart – adviz">
+<meta property="og:description" content="Get the top n values per period, and create a “racing” bar chart across periods.">
+<meta property="og:site_name" content="adviz">
+<meta name="twitter:title" content="Racing Bar Chart – adviz">
+<meta name="twitter:description" content="Get the top n values per period, and create a “racing” bar chart across periods.">
+<meta name="twitter:creator" content="@eliasdabbas">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-sidebar floating nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">adviz</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./"> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools tools-wide">
+    <a href="https://twitter.com/eliasdabbas" title="EliasDabbas Twitter" class="quarto-navigation-tool px-1" aria-label="EliasDabbas Twitter"><i class="bi bi-twitter"></i></a>
+    <a href="https://linkedin.com/in/eliasdabbas" title="EliasDabbas LinkedIn" class="quarto-navigation-tool px-1" aria-label="EliasDabbas LinkedIn"><i class="bi bi-linkedin"></i></a>
+    <a href="https://github.com/eliasdabbas/adviz" title="adviz Github" class="quarto-navigation-tool px-1" aria-label="adviz Github"><i class="bi bi-github"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./racing_chart.html">Racing Bar Chart</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">adviz</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./value_counts_plus.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Counting values</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./value_counts_plus_slides.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Counting values (slides)</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./status_codes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Status Codes</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./url_structure.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">URL structure</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./url_structure_slides.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">URL structure (slides)</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./racing_chart.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Racing Bar Chart</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./flag.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Flag Emoji</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./flag_slides.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Flag Emoji (slides)</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./style_table.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Styling tables</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./style_table_slides.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Styling tables (slides)</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./serp_heatmap.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">SERP Heatmap</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./value_counts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Counting Values (new)</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ecdf.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Visualizing distributions: ecdf</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Sample charts &amp; data</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data/status_code_chart.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Status code chart</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data/apple_url_list.csv" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">URL list (apple.com)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data/url_structure_tremap_chart.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">apple.com URL treemap</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data/toyota_url_treemap.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">toyota.com URL treemap</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data/gsc_country_month_report.csv" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">GSC by country &amp; month</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data/gsc_query_month_report.csv" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">GSC by query &amp; month</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data/serp_crypto.csv" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">SERP dataset</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#racing_chart" id="toc-racing_chart" class="nav-link active" data-scroll-target="#racing_chart">racing_chart</a></li>
+  <li><a href="#entity-metric-period-dataframe" id="toc-entity-metric-period-dataframe" class="nav-link" data-scroll-target="#entity-metric-period-dataframe">Entity-Metric-Period <code>DataFrame</code></a></li>
+  <li><a href="#get-the-top-three-values-for-each-period" id="toc-get-the-top-three-values-for-each-period" class="nav-link" data-scroll-target="#get-the-top-three-values-for-each-period">Get the top three values for each period</a></li>
+  <li><a href="#important" id="toc-important" class="nav-link" data-scroll-target="#important">Important</a>
+  <ul class="collapse">
+  <li><a href="#entities" id="toc-entities" class="nav-link" data-scroll-target="#entities">Entities</a></li>
+  <li><a href="#metrics" id="toc-metrics" class="nav-link" data-scroll-target="#metrics">Metrics</a></li>
+  <li><a href="#period" id="toc-period" class="nav-link" data-scroll-target="#period">Period</a></li>
+  </ul></li>
+  <li><a href="#example-google-search-console-data" id="toc-example-google-search-console-data" class="nav-link" data-scroll-target="#example-google-search-console-data">Example: Google Search Console data</a></li>
+  <li><a href="#modifying-the-animation-speed-with-animation_duration-in-milliseconds" id="toc-modifying-the-animation-speed-with-animation_duration-in-milliseconds" class="nav-link" data-scroll-target="#modifying-the-animation-speed-with-animation_duration-in-milliseconds">Modifying the animation speed with <code>animation_duration</code> (in milliseconds)</a></li>
+  <li><a href="#make-it-faster-and-use-flags-instead-of-country-codes" id="toc-make-it-faster-and-use-flags-instead-of-country-codes" class="nav-link" data-scroll-target="#make-it-faster-and-use-flags-instead-of-country-codes">Make it faster and use flags instead of country codes</a></li>
+  <li><a href="#explore-the-top-queries-by-month-impressions" id="toc-explore-the-top-queries-by-month-impressions" class="nav-link" data-scroll-target="#explore-the-top-queries-by-month-impressions">Explore the top queries by month (impressions)</a></li>
+  <li><a href="#filtering-entities" id="toc-filtering-entities" class="nav-link" data-scroll-target="#filtering-entities">Filtering entities</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/eliasdabbas/adviz/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Racing Bar Chart</h1>
+</div>
+
+<div>
+  <div class="description">
+    Get the top <code>n</code> values per period, and create a “racing” bar chart across periods.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<hr>
+<p><a href="https://github.com/eliasdabbas/adviz/blob/main/adviz/racing_chart.py#L15" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="racing_chart" class="level3">
+<h3 class="anchored" data-anchor-id="racing_chart">racing_chart</h3>
+<blockquote class="blockquote">
+<pre><code> racing_chart (df, n=10, title='Racing Chart', subtitle=None,
+               frame_duration=500, template='none', width=None,
+               height=600, font_size=12, **kwargs)</code></pre>
+</blockquote>
+<p><em>Create a racing bar chart showing the top <code>n</code> values for each period.</em></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 25%">
+<col style="width: 34%">
+<col style="width: 34%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Type</strong></th>
+<th><strong>Default</strong></th>
+<th><strong>Details</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>df</td>
+<td>pandas.DataFrame</td>
+<td></td>
+<td>A DataFrame containing three columns for entity, metric, and period. The<br>names can be anything bu they have to be in this specific order.</td>
+</tr>
+<tr class="even">
+<td>n</td>
+<td>int</td>
+<td>10</td>
+<td>The number of top items to display for each period.</td>
+</tr>
+<tr class="odd">
+<td>title</td>
+<td>str</td>
+<td>Racing Chart</td>
+<td>The title of the chart.</td>
+</tr>
+<tr class="even">
+<td>subtitle</td>
+<td>NoneType</td>
+<td>None</td>
+<td>The subtitle of the chart.</td>
+</tr>
+<tr class="odd">
+<td>frame_duration</td>
+<td>int</td>
+<td>500</td>
+<td>The duration of each frame during animation, before transitioning to the<br>following frame, in milliseconds.</td>
+</tr>
+<tr class="even">
+<td>template</td>
+<td>str</td>
+<td>none</td>
+<td>The template of the chart.</td>
+</tr>
+<tr class="odd">
+<td>width</td>
+<td>NoneType</td>
+<td>None</td>
+<td>The width of the chart in pixels.</td>
+</tr>
+<tr class="even">
+<td>height</td>
+<td>int</td>
+<td>600</td>
+<td>The height of the chart in pixels.</td>
+</tr>
+<tr class="odd">
+<td>font_size</td>
+<td>int</td>
+<td>12</td>
+<td>The size of the fonts in the chart.</td>
+</tr>
+<tr class="even">
+<td>kwargs</td>
+<td>VAR_KEYWORD</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><strong>Returns</strong></td>
+<td><strong>plotly.graph_objects.Figure</strong></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="entity-metric-period-dataframe" class="level2">
+<h2 class="anchored" data-anchor-id="entity-metric-period-dataframe">Entity-Metric-Period <code>DataFrame</code></h2>
+<div id="90c7286e-c982-4fcb-bf9f-56dfd3e6a26f" class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># import random</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="co"># [random.randint(10, 35) for i in range(20)]</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a></span>
+<span id="cb2-4"><a href="#cb2-4"></a>df <span class="op">=</span> (</span>
+<span id="cb2-5"><a href="#cb2-5"></a>    pd.DataFrame(</span>
+<span id="cb2-6"><a href="#cb2-6"></a>        {</span>
+<span id="cb2-7"><a href="#cb2-7"></a>            <span class="st">"entity"</span>: [<span class="st">"blue"</span>, <span class="st">"green"</span>, <span class="st">"yellow"</span>, <span class="st">"red"</span>, <span class="st">"orange"</span>] <span class="op">*</span> <span class="dv">4</span>,</span>
+<span id="cb2-8"><a href="#cb2-8"></a>            <span class="st">"metric"</span>: [</span>
+<span id="cb2-9"><a href="#cb2-9"></a>                <span class="dv">16</span>,</span>
+<span id="cb2-10"><a href="#cb2-10"></a>                <span class="dv">35</span>,</span>
+<span id="cb2-11"><a href="#cb2-11"></a>                <span class="dv">10</span>,</span>
+<span id="cb2-12"><a href="#cb2-12"></a>                <span class="dv">25</span>,</span>
+<span id="cb2-13"><a href="#cb2-13"></a>                <span class="dv">13</span>,</span>
+<span id="cb2-14"><a href="#cb2-14"></a>                <span class="dv">35</span>,</span>
+<span id="cb2-15"><a href="#cb2-15"></a>                <span class="dv">25</span>,</span>
+<span id="cb2-16"><a href="#cb2-16"></a>                <span class="dv">25</span>,</span>
+<span id="cb2-17"><a href="#cb2-17"></a>                <span class="dv">27</span>,</span>
+<span id="cb2-18"><a href="#cb2-18"></a>                <span class="dv">19</span>,</span>
+<span id="cb2-19"><a href="#cb2-19"></a>                <span class="dv">10</span>,</span>
+<span id="cb2-20"><a href="#cb2-20"></a>                <span class="dv">18</span>,</span>
+<span id="cb2-21"><a href="#cb2-21"></a>                <span class="dv">34</span>,</span>
+<span id="cb2-22"><a href="#cb2-22"></a>                <span class="dv">20</span>,</span>
+<span id="cb2-23"><a href="#cb2-23"></a>                <span class="dv">25</span>,</span>
+<span id="cb2-24"><a href="#cb2-24"></a>                <span class="dv">20</span>,</span>
+<span id="cb2-25"><a href="#cb2-25"></a>                <span class="dv">24</span>,</span>
+<span id="cb2-26"><a href="#cb2-26"></a>                <span class="dv">25</span>,</span>
+<span id="cb2-27"><a href="#cb2-27"></a>                <span class="dv">14</span>,</span>
+<span id="cb2-28"><a href="#cb2-28"></a>                <span class="dv">21</span>,</span>
+<span id="cb2-29"><a href="#cb2-29"></a>            ],</span>
+<span id="cb2-30"><a href="#cb2-30"></a>            <span class="st">"period"</span>: [i <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">5</span>) <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>)],</span>
+<span id="cb2-31"><a href="#cb2-31"></a>        }</span>
+<span id="cb2-32"><a href="#cb2-32"></a>    )</span>
+<span id="cb2-33"><a href="#cb2-33"></a>    .sort_values([<span class="st">"period"</span>, <span class="st">"metric"</span>], ascending<span class="op">=</span>[<span class="va">True</span>, <span class="va">False</span>])</span>
+<span id="cb2-34"><a href="#cb2-34"></a>    .reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb2-35"><a href="#cb2-35"></a>)  <span class="co"># noqa</span></span>
+<span id="cb2-36"><a href="#cb2-36"></a>display_html(  <span class="co">#'&lt;div style="margin-left: 20%"&gt;' +</span></span>
+<span id="cb2-37"><a href="#cb2-37"></a>    df.style.hide()</span>
+<span id="cb2-38"><a href="#cb2-38"></a>    .bar(subset<span class="op">=</span>[<span class="st">"metric"</span>], color<span class="op">=</span><span class="st">"lightgray"</span>)</span>
+<span id="cb2-39"><a href="#cb2-39"></a>    .background_gradient(subset<span class="op">=</span>[<span class="st">"period"</span>], cmap<span class="op">=</span><span class="st">"Blues"</span>)</span>
+<span id="cb2-40"><a href="#cb2-40"></a>    .to_html(),</span>
+<span id="cb2-41"><a href="#cb2-41"></a>    <span class="co"># + '&lt;/div&gt;'</span></span>
+<span id="cb2-42"><a href="#cb2-42"></a>    raw<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb2-43"><a href="#cb2-43"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-display">
+<style type="text/css">
+#T_cccf1_row0_col1, #T_cccf1_row5_col1 {
+  width: 10em;
+  background: linear-gradient(90deg, lightgray 100.0%, transparent 100.0%);
+}
+#T_cccf1_row0_col2, #T_cccf1_row1_col2, #T_cccf1_row2_col2, #T_cccf1_row3_col2, #T_cccf1_row4_col2 {
+  background-color: #f7fbff;
+  color: #000000;
+}
+#T_cccf1_row1_col1, #T_cccf1_row7_col1, #T_cccf1_row8_col1, #T_cccf1_row11_col1, #T_cccf1_row15_col1 {
+  width: 10em;
+  background: linear-gradient(90deg, lightgray 71.4%, transparent 71.4%);
+}
+#T_cccf1_row2_col1 {
+  width: 10em;
+  background: linear-gradient(90deg, lightgray 45.7%, transparent 45.7%);
+}
+#T_cccf1_row3_col1 {
+  width: 10em;
+  background: linear-gradient(90deg, lightgray 37.1%, transparent 37.1%);
+}
+#T_cccf1_row4_col1, #T_cccf1_row14_col1 {
+  width: 10em;
+  background: linear-gradient(90deg, lightgray 28.6%, transparent 28.6%);
+}
+#T_cccf1_row5_col2, #T_cccf1_row6_col2, #T_cccf1_row7_col2, #T_cccf1_row8_col2, #T_cccf1_row9_col2 {
+  background-color: #abd0e6;
+  color: #000000;
+}
+#T_cccf1_row6_col1 {
+  width: 10em;
+  background: linear-gradient(90deg, lightgray 77.1%, transparent 77.1%);
+}
+#T_cccf1_row9_col1 {
+  width: 10em;
+  background: linear-gradient(90deg, lightgray 54.3%, transparent 54.3%);
+}
+#T_cccf1_row10_col1 {
+  width: 10em;
+  background: linear-gradient(90deg, lightgray 97.1%, transparent 97.1%);
+}
+#T_cccf1_row10_col2, #T_cccf1_row11_col2, #T_cccf1_row12_col2, #T_cccf1_row13_col2, #T_cccf1_row14_col2 {
+  background-color: #3787c0;
+  color: #f1f1f1;
+}
+#T_cccf1_row12_col1, #T_cccf1_row18_col1 {
+  width: 10em;
+  background: linear-gradient(90deg, lightgray 57.1%, transparent 57.1%);
+}
+#T_cccf1_row13_col1 {
+  width: 10em;
+  background: linear-gradient(90deg, lightgray 51.4%, transparent 51.4%);
+}
+#T_cccf1_row15_col2, #T_cccf1_row16_col2, #T_cccf1_row17_col2, #T_cccf1_row18_col2, #T_cccf1_row19_col2 {
+  background-color: #08306b;
+  color: #f1f1f1;
+}
+#T_cccf1_row16_col1 {
+  width: 10em;
+  background: linear-gradient(90deg, lightgray 68.6%, transparent 68.6%);
+}
+#T_cccf1_row17_col1 {
+  width: 10em;
+  background: linear-gradient(90deg, lightgray 60.0%, transparent 60.0%);
+}
+#T_cccf1_row19_col1 {
+  width: 10em;
+  background: linear-gradient(90deg, lightgray 40.0%, transparent 40.0%);
+}
+</style>
+
+<table id="T_cccf1" class="caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th id="T_cccf1_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">entity</th>
+<th id="T_cccf1_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">metric</th>
+<th id="T_cccf1_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">period</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td id="T_cccf1_row0_col0" class="data row0 col0">green</td>
+<td id="T_cccf1_row0_col1" class="data row0 col1">35</td>
+<td id="T_cccf1_row0_col2" class="data row0 col2">1</td>
+</tr>
+<tr class="even">
+<td id="T_cccf1_row1_col0" class="data row1 col0">red</td>
+<td id="T_cccf1_row1_col1" class="data row1 col1">25</td>
+<td id="T_cccf1_row1_col2" class="data row1 col2">1</td>
+</tr>
+<tr class="odd">
+<td id="T_cccf1_row2_col0" class="data row2 col0">blue</td>
+<td id="T_cccf1_row2_col1" class="data row2 col1">16</td>
+<td id="T_cccf1_row2_col2" class="data row2 col2">1</td>
+</tr>
+<tr class="even">
+<td id="T_cccf1_row3_col0" class="data row3 col0">orange</td>
+<td id="T_cccf1_row3_col1" class="data row3 col1">13</td>
+<td id="T_cccf1_row3_col2" class="data row3 col2">1</td>
+</tr>
+<tr class="odd">
+<td id="T_cccf1_row4_col0" class="data row4 col0">yellow</td>
+<td id="T_cccf1_row4_col1" class="data row4 col1">10</td>
+<td id="T_cccf1_row4_col2" class="data row4 col2">1</td>
+</tr>
+<tr class="even">
+<td id="T_cccf1_row5_col0" class="data row5 col0">blue</td>
+<td id="T_cccf1_row5_col1" class="data row5 col1">35</td>
+<td id="T_cccf1_row5_col2" class="data row5 col2">2</td>
+</tr>
+<tr class="odd">
+<td id="T_cccf1_row6_col0" class="data row6 col0">red</td>
+<td id="T_cccf1_row6_col1" class="data row6 col1">27</td>
+<td id="T_cccf1_row6_col2" class="data row6 col2">2</td>
+</tr>
+<tr class="even">
+<td id="T_cccf1_row7_col0" class="data row7 col0">green</td>
+<td id="T_cccf1_row7_col1" class="data row7 col1">25</td>
+<td id="T_cccf1_row7_col2" class="data row7 col2">2</td>
+</tr>
+<tr class="odd">
+<td id="T_cccf1_row8_col0" class="data row8 col0">yellow</td>
+<td id="T_cccf1_row8_col1" class="data row8 col1">25</td>
+<td id="T_cccf1_row8_col2" class="data row8 col2">2</td>
+</tr>
+<tr class="even">
+<td id="T_cccf1_row9_col0" class="data row9 col0">orange</td>
+<td id="T_cccf1_row9_col1" class="data row9 col1">19</td>
+<td id="T_cccf1_row9_col2" class="data row9 col2">2</td>
+</tr>
+<tr class="odd">
+<td id="T_cccf1_row10_col0" class="data row10 col0">yellow</td>
+<td id="T_cccf1_row10_col1" class="data row10 col1">34</td>
+<td id="T_cccf1_row10_col2" class="data row10 col2">3</td>
+</tr>
+<tr class="even">
+<td id="T_cccf1_row11_col0" class="data row11 col0">orange</td>
+<td id="T_cccf1_row11_col1" class="data row11 col1">25</td>
+<td id="T_cccf1_row11_col2" class="data row11 col2">3</td>
+</tr>
+<tr class="odd">
+<td id="T_cccf1_row12_col0" class="data row12 col0">red</td>
+<td id="T_cccf1_row12_col1" class="data row12 col1">20</td>
+<td id="T_cccf1_row12_col2" class="data row12 col2">3</td>
+</tr>
+<tr class="even">
+<td id="T_cccf1_row13_col0" class="data row13 col0">green</td>
+<td id="T_cccf1_row13_col1" class="data row13 col1">18</td>
+<td id="T_cccf1_row13_col2" class="data row13 col2">3</td>
+</tr>
+<tr class="odd">
+<td id="T_cccf1_row14_col0" class="data row14 col0">blue</td>
+<td id="T_cccf1_row14_col1" class="data row14 col1">10</td>
+<td id="T_cccf1_row14_col2" class="data row14 col2">3</td>
+</tr>
+<tr class="even">
+<td id="T_cccf1_row15_col0" class="data row15 col0">yellow</td>
+<td id="T_cccf1_row15_col1" class="data row15 col1">25</td>
+<td id="T_cccf1_row15_col2" class="data row15 col2">4</td>
+</tr>
+<tr class="odd">
+<td id="T_cccf1_row16_col0" class="data row16 col0">green</td>
+<td id="T_cccf1_row16_col1" class="data row16 col1">24</td>
+<td id="T_cccf1_row16_col2" class="data row16 col2">4</td>
+</tr>
+<tr class="even">
+<td id="T_cccf1_row17_col0" class="data row17 col0">orange</td>
+<td id="T_cccf1_row17_col1" class="data row17 col1">21</td>
+<td id="T_cccf1_row17_col2" class="data row17 col2">4</td>
+</tr>
+<tr class="odd">
+<td id="T_cccf1_row18_col0" class="data row18 col0">blue</td>
+<td id="T_cccf1_row18_col1" class="data row18 col1">20</td>
+<td id="T_cccf1_row18_col2" class="data row18 col2">4</td>
+</tr>
+<tr class="even">
+<td id="T_cccf1_row19_col0" class="data row19 col0">red</td>
+<td id="T_cccf1_row19_col1" class="data row19 col1">14</td>
+<td id="T_cccf1_row19_col2" class="data row19 col2">4</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="get-the-top-three-values-for-each-period" class="level2">
+<h2 class="anchored" data-anchor-id="get-the-top-three-values-for-each-period">Get the top three values for each period</h2>
+<div id="ebbf5754-c1c0-4f56-acea-21db5f770081" class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a>racing_chart(df, n<span class="op">=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+        <script type="text/javascript">
+        window.PlotlyConfig = {MathJaxConfig: 'local'};
+        if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}
+        </script>
+        <script type="module">import "https://cdn.plot.ly/plotly-3.0.1.min"</script>
+        
+</div>
+<div class="cell-output cell-output-display">
+<div>            <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_SVG"></script><script type="text/javascript">if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script>                <script type="text/javascript">window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+        <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.0.1.min.js" integrity="sha256-oy6Be7Eh6eiQFs5M7oXuPxxm9qbJXEtTpfSI93dW16Q=" crossorigin="anonymous"></script>                <div id="826aeee8-9c99-4543-aa79-a54f8c0bdf15" class="plotly-graph-div" style="height:600px; width:100%;"></div>            <script type="text/javascript">                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("826aeee8-9c99-4543-aa79-a54f8c0bdf15")) {                    Plotly.newPlot(                        "826aeee8-9c99-4543-aa79-a54f8c0bdf15",                        [{"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eperiod=1\u003cbr\u003emetric=%{text}\u003cbr\u003eentity=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["green","red","blue"],"legendgroup":"","marker":{"color":"#1F77B4","pattern":{"shape":""}},"name":"","orientation":"h","showlegend":false,"text":{"dtype":"f8","bdata":"AAAAAACAQUAAAAAAAAA5QAAAAAAAADBA"},"textposition":"auto","x":{"dtype":"i1","bdata":"IxkQ"},"xaxis":"x","y":["green","red","blue"],"yaxis":"y","type":"bar"}],                        {"template":{"data":{"scatter":[{"type":"scatter"}]}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"metric"},"range":[0,36.75]},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"entity"},"autorange":"reversed"},"legend":{"tracegroupgap":0},"title":{"text":"Racing Chart"},"barmode":"relative","height":600,"updatemenus":[{"buttons":[{"args":[null,{"frame":{"duration":500,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":500,"easing":"linear"}}],"label":"&#9654;","method":"animate"},{"args":[[null],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"&#9724;","method":"animate"}],"direction":"left","pad":{"r":10,"t":70},"showactive":false,"type":"buttons","x":0.1,"xanchor":"right","y":0,"yanchor":"top"}],"sliders":[{"active":0,"currentvalue":{"prefix":"period: ","xanchor":"right","font":{"size":18.0}},"len":0.9,"pad":{"b":10,"t":60},"steps":[{"args":[["1"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"1\u003cbr\u003eTotal: 99","method":"animate"},{"args":[["2"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2\u003cbr\u003eTotal: 131","method":"animate"},{"args":[["3"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"3\u003cbr\u003eTotal: 107","method":"animate"},{"args":[["4"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"4\u003cbr\u003eTotal: 104","method":"animate"}],"x":0.1,"xanchor":"left","y":0,"yanchor":"top","bgcolor":"#D5D5D5","borderwidth":0}],"font":{"size":12}},                        {"responsive": true}                    ).then(function(){
+                            Plotly.addFrames('826aeee8-9c99-4543-aa79-a54f8c0bdf15', [{"data":[{"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eperiod=1\u003cbr\u003emetric=%{text}\u003cbr\u003eentity=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["green","red","blue"],"legendgroup":"","marker":{"color":"#1F77B4","pattern":{"shape":""}},"name":"","orientation":"h","showlegend":false,"text":{"dtype":"f8","bdata":"AAAAAACAQUAAAAAAAAA5QAAAAAAAADBA"},"textposition":"auto","x":{"dtype":"i1","bdata":"IxkQ"},"xaxis":"x","y":["green","red","blue"],"yaxis":"y","type":"bar"}],"name":"1"},{"data":[{"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eperiod=2\u003cbr\u003emetric=%{text}\u003cbr\u003eentity=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["blue","red","green"],"legendgroup":"","marker":{"color":"#1F77B4","pattern":{"shape":""}},"name":"","orientation":"h","showlegend":false,"text":{"dtype":"f8","bdata":"AAAAAACAQUAAAAAAAAA7QAAAAAAAADlA"},"textposition":"auto","x":{"dtype":"i1","bdata":"IxsZ"},"xaxis":"x","y":["blue","red","green"],"yaxis":"y","type":"bar"}],"name":"2"},{"data":[{"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eperiod=3\u003cbr\u003emetric=%{text}\u003cbr\u003eentity=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["yellow","orange","red"],"legendgroup":"","marker":{"color":"#1F77B4","pattern":{"shape":""}},"name":"","orientation":"h","showlegend":false,"text":{"dtype":"f8","bdata":"AAAAAAAAQUAAAAAAAAA5QAAAAAAAADRA"},"textposition":"auto","x":{"dtype":"i1","bdata":"IhkU"},"xaxis":"x","y":["yellow","orange","red"],"yaxis":"y","type":"bar"}],"name":"3"},{"data":[{"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eperiod=4\u003cbr\u003emetric=%{text}\u003cbr\u003eentity=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["yellow","green","orange"],"legendgroup":"","marker":{"color":"#1F77B4","pattern":{"shape":""}},"name":"","orientation":"h","showlegend":false,"text":{"dtype":"f8","bdata":"AAAAAAAAOUAAAAAAAAA4QAAAAAAAADVA"},"textposition":"auto","x":{"dtype":"i1","bdata":"GRgV"},"xaxis":"x","y":["yellow","green","orange"],"yaxis":"y","type":"bar"}],"name":"4"}]);
+                        }).then(function(){
+                            
+var gd = document.getElementById('826aeee8-9c99-4543-aa79-a54f8c0bdf15');
+var x = new MutationObserver(function (mutations, observer) {{
+        var display = window.getComputedStyle(gd).display;
+        if (!display || display === 'none') {{
+            console.log([gd, 'removed!']);
+            Plotly.purge(gd);
+            observer.disconnect();
+        }}
+}});
+
+// Listen for the removal of the full notebook cells
+var notebookContainer = gd.closest('#notebook-container');
+if (notebookContainer) {{
+    x.observe(notebookContainer, {childList: true});
+}}
+
+// Listen for the clearing of the current output cell
+var outputEl = gd.closest('.output');
+if (outputEl) {{
+    x.observe(outputEl, {childList: true});
+}}
+
+                        })                };            </script>        </div>
+</div>
+</div>
+</section>
+<section id="important" class="level2">
+<h2 class="anchored" data-anchor-id="important">Important</h2>
+<blockquote class="blockquote">
+<p>The <code>DataFrame</code> supplied to the <a href="https://eliasdabbas.github.io/adviz/racing_chart.html#racing_chart"><code>racing_chart</code></a> function needs to have the three columns containing <code>entity</code>, <code>metric</code>, and <code>period</code>, in exactly this particular order. Their names don’t matter, but the order does</p>
+</blockquote>
+<section id="entities" class="level3">
+<h3 class="anchored" data-anchor-id="entities">Entities</h3>
+<p>Some examples:</p>
+<ul>
+<li>countries</li>
+<li>URLs</li>
+<li>keywords</li>
+<li>product names</li>
+</ul>
+</section>
+<section id="metrics" class="level3">
+<h3 class="anchored" data-anchor-id="metrics">Metrics</h3>
+<ul>
+<li>clicks</li>
+<li>impressions</li>
+<li>sales</li>
+<li>conversions</li>
+<li>population</li>
+<li>count</li>
+</ul>
+</section>
+<section id="period" class="level3">
+<h3 class="anchored" data-anchor-id="period">Period</h3>
+<ul>
+<li>days</li>
+<li>months</li>
+<li>weeks</li>
+<li>quarters</li>
+<li>years</li>
+</ul>
+</section>
+</section>
+<section id="example-google-search-console-data" class="level2">
+<h2 class="anchored" data-anchor-id="example-google-search-console-data">Example: Google Search Console data</h2>
+<p>First three contries and months by clicks:</p>
+<div id="500fee2b-b430-419a-aa9e-cb90a6060f58" class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a>gsc <span class="op">=</span> pd.read_csv(<span class="st">"data/gsc_country_month_report.csv"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2"></a>gsc[<span class="st">"flag"</span>] <span class="op">=</span> [adviz.flag(cc) <span class="cf">for</span> cc <span class="kw">in</span> gsc[<span class="st">"country"</span>]]</span>
+<span id="cb4-3"><a href="#cb4-3"></a>gsc.groupby(<span class="st">"date"</span>).head(<span class="dv">3</span>).head(<span class="dv">9</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+KeyboardInterrupt
+</code></pre>
+</div>
+</div>
+</section>
+<section id="modifying-the-animation-speed-with-animation_duration-in-milliseconds" class="level2">
+<h2 class="anchored" data-anchor-id="modifying-the-animation-speed-with-animation_duration-in-milliseconds">Modifying the animation speed with <code>animation_duration</code> (in milliseconds)</h2>
+<div id="6232391c-b82b-4881-8b9b-6ac226558678" class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a>racing_chart(</span>
+<span id="cb6-2"><a href="#cb6-2"></a>    gsc[[<span class="st">"country"</span>, <span class="st">"clicks"</span>, <span class="st">"date"</span>]],</span>
+<span id="cb6-3"><a href="#cb6-3"></a>    frame_duration<span class="op">=</span><span class="dv">1500</span>,</span>
+<span id="cb6-4"><a href="#cb6-4"></a>    height<span class="op">=</span><span class="dv">700</span>,</span>
+<span id="cb6-5"><a href="#cb6-5"></a>    title<span class="op">=</span><span class="st">"Google Search Console &lt;b&gt;mywebsite.com&lt;/b&gt;&lt;br&gt;clicks per month - top 10&lt;br&gt;&lt;b&gt;frame_duration=1500&lt;/b&gt;"</span>,</span>
+<span id="cb6-6"><a href="#cb6-6"></a>    template<span class="op">=</span><span class="st">"plotly_dark"</span>,</span>
+<span id="cb6-7"><a href="#cb6-7"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>                            <div id="fc2d81d6-8218-4cb8-865a-2f84155aa2cd" class="plotly-graph-div" style="height:700px; width:100%;"></div>            <script type="text/javascript">                require(["plotly"], function(Plotly) {                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("fc2d81d6-8218-4cb8-865a-2f84155aa2cd")) {                    Plotly.newPlot(                        "fc2d81d6-8218-4cb8-865a-2f84155aa2cd",                        [{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-01-31\u003cbr\u003eclicks=%{text}\u003cbr\u003ecountry=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["usa","ind","deu","gbr","fra","esp","can","tur","ita","nld"],"legendgroup":"","marker":{"color":"#636efa","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[185.0,157.0,69.0,64.0,58.0,30.0,28.0,26.0,23.0,23.0],"textposition":"auto","x":[185,157,69,64,58,30,28,26,23,23],"xaxis":"x","y":["usa","ind","deu","gbr","fra","esp","can","tur","ita","nld"],"yaxis":"y","type":"bar"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"rgb(17,17,17)","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#f2f5fa"},"error_y":{"color":"#f2f5fa"},"marker":{"line":{"color":"rgb(17,17,17)","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#A2B1C6","gridcolor":"#506784","linecolor":"#506784","minorgridcolor":"#506784","startlinecolor":"#A2B1C6"},"baxis":{"endlinecolor":"#A2B1C6","gridcolor":"#506784","linecolor":"#506784","minorgridcolor":"#506784","startlinecolor":"#A2B1C6"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmapgl":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmapgl"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"line":{"color":"#283442"}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"marker":{"line":{"color":"#283442"}},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#506784"},"line":{"color":"rgb(17,17,17)"}},"header":{"fill":{"color":"#2a3f5f"},"line":{"color":"rgb(17,17,17)"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#f2f5fa","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#f2f5fa"},"geo":{"bgcolor":"rgb(17,17,17)","lakecolor":"rgb(17,17,17)","landcolor":"rgb(17,17,17)","showlakes":true,"showland":true,"subunitcolor":"#506784"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"dark"},"paper_bgcolor":"rgb(17,17,17)","plot_bgcolor":"rgb(17,17,17)","polar":{"angularaxis":{"gridcolor":"#506784","linecolor":"#506784","ticks":""},"bgcolor":"rgb(17,17,17)","radialaxis":{"gridcolor":"#506784","linecolor":"#506784","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"rgb(17,17,17)","gridcolor":"#506784","gridwidth":2,"linecolor":"#506784","showbackground":true,"ticks":"","zerolinecolor":"#C8D4E3"},"yaxis":{"backgroundcolor":"rgb(17,17,17)","gridcolor":"#506784","gridwidth":2,"linecolor":"#506784","showbackground":true,"ticks":"","zerolinecolor":"#C8D4E3"},"zaxis":{"backgroundcolor":"rgb(17,17,17)","gridcolor":"#506784","gridwidth":2,"linecolor":"#506784","showbackground":true,"ticks":"","zerolinecolor":"#C8D4E3"}},"shapedefaults":{"line":{"color":"#f2f5fa"}},"sliderdefaults":{"bgcolor":"#C8D4E3","bordercolor":"rgb(17,17,17)","borderwidth":1,"tickwidth":0},"ternary":{"aaxis":{"gridcolor":"#506784","linecolor":"#506784","ticks":""},"baxis":{"gridcolor":"#506784","linecolor":"#506784","ticks":""},"bgcolor":"rgb(17,17,17)","caxis":{"gridcolor":"#506784","linecolor":"#506784","ticks":""}},"title":{"x":0.05},"updatemenudefaults":{"bgcolor":"#506784","borderwidth":0},"xaxis":{"automargin":true,"gridcolor":"#283442","linecolor":"#506784","ticks":"","title":{"standoff":15},"zerolinecolor":"#283442","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#283442","linecolor":"#506784","ticks":"","title":{"standoff":15},"zerolinecolor":"#283442","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"clicks"},"range":[0,497.70000000000005]},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"country"},"autorange":"reversed"},"legend":{"tracegroupgap":0},"title":{"text":"Google Search Console \u003cb\u003emywebsite.com\u003c\u002fb\u003e\u003cbr\u003eclicks per month - top 10\u003cbr\u003e\u003cb\u003eframe_duration=1500\u003c\u002fb\u003e"},"barmode":"relative","height":700,"updatemenus":[{"buttons":[{"args":[null,{"frame":{"duration":1500,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":500,"easing":"linear"}}],"label":"&#9654;","method":"animate"},{"args":[[null],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"&#9724;","method":"animate"}],"direction":"left","pad":{"r":10,"t":70},"showactive":false,"type":"buttons","x":0.1,"xanchor":"right","y":0,"yanchor":"top"}],"sliders":[{"active":0,"currentvalue":{"prefix":"date: ","xanchor":"right","font":{"size":18.0}},"len":0.9,"pad":{"b":10,"t":60},"steps":[{"args":[["2022-01-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-01-31\u003cbr\u003eTotal: 1,064","method":"animate"},{"args":[["2022-02-28"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-02-28\u003cbr\u003eTotal: 1,186","method":"animate"},{"args":[["2022-03-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-03-31\u003cbr\u003eTotal: 1,517","method":"animate"},{"args":[["2022-04-30"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-04-30\u003cbr\u003eTotal: 1,992","method":"animate"},{"args":[["2022-05-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-05-31\u003cbr\u003eTotal: 2,114","method":"animate"},{"args":[["2022-06-30"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-06-30\u003cbr\u003eTotal: 1,831","method":"animate"},{"args":[["2022-07-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-07-31\u003cbr\u003eTotal: 1,758","method":"animate"},{"args":[["2022-08-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-08-31\u003cbr\u003eTotal: 1,990","method":"animate"},{"args":[["2022-09-30"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-09-30\u003cbr\u003eTotal: 1,953","method":"animate"},{"args":[["2022-10-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-10-31\u003cbr\u003eTotal: 2,347","method":"animate"},{"args":[["2022-11-30"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-11-30\u003cbr\u003eTotal: 2,512","method":"animate"},{"args":[["2022-12-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-12-31\u003cbr\u003eTotal: 2,141","method":"animate"}],"x":0.1,"xanchor":"left","y":0,"yanchor":"top","bgcolor":"#D5D5D5","borderwidth":0}],"font":{"size":12}},                        {"responsive": true}                    ).then(function(){
+                            Plotly.addFrames('fc2d81d6-8218-4cb8-865a-2f84155aa2cd', [{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-01-31\u003cbr\u003eclicks=%{text}\u003cbr\u003ecountry=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["usa","ind","deu","gbr","fra","esp","can","tur","ita","nld"],"legendgroup":"","marker":{"color":"#636efa","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[185.0,157.0,69.0,64.0,58.0,30.0,28.0,26.0,23.0,23.0],"textposition":"auto","x":[185,157,69,64,58,30,28,26,23,23],"xaxis":"x","y":["usa","ind","deu","gbr","fra","esp","can","tur","ita","nld"],"yaxis":"y","type":"bar"}],"name":"2022-01-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-02-28\u003cbr\u003eclicks=%{text}\u003cbr\u003ecountry=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["usa","ind","deu","gbr","fra","can","esp","pol","nld","ita"],"legendgroup":"","marker":{"color":"#636efa","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[230.0,178.0,67.0,66.0,63.0,40.0,28.0,27.0,26.0,25.0],"textposition":"auto","x":[230,178,67,66,63,40,28,27,26,25],"xaxis":"x","y":["usa","ind","deu","gbr","fra","can","esp","pol","nld","ita"],"yaxis":"y","type":"bar"}],"name":"2022-02-28"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-03-31\u003cbr\u003eclicks=%{text}\u003cbr\u003ecountry=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["usa","ind","gbr","deu","fra","esp","ita","can","aus","bra"],"legendgroup":"","marker":{"color":"#636efa","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[285.0,185.0,114.0,91.0,72.0,63.0,41.0,29.0,25.0,24.0],"textposition":"auto","x":[285,185,114,91,72,63,41,29,25,24],"xaxis":"x","y":["usa","ind","gbr","deu","fra","esp","ita","can","aus","bra"],"yaxis":"y","type":"bar"}],"name":"2022-03-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-04-30\u003cbr\u003eclicks=%{text}\u003cbr\u003ecountry=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["usa","ind","gbr","deu","fra","esp","tur","ita","pol","can"],"legendgroup":"","marker":{"color":"#636efa","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[397.0,288.0,99.0,95.0,83.0,58.0,45.0,44.0,39.0,38.0],"textposition":"auto","x":[397,288,99,95,83,58,45,44,39,38],"xaxis":"x","y":["usa","ind","gbr","deu","fra","esp","tur","ita","pol","can"],"yaxis":"y","type":"bar"}],"name":"2022-04-30"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-05-31\u003cbr\u003eclicks=%{text}\u003cbr\u003ecountry=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["usa","ind","deu","gbr","fra","esp","tur","pol","ita","irn"],"legendgroup":"","marker":{"color":"#636efa","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[344.0,341.0,144.0,93.0,76.0,58.0,58.0,56.0,55.0,39.0],"textposition":"auto","x":[344,341,144,93,76,58,58,56,55,39],"xaxis":"x","y":["usa","ind","deu","gbr","fra","esp","tur","pol","ita","irn"],"yaxis":"y","type":"bar"}],"name":"2022-05-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-06-30\u003cbr\u003eclicks=%{text}\u003cbr\u003ecountry=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["usa","ind","deu","gbr","fra","esp","tur","ita","aus","pol"],"legendgroup":"","marker":{"color":"#636efa","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[352.0,269.0,119.0,78.0,71.0,62.0,45.0,42.0,39.0,38.0],"textposition":"auto","x":[352,269,119,78,71,62,45,42,39,38],"xaxis":"x","y":["usa","ind","deu","gbr","fra","esp","tur","ita","aus","pol"],"yaxis":"y","type":"bar"}],"name":"2022-06-30"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-07-31\u003cbr\u003eclicks=%{text}\u003cbr\u003ecountry=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["usa","ind","deu","fra","gbr","tur","esp","aus","can","nld"],"legendgroup":"","marker":{"color":"#636efa","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[359.0,315.0,121.0,82.0,70.0,42.0,40.0,35.0,35.0,33.0],"textposition":"auto","x":[359,315,121,82,70,42,40,35,35,33],"xaxis":"x","y":["usa","ind","deu","fra","gbr","tur","esp","aus","can","nld"],"yaxis":"y","type":"bar"}],"name":"2022-07-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-08-31\u003cbr\u003eclicks=%{text}\u003cbr\u003ecountry=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["ind","usa","deu","gbr","fra","tur","esp","can","bra","rus"],"legendgroup":"","marker":{"color":"#636efa","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[411.0,375.0,116.0,84.0,55.0,47.0,42.0,34.0,33.0,31.0],"textposition":"auto","x":[411,375,116,84,55,47,42,34,33,31],"xaxis":"x","y":["ind","usa","deu","gbr","fra","tur","esp","can","bra","rus"],"yaxis":"y","type":"bar"}],"name":"2022-08-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-09-30\u003cbr\u003eclicks=%{text}\u003cbr\u003ecountry=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["ind","usa","deu","gbr","fra","tur","can","ita","nld","bra"],"legendgroup":"","marker":{"color":"#636efa","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[377.0,351.0,112.0,76.0,67.0,67.0,42.0,42.0,42.0,40.0],"textposition":"auto","x":[377,351,112,76,67,67,42,42,42,40],"xaxis":"x","y":["ind","usa","deu","gbr","fra","tur","can","ita","nld","bra"],"yaxis":"y","type":"bar"}],"name":"2022-09-30"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-10-31\u003cbr\u003eclicks=%{text}\u003cbr\u003ecountry=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["usa","ind","deu","gbr","fra","can","esp","tur","ita","nld"],"legendgroup":"","marker":{"color":"#636efa","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[438.0,349.0,127.0,108.0,99.0,69.0,56.0,55.0,53.0,53.0],"textposition":"auto","x":[438,349,127,108,99,69,56,55,53,53],"xaxis":"x","y":["usa","ind","deu","gbr","fra","can","esp","tur","ita","nld"],"yaxis":"y","type":"bar"}],"name":"2022-10-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-11-30\u003cbr\u003eclicks=%{text}\u003cbr\u003ecountry=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["ind","usa","gbr","deu","fra","can","ita","esp","tur","nld"],"legendgroup":"","marker":{"color":"#636efa","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[474.0,462.0,120.0,119.0,108.0,67.0,57.0,54.0,50.0,47.0],"textposition":"auto","x":[474,462,120,119,108,67,57,54,50,47],"xaxis":"x","y":["ind","usa","gbr","deu","fra","can","ita","esp","tur","nld"],"yaxis":"y","type":"bar"}],"name":"2022-11-30"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-12-31\u003cbr\u003eclicks=%{text}\u003cbr\u003ecountry=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["ind","usa","deu","fra","gbr","ita","esp","tur","can","nld"],"legendgroup":"","marker":{"color":"#636efa","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[414.0,329.0,102.0,81.0,74.0,61.0,55.0,48.0,46.0,39.0],"textposition":"auto","x":[414,329,102,81,74,61,55,48,46,39],"xaxis":"x","y":["ind","usa","deu","fra","gbr","ita","esp","tur","can","nld"],"yaxis":"y","type":"bar"}],"name":"2022-12-31"}]);
+                        }).then(function(){
+                            
+var gd = document.getElementById('fc2d81d6-8218-4cb8-865a-2f84155aa2cd');
+var x = new MutationObserver(function (mutations, observer) {{
+        var display = window.getComputedStyle(gd).display;
+        if (!display || display === 'none') {{
+            console.log([gd, 'removed!']);
+            Plotly.purge(gd);
+            observer.disconnect();
+        }}
+}});
+
+// Listen for the removal of the full notebook cells
+var notebookContainer = gd.closest('#notebook-container');
+if (notebookContainer) {{
+    x.observe(notebookContainer, {childList: true});
+}}
+
+// Listen for the clearing of the current output cell
+var outputEl = gd.closest('.output');
+if (outputEl) {{
+    x.observe(outputEl, {childList: true});
+}}
+
+                        })                };                });            </script>        </div>
+</div>
+</div>
+</section>
+<section id="make-it-faster-and-use-flags-instead-of-country-codes" class="level2">
+<h2 class="anchored" data-anchor-id="make-it-faster-and-use-flags-instead-of-country-codes">Make it faster and use flags instead of country codes</h2>
+<div id="514f3970-ae85-427f-98cb-346b5bf92a0d" class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a>fig <span class="op">=</span> racing_chart(</span>
+<span id="cb7-2"><a href="#cb7-2"></a>    gsc[[<span class="st">"flag"</span>, <span class="st">"clicks"</span>, <span class="st">"date"</span>]],</span>
+<span id="cb7-3"><a href="#cb7-3"></a>    frame_duration<span class="op">=</span><span class="dv">500</span>,</span>
+<span id="cb7-4"><a href="#cb7-4"></a>    height<span class="op">=</span><span class="dv">700</span>,</span>
+<span id="cb7-5"><a href="#cb7-5"></a>    title<span class="op">=</span><span class="st">"Google Search Console &lt;b&gt;mywebsite.com&lt;/b&gt;&lt;br&gt;clicks per month - top 10&lt;br&gt;&lt;b&gt;frame_duration=500&lt;/b&gt;"</span>,</span>
+<span id="cb7-6"><a href="#cb7-6"></a>    template<span class="op">=</span><span class="st">"plotly_dark"</span>,</span>
+<span id="cb7-7"><a href="#cb7-7"></a>)</span>
+<span id="cb7-8"><a href="#cb7-8"></a>fig.layout.yaxis.tickfont.size <span class="op">=</span> <span class="dv">25</span></span>
+<span id="cb7-9"><a href="#cb7-9"></a><span class="cf">for</span> frame <span class="kw">in</span> fig.frames:</span>
+<span id="cb7-10"><a href="#cb7-10"></a>    frame.data[<span class="dv">0</span>].marker.color <span class="op">=</span> <span class="st">"white"</span></span>
+<span id="cb7-11"><a href="#cb7-11"></a>fig.data[<span class="dv">0</span>].marker.color <span class="op">=</span> <span class="st">"white"</span></span>
+<span id="cb7-12"><a href="#cb7-12"></a>fig</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>                            <div id="c0433eb9-651b-41d2-a063-07a46fdedb45" class="plotly-graph-div" style="height:700px; width:100%;"></div>            <script type="text/javascript">                require(["plotly"], function(Plotly) {                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("c0433eb9-651b-41d2-a063-07a46fdedb45")) {                    Plotly.newPlot(                        "c0433eb9-651b-41d2-a063-07a46fdedb45",                        [{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-01-31\u003cbr\u003eclicks=%{text}\u003cbr\u003eflag=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["\ud83c\uddfa\ud83c\uddf8","\ud83c\uddee\ud83c\uddf3","\ud83c\udde9\ud83c\uddea","\ud83c\uddec\ud83c\udde7","\ud83c\uddeb\ud83c\uddf7","\ud83c\uddea\ud83c\uddf8","\ud83c\udde8\ud83c\udde6","\ud83c\uddf9\ud83c\uddf7","\ud83c\uddee\ud83c\uddf9","\ud83c\uddf3\ud83c\uddf1"],"legendgroup":"","marker":{"color":"white","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[185.0,157.0,69.0,64.0,58.0,30.0,28.0,26.0,23.0,23.0],"textposition":"auto","x":[185,157,69,64,58,30,28,26,23,23],"xaxis":"x","y":["\ud83c\uddfa\ud83c\uddf8","\ud83c\uddee\ud83c\uddf3","\ud83c\udde9\ud83c\uddea","\ud83c\uddec\ud83c\udde7","\ud83c\uddeb\ud83c\uddf7","\ud83c\uddea\ud83c\uddf8","\ud83c\udde8\ud83c\udde6","\ud83c\uddf9\ud83c\uddf7","\ud83c\uddee\ud83c\uddf9","\ud83c\uddf3\ud83c\uddf1"],"yaxis":"y","type":"bar"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"rgb(17,17,17)","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"#f2f5fa"},"error_y":{"color":"#f2f5fa"},"marker":{"line":{"color":"rgb(17,17,17)","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"#A2B1C6","gridcolor":"#506784","linecolor":"#506784","minorgridcolor":"#506784","startlinecolor":"#A2B1C6"},"baxis":{"endlinecolor":"#A2B1C6","gridcolor":"#506784","linecolor":"#506784","minorgridcolor":"#506784","startlinecolor":"#A2B1C6"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"contour"}],"heatmapgl":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmapgl"}],"heatmap":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"ticks":""},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"ticks":""}},"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattergeo"}],"scattergl":[{"marker":{"line":{"color":"#283442"}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scattermapbox"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterpolar"}],"scatter":[{"marker":{"line":{"color":"#283442"}},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"ticks":""}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"ticks":""},"colorscale":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"#506784"},"line":{"color":"rgb(17,17,17)"}},"header":{"fill":{"color":"#2a3f5f"},"line":{"color":"rgb(17,17,17)"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"#f2f5fa","arrowhead":0,"arrowwidth":1},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"ticks":""}},"colorscale":{"diverging":[[0,"#8e0152"],[0.1,"#c51b7d"],[0.2,"#de77ae"],[0.3,"#f1b6da"],[0.4,"#fde0ef"],[0.5,"#f7f7f7"],[0.6,"#e6f5d0"],[0.7,"#b8e186"],[0.8,"#7fbc41"],[0.9,"#4d9221"],[1,"#276419"]],"sequential":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]],"sequentialminus":[[0.0,"#0d0887"],[0.1111111111111111,"#46039f"],[0.2222222222222222,"#7201a8"],[0.3333333333333333,"#9c179e"],[0.4444444444444444,"#bd3786"],[0.5555555555555556,"#d8576b"],[0.6666666666666666,"#ed7953"],[0.7777777777777778,"#fb9f3a"],[0.8888888888888888,"#fdca26"],[1.0,"#f0f921"]]},"colorway":["#636efa","#EF553B","#00cc96","#ab63fa","#FFA15A","#19d3f3","#FF6692","#B6E880","#FF97FF","#FECB52"],"font":{"color":"#f2f5fa"},"geo":{"bgcolor":"rgb(17,17,17)","lakecolor":"rgb(17,17,17)","landcolor":"rgb(17,17,17)","showlakes":true,"showland":true,"subunitcolor":"#506784"},"hoverlabel":{"align":"left"},"hovermode":"closest","mapbox":{"style":"dark"},"paper_bgcolor":"rgb(17,17,17)","plot_bgcolor":"rgb(17,17,17)","polar":{"angularaxis":{"gridcolor":"#506784","linecolor":"#506784","ticks":""},"bgcolor":"rgb(17,17,17)","radialaxis":{"gridcolor":"#506784","linecolor":"#506784","ticks":""}},"scene":{"xaxis":{"backgroundcolor":"rgb(17,17,17)","gridcolor":"#506784","gridwidth":2,"linecolor":"#506784","showbackground":true,"ticks":"","zerolinecolor":"#C8D4E3"},"yaxis":{"backgroundcolor":"rgb(17,17,17)","gridcolor":"#506784","gridwidth":2,"linecolor":"#506784","showbackground":true,"ticks":"","zerolinecolor":"#C8D4E3"},"zaxis":{"backgroundcolor":"rgb(17,17,17)","gridcolor":"#506784","gridwidth":2,"linecolor":"#506784","showbackground":true,"ticks":"","zerolinecolor":"#C8D4E3"}},"shapedefaults":{"line":{"color":"#f2f5fa"}},"sliderdefaults":{"bgcolor":"#C8D4E3","bordercolor":"rgb(17,17,17)","borderwidth":1,"tickwidth":0},"ternary":{"aaxis":{"gridcolor":"#506784","linecolor":"#506784","ticks":""},"baxis":{"gridcolor":"#506784","linecolor":"#506784","ticks":""},"bgcolor":"rgb(17,17,17)","caxis":{"gridcolor":"#506784","linecolor":"#506784","ticks":""}},"title":{"x":0.05},"updatemenudefaults":{"bgcolor":"#506784","borderwidth":0},"xaxis":{"automargin":true,"gridcolor":"#283442","linecolor":"#506784","ticks":"","title":{"standoff":15},"zerolinecolor":"#283442","zerolinewidth":2},"yaxis":{"automargin":true,"gridcolor":"#283442","linecolor":"#506784","ticks":"","title":{"standoff":15},"zerolinecolor":"#283442","zerolinewidth":2}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"clicks"},"range":[0,497.70000000000005]},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"flag"},"autorange":"reversed","tickfont":{"size":25}},"legend":{"tracegroupgap":0},"title":{"text":"Google Search Console \u003cb\u003emywebsite.com\u003c\u002fb\u003e\u003cbr\u003eclicks per month - top 10\u003cbr\u003e\u003cb\u003eframe_duration=500\u003c\u002fb\u003e"},"barmode":"relative","height":700,"updatemenus":[{"buttons":[{"args":[null,{"frame":{"duration":500,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":500,"easing":"linear"}}],"label":"&#9654;","method":"animate"},{"args":[[null],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"&#9724;","method":"animate"}],"direction":"left","pad":{"r":10,"t":70},"showactive":false,"type":"buttons","x":0.1,"xanchor":"right","y":0,"yanchor":"top"}],"sliders":[{"active":0,"currentvalue":{"prefix":"date: ","xanchor":"right","font":{"size":18.0}},"len":0.9,"pad":{"b":10,"t":60},"steps":[{"args":[["2022-01-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-01-31\u003cbr\u003eTotal: 1,064","method":"animate"},{"args":[["2022-02-28"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-02-28\u003cbr\u003eTotal: 1,186","method":"animate"},{"args":[["2022-03-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-03-31\u003cbr\u003eTotal: 1,517","method":"animate"},{"args":[["2022-04-30"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-04-30\u003cbr\u003eTotal: 1,992","method":"animate"},{"args":[["2022-05-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-05-31\u003cbr\u003eTotal: 2,114","method":"animate"},{"args":[["2022-06-30"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-06-30\u003cbr\u003eTotal: 1,831","method":"animate"},{"args":[["2022-07-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-07-31\u003cbr\u003eTotal: 1,758","method":"animate"},{"args":[["2022-08-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-08-31\u003cbr\u003eTotal: 1,990","method":"animate"},{"args":[["2022-09-30"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-09-30\u003cbr\u003eTotal: 1,953","method":"animate"},{"args":[["2022-10-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-10-31\u003cbr\u003eTotal: 2,347","method":"animate"},{"args":[["2022-11-30"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-11-30\u003cbr\u003eTotal: 2,512","method":"animate"},{"args":[["2022-12-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-12-31\u003cbr\u003eTotal: 2,141","method":"animate"}],"x":0.1,"xanchor":"left","y":0,"yanchor":"top","bgcolor":"#D5D5D5","borderwidth":0}],"font":{"size":12}},                        {"responsive": true}                    ).then(function(){
+                            Plotly.addFrames('c0433eb9-651b-41d2-a063-07a46fdedb45', [{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-01-31\u003cbr\u003eclicks=%{text}\u003cbr\u003eflag=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["\ud83c\uddfa\ud83c\uddf8","\ud83c\uddee\ud83c\uddf3","\ud83c\udde9\ud83c\uddea","\ud83c\uddec\ud83c\udde7","\ud83c\uddeb\ud83c\uddf7","\ud83c\uddea\ud83c\uddf8","\ud83c\udde8\ud83c\udde6","\ud83c\uddf9\ud83c\uddf7","\ud83c\uddee\ud83c\uddf9","\ud83c\uddf3\ud83c\uddf1"],"legendgroup":"","marker":{"color":"white","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[185.0,157.0,69.0,64.0,58.0,30.0,28.0,26.0,23.0,23.0],"textposition":"auto","x":[185,157,69,64,58,30,28,26,23,23],"xaxis":"x","y":["\ud83c\uddfa\ud83c\uddf8","\ud83c\uddee\ud83c\uddf3","\ud83c\udde9\ud83c\uddea","\ud83c\uddec\ud83c\udde7","\ud83c\uddeb\ud83c\uddf7","\ud83c\uddea\ud83c\uddf8","\ud83c\udde8\ud83c\udde6","\ud83c\uddf9\ud83c\uddf7","\ud83c\uddee\ud83c\uddf9","\ud83c\uddf3\ud83c\uddf1"],"yaxis":"y","type":"bar"}],"name":"2022-01-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-02-28\u003cbr\u003eclicks=%{text}\u003cbr\u003eflag=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["\ud83c\uddfa\ud83c\uddf8","\ud83c\uddee\ud83c\uddf3","\ud83c\udde9\ud83c\uddea","\ud83c\uddec\ud83c\udde7","\ud83c\uddeb\ud83c\uddf7","\ud83c\udde8\ud83c\udde6","\ud83c\uddea\ud83c\uddf8","\ud83c\uddf5\ud83c\uddf1","\ud83c\uddf3\ud83c\uddf1","\ud83c\uddee\ud83c\uddf9"],"legendgroup":"","marker":{"color":"white","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[230.0,178.0,67.0,66.0,63.0,40.0,28.0,27.0,26.0,25.0],"textposition":"auto","x":[230,178,67,66,63,40,28,27,26,25],"xaxis":"x","y":["\ud83c\uddfa\ud83c\uddf8","\ud83c\uddee\ud83c\uddf3","\ud83c\udde9\ud83c\uddea","\ud83c\uddec\ud83c\udde7","\ud83c\uddeb\ud83c\uddf7","\ud83c\udde8\ud83c\udde6","\ud83c\uddea\ud83c\uddf8","\ud83c\uddf5\ud83c\uddf1","\ud83c\uddf3\ud83c\uddf1","\ud83c\uddee\ud83c\uddf9"],"yaxis":"y","type":"bar"}],"name":"2022-02-28"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-03-31\u003cbr\u003eclicks=%{text}\u003cbr\u003eflag=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["\ud83c\uddfa\ud83c\uddf8","\ud83c\uddee\ud83c\uddf3","\ud83c\uddec\ud83c\udde7","\ud83c\udde9\ud83c\uddea","\ud83c\uddeb\ud83c\uddf7","\ud83c\uddea\ud83c\uddf8","\ud83c\uddee\ud83c\uddf9","\ud83c\udde8\ud83c\udde6","\ud83c\udde6\ud83c\uddfa","\ud83c\udde7\ud83c\uddf7"],"legendgroup":"","marker":{"color":"white","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[285.0,185.0,114.0,91.0,72.0,63.0,41.0,29.0,25.0,24.0],"textposition":"auto","x":[285,185,114,91,72,63,41,29,25,24],"xaxis":"x","y":["\ud83c\uddfa\ud83c\uddf8","\ud83c\uddee\ud83c\uddf3","\ud83c\uddec\ud83c\udde7","\ud83c\udde9\ud83c\uddea","\ud83c\uddeb\ud83c\uddf7","\ud83c\uddea\ud83c\uddf8","\ud83c\uddee\ud83c\uddf9","\ud83c\udde8\ud83c\udde6","\ud83c\udde6\ud83c\uddfa","\ud83c\udde7\ud83c\uddf7"],"yaxis":"y","type":"bar"}],"name":"2022-03-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-04-30\u003cbr\u003eclicks=%{text}\u003cbr\u003eflag=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["\ud83c\uddfa\ud83c\uddf8","\ud83c\uddee\ud83c\uddf3","\ud83c\uddec\ud83c\udde7","\ud83c\udde9\ud83c\uddea","\ud83c\uddeb\ud83c\uddf7","\ud83c\uddea\ud83c\uddf8","\ud83c\uddf9\ud83c\uddf7","\ud83c\uddee\ud83c\uddf9","\ud83c\uddf5\ud83c\uddf1","\ud83c\udde8\ud83c\udde6"],"legendgroup":"","marker":{"color":"white","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[397.0,288.0,99.0,95.0,83.0,58.0,45.0,44.0,39.0,38.0],"textposition":"auto","x":[397,288,99,95,83,58,45,44,39,38],"xaxis":"x","y":["\ud83c\uddfa\ud83c\uddf8","\ud83c\uddee\ud83c\uddf3","\ud83c\uddec\ud83c\udde7","\ud83c\udde9\ud83c\uddea","\ud83c\uddeb\ud83c\uddf7","\ud83c\uddea\ud83c\uddf8","\ud83c\uddf9\ud83c\uddf7","\ud83c\uddee\ud83c\uddf9","\ud83c\uddf5\ud83c\uddf1","\ud83c\udde8\ud83c\udde6"],"yaxis":"y","type":"bar"}],"name":"2022-04-30"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-05-31\u003cbr\u003eclicks=%{text}\u003cbr\u003eflag=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["\ud83c\uddfa\ud83c\uddf8","\ud83c\uddee\ud83c\uddf3","\ud83c\udde9\ud83c\uddea","\ud83c\uddec\ud83c\udde7","\ud83c\uddeb\ud83c\uddf7","\ud83c\uddea\ud83c\uddf8","\ud83c\uddf9\ud83c\uddf7","\ud83c\uddf5\ud83c\uddf1","\ud83c\uddee\ud83c\uddf9","\ud83c\uddee\ud83c\uddf7"],"legendgroup":"","marker":{"color":"white","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[344.0,341.0,144.0,93.0,76.0,58.0,58.0,56.0,55.0,39.0],"textposition":"auto","x":[344,341,144,93,76,58,58,56,55,39],"xaxis":"x","y":["\ud83c\uddfa\ud83c\uddf8","\ud83c\uddee\ud83c\uddf3","\ud83c\udde9\ud83c\uddea","\ud83c\uddec\ud83c\udde7","\ud83c\uddeb\ud83c\uddf7","\ud83c\uddea\ud83c\uddf8","\ud83c\uddf9\ud83c\uddf7","\ud83c\uddf5\ud83c\uddf1","\ud83c\uddee\ud83c\uddf9","\ud83c\uddee\ud83c\uddf7"],"yaxis":"y","type":"bar"}],"name":"2022-05-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-06-30\u003cbr\u003eclicks=%{text}\u003cbr\u003eflag=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["\ud83c\uddfa\ud83c\uddf8","\ud83c\uddee\ud83c\uddf3","\ud83c\udde9\ud83c\uddea","\ud83c\uddec\ud83c\udde7","\ud83c\uddeb\ud83c\uddf7","\ud83c\uddea\ud83c\uddf8","\ud83c\uddf9\ud83c\uddf7","\ud83c\uddee\ud83c\uddf9","\ud83c\udde6\ud83c\uddfa","\ud83c\uddf5\ud83c\uddf1"],"legendgroup":"","marker":{"color":"white","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[352.0,269.0,119.0,78.0,71.0,62.0,45.0,42.0,39.0,38.0],"textposition":"auto","x":[352,269,119,78,71,62,45,42,39,38],"xaxis":"x","y":["\ud83c\uddfa\ud83c\uddf8","\ud83c\uddee\ud83c\uddf3","\ud83c\udde9\ud83c\uddea","\ud83c\uddec\ud83c\udde7","\ud83c\uddeb\ud83c\uddf7","\ud83c\uddea\ud83c\uddf8","\ud83c\uddf9\ud83c\uddf7","\ud83c\uddee\ud83c\uddf9","\ud83c\udde6\ud83c\uddfa","\ud83c\uddf5\ud83c\uddf1"],"yaxis":"y","type":"bar"}],"name":"2022-06-30"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-07-31\u003cbr\u003eclicks=%{text}\u003cbr\u003eflag=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["\ud83c\uddfa\ud83c\uddf8","\ud83c\uddee\ud83c\uddf3","\ud83c\udde9\ud83c\uddea","\ud83c\uddeb\ud83c\uddf7","\ud83c\uddec\ud83c\udde7","\ud83c\uddf9\ud83c\uddf7","\ud83c\uddea\ud83c\uddf8","\ud83c\udde6\ud83c\uddfa","\ud83c\udde8\ud83c\udde6","\ud83c\uddf3\ud83c\uddf1"],"legendgroup":"","marker":{"color":"white","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[359.0,315.0,121.0,82.0,70.0,42.0,40.0,35.0,35.0,33.0],"textposition":"auto","x":[359,315,121,82,70,42,40,35,35,33],"xaxis":"x","y":["\ud83c\uddfa\ud83c\uddf8","\ud83c\uddee\ud83c\uddf3","\ud83c\udde9\ud83c\uddea","\ud83c\uddeb\ud83c\uddf7","\ud83c\uddec\ud83c\udde7","\ud83c\uddf9\ud83c\uddf7","\ud83c\uddea\ud83c\uddf8","\ud83c\udde6\ud83c\uddfa","\ud83c\udde8\ud83c\udde6","\ud83c\uddf3\ud83c\uddf1"],"yaxis":"y","type":"bar"}],"name":"2022-07-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-08-31\u003cbr\u003eclicks=%{text}\u003cbr\u003eflag=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["\ud83c\uddee\ud83c\uddf3","\ud83c\uddfa\ud83c\uddf8","\ud83c\udde9\ud83c\uddea","\ud83c\uddec\ud83c\udde7","\ud83c\uddeb\ud83c\uddf7","\ud83c\uddf9\ud83c\uddf7","\ud83c\uddea\ud83c\uddf8","\ud83c\udde8\ud83c\udde6","\ud83c\udde7\ud83c\uddf7","\ud83c\uddf7\ud83c\uddfa"],"legendgroup":"","marker":{"color":"white","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[411.0,375.0,116.0,84.0,55.0,47.0,42.0,34.0,33.0,31.0],"textposition":"auto","x":[411,375,116,84,55,47,42,34,33,31],"xaxis":"x","y":["\ud83c\uddee\ud83c\uddf3","\ud83c\uddfa\ud83c\uddf8","\ud83c\udde9\ud83c\uddea","\ud83c\uddec\ud83c\udde7","\ud83c\uddeb\ud83c\uddf7","\ud83c\uddf9\ud83c\uddf7","\ud83c\uddea\ud83c\uddf8","\ud83c\udde8\ud83c\udde6","\ud83c\udde7\ud83c\uddf7","\ud83c\uddf7\ud83c\uddfa"],"yaxis":"y","type":"bar"}],"name":"2022-08-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-09-30\u003cbr\u003eclicks=%{text}\u003cbr\u003eflag=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["\ud83c\uddee\ud83c\uddf3","\ud83c\uddfa\ud83c\uddf8","\ud83c\udde9\ud83c\uddea","\ud83c\uddec\ud83c\udde7","\ud83c\uddeb\ud83c\uddf7","\ud83c\uddf9\ud83c\uddf7","\ud83c\udde8\ud83c\udde6","\ud83c\uddee\ud83c\uddf9","\ud83c\uddf3\ud83c\uddf1","\ud83c\udde7\ud83c\uddf7"],"legendgroup":"","marker":{"color":"white","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[377.0,351.0,112.0,76.0,67.0,67.0,42.0,42.0,42.0,40.0],"textposition":"auto","x":[377,351,112,76,67,67,42,42,42,40],"xaxis":"x","y":["\ud83c\uddee\ud83c\uddf3","\ud83c\uddfa\ud83c\uddf8","\ud83c\udde9\ud83c\uddea","\ud83c\uddec\ud83c\udde7","\ud83c\uddeb\ud83c\uddf7","\ud83c\uddf9\ud83c\uddf7","\ud83c\udde8\ud83c\udde6","\ud83c\uddee\ud83c\uddf9","\ud83c\uddf3\ud83c\uddf1","\ud83c\udde7\ud83c\uddf7"],"yaxis":"y","type":"bar"}],"name":"2022-09-30"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-10-31\u003cbr\u003eclicks=%{text}\u003cbr\u003eflag=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["\ud83c\uddfa\ud83c\uddf8","\ud83c\uddee\ud83c\uddf3","\ud83c\udde9\ud83c\uddea","\ud83c\uddec\ud83c\udde7","\ud83c\uddeb\ud83c\uddf7","\ud83c\udde8\ud83c\udde6","\ud83c\uddea\ud83c\uddf8","\ud83c\uddf9\ud83c\uddf7","\ud83c\uddee\ud83c\uddf9","\ud83c\uddf3\ud83c\uddf1"],"legendgroup":"","marker":{"color":"white","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[438.0,349.0,127.0,108.0,99.0,69.0,56.0,55.0,53.0,53.0],"textposition":"auto","x":[438,349,127,108,99,69,56,55,53,53],"xaxis":"x","y":["\ud83c\uddfa\ud83c\uddf8","\ud83c\uddee\ud83c\uddf3","\ud83c\udde9\ud83c\uddea","\ud83c\uddec\ud83c\udde7","\ud83c\uddeb\ud83c\uddf7","\ud83c\udde8\ud83c\udde6","\ud83c\uddea\ud83c\uddf8","\ud83c\uddf9\ud83c\uddf7","\ud83c\uddee\ud83c\uddf9","\ud83c\uddf3\ud83c\uddf1"],"yaxis":"y","type":"bar"}],"name":"2022-10-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-11-30\u003cbr\u003eclicks=%{text}\u003cbr\u003eflag=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["\ud83c\uddee\ud83c\uddf3","\ud83c\uddfa\ud83c\uddf8","\ud83c\uddec\ud83c\udde7","\ud83c\udde9\ud83c\uddea","\ud83c\uddeb\ud83c\uddf7","\ud83c\udde8\ud83c\udde6","\ud83c\uddee\ud83c\uddf9","\ud83c\uddea\ud83c\uddf8","\ud83c\uddf9\ud83c\uddf7","\ud83c\uddf3\ud83c\uddf1"],"legendgroup":"","marker":{"color":"white","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[474.0,462.0,120.0,119.0,108.0,67.0,57.0,54.0,50.0,47.0],"textposition":"auto","x":[474,462,120,119,108,67,57,54,50,47],"xaxis":"x","y":["\ud83c\uddee\ud83c\uddf3","\ud83c\uddfa\ud83c\uddf8","\ud83c\uddec\ud83c\udde7","\ud83c\udde9\ud83c\uddea","\ud83c\uddeb\ud83c\uddf7","\ud83c\udde8\ud83c\udde6","\ud83c\uddee\ud83c\uddf9","\ud83c\uddea\ud83c\uddf8","\ud83c\uddf9\ud83c\uddf7","\ud83c\uddf3\ud83c\uddf1"],"yaxis":"y","type":"bar"}],"name":"2022-11-30"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-12-31\u003cbr\u003eclicks=%{text}\u003cbr\u003eflag=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["\ud83c\uddee\ud83c\uddf3","\ud83c\uddfa\ud83c\uddf8","\ud83c\udde9\ud83c\uddea","\ud83c\uddeb\ud83c\uddf7","\ud83c\uddec\ud83c\udde7","\ud83c\uddee\ud83c\uddf9","\ud83c\uddea\ud83c\uddf8","\ud83c\uddf9\ud83c\uddf7","\ud83c\udde8\ud83c\udde6","\ud83c\uddf3\ud83c\uddf1"],"legendgroup":"","marker":{"color":"white","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[414.0,329.0,102.0,81.0,74.0,61.0,55.0,48.0,46.0,39.0],"textposition":"auto","x":[414,329,102,81,74,61,55,48,46,39],"xaxis":"x","y":["\ud83c\uddee\ud83c\uddf3","\ud83c\uddfa\ud83c\uddf8","\ud83c\udde9\ud83c\uddea","\ud83c\uddeb\ud83c\uddf7","\ud83c\uddec\ud83c\udde7","\ud83c\uddee\ud83c\uddf9","\ud83c\uddea\ud83c\uddf8","\ud83c\uddf9\ud83c\uddf7","\ud83c\udde8\ud83c\udde6","\ud83c\uddf3\ud83c\uddf1"],"yaxis":"y","type":"bar"}],"name":"2022-12-31"}]);
+                        }).then(function(){
+                            
+var gd = document.getElementById('c0433eb9-651b-41d2-a063-07a46fdedb45');
+var x = new MutationObserver(function (mutations, observer) {{
+        var display = window.getComputedStyle(gd).display;
+        if (!display || display === 'none') {{
+            console.log([gd, 'removed!']);
+            Plotly.purge(gd);
+            observer.disconnect();
+        }}
+}});
+
+// Listen for the removal of the full notebook cells
+var notebookContainer = gd.closest('#notebook-container');
+if (notebookContainer) {{
+    x.observe(notebookContainer, {childList: true});
+}}
+
+// Listen for the clearing of the current output cell
+var outputEl = gd.closest('.output');
+if (outputEl) {{
+    x.observe(outputEl, {childList: true});
+}}
+
+                        })                };                });            </script>        </div>
+</div>
+</div>
+<div id="6e584c13-b1d0-48ef-bc59-6e8a65de5d01" class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a>queries <span class="op">=</span> pd.read_csv(<span class="st">"data/gsc_query_month_report.csv"</span>)</span>
+<span id="cb8-2"><a href="#cb8-2"></a>queries</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">query</th>
+<th data-quarto-table-cell-role="th">clicks</th>
+<th data-quarto-table-cell-role="th">impressions</th>
+<th data-quarto-table-cell-role="th">ctr</th>
+<th data-quarto-table-cell-role="th">position</th>
+<th data-quarto-table-cell-role="th">date</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>advertools</td>
+<td>156</td>
+<td>246</td>
+<td>0.634146</td>
+<td>1.016260</td>
+<td>2022-01-31</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>advertools python</td>
+<td>27</td>
+<td>43</td>
+<td>0.627907</td>
+<td>1.000000</td>
+<td>2022-01-31</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>python advertools</td>
+<td>19</td>
+<td>24</td>
+<td>0.791667</td>
+<td>1.000000</td>
+<td>2022-01-31</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>python seo crawler</td>
+<td>5</td>
+<td>7</td>
+<td>0.714286</td>
+<td>1.000000</td>
+<td>2022-01-31</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>advertools github</td>
+<td>4</td>
+<td>26</td>
+<td>0.153846</td>
+<td>3.846154</td>
+<td>2022-01-31</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">30166</td>
+<td>🤟 emoji</td>
+<td>0</td>
+<td>1</td>
+<td>0.000000</td>
+<td>43.000000</td>
+<td>2022-12-31</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">30167</td>
+<td>🥑 meaning in text</td>
+<td>0</td>
+<td>1</td>
+<td>0.000000</td>
+<td>45.000000</td>
+<td>2022-12-31</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">30168</td>
+<td>🥔 meaning in text</td>
+<td>0</td>
+<td>1</td>
+<td>0.000000</td>
+<td>38.000000</td>
+<td>2022-12-31</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">30169</td>
+<td>🥕 meaning in text</td>
+<td>0</td>
+<td>1</td>
+<td>0.000000</td>
+<td>36.000000</td>
+<td>2022-12-31</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">30170</td>
+<td>🫐 meaning in text</td>
+<td>0</td>
+<td>1</td>
+<td>0.000000</td>
+<td>27.000000</td>
+<td>2022-12-31</td>
+</tr>
+</tbody>
+</table>
+
+<p>30171 rows × 6 columns</p>
+</div>
+</div>
+</div>
+</section>
+<section id="explore-the-top-queries-by-month-impressions" class="level2">
+<h2 class="anchored" data-anchor-id="explore-the-top-queries-by-month-impressions">Explore the top queries by month (impressions)</h2>
+<p>Queries can be long and take a lot of space, so we can set the left margin of the <code>Figure</code> object to a larger number to fit them.</p>
+<div id="8e24034a-817b-4aa0-81ba-a1e881c9d3cc" class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a>fig <span class="op">=</span> racing_chart(</span>
+<span id="cb9-2"><a href="#cb9-2"></a>    queries[[<span class="st">"query"</span>, <span class="st">"impressions"</span>, <span class="st">"date"</span>]],</span>
+<span id="cb9-3"><a href="#cb9-3"></a>    title<span class="op">=</span><span class="st">"Google Search Console &lt;b&gt;mywebsite.com&lt;/b&gt;&lt;br&gt;impressions per month - top 15"</span>,</span>
+<span id="cb9-4"><a href="#cb9-4"></a>    n<span class="op">=</span><span class="dv">15</span>,</span>
+<span id="cb9-5"><a href="#cb9-5"></a>    template<span class="op">=</span><span class="st">"seaborn"</span>,</span>
+<span id="cb9-6"><a href="#cb9-6"></a>    height<span class="op">=</span><span class="dv">800</span>,</span>
+<span id="cb9-7"><a href="#cb9-7"></a>)</span>
+<span id="cb9-8"><a href="#cb9-8"></a>fig.layout.margin.l <span class="op">=</span> <span class="dv">250</span></span>
+<span id="cb9-9"><a href="#cb9-9"></a>fig</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>                            <div id="82e64ffa-8325-4f38-9c1d-12f93afff7da" class="plotly-graph-div" style="height:800px; width:100%;"></div>            <script type="text/javascript">                require(["plotly"], function(Plotly) {                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("82e64ffa-8325-4f38-9c1d-12f93afff7da")) {                    Plotly.newPlot(                        "82e64ffa-8325-4f38-9c1d-12f93afff7da",                        [{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-01-31\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","seo crawler","robots.txt tester","robots.txt checker","robots txt checker","word frequency analysis","check robots.txt","google knowledge graph","robots txt tester","seo crawler tool","seo spider","robots txt user agent","xml sitemaps","generate keywords","scraping in seo"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1374.0,823.0,811.0,801.0,625.0,592.0,572.0,567.0,519.0,506.0,443.0,414.0,351.0,326.0,310.0],"textposition":"auto","x":[1374,823,811,801,625,592,572,567,519,506,443,414,351,326,310],"xaxis":"x","y":["log file analysis","seo crawler","robots.txt tester","robots.txt checker","robots txt checker","word frequency analysis","check robots.txt","google knowledge graph","robots txt tester","seo crawler tool","seo spider","robots txt user agent","xml sitemaps","generate keywords","scraping in seo"],"yaxis":"y","type":"bar"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"rgb(234,234,242)","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"rgb(36,36,36)"},"error_y":{"color":"rgb(36,36,36)"},"marker":{"line":{"color":"rgb(234,234,242)","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"rgb(36,36,36)","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"rgb(36,36,36)"},"baxis":{"endlinecolor":"rgb(36,36,36)","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"rgb(36,36,36)"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2},"colorscale":[[0.0,"rgb(2,4,25)"],[0.06274509803921569,"rgb(24,15,41)"],[0.12549019607843137,"rgb(47,23,57)"],[0.18823529411764706,"rgb(71,28,72)"],[0.25098039215686274,"rgb(97,30,82)"],[0.3137254901960784,"rgb(123,30,89)"],[0.3764705882352941,"rgb(150,27,91)"],[0.4392156862745098,"rgb(177,22,88)"],[0.5019607843137255,"rgb(203,26,79)"],[0.5647058823529412,"rgb(223,47,67)"],[0.6274509803921569,"rgb(236,76,61)"],[0.6901960784313725,"rgb(242,107,73)"],[0.7529411764705882,"rgb(244,135,95)"],[0.8156862745098039,"rgb(245,162,122)"],[0.8784313725490196,"rgb(246,188,153)"],[0.9411764705882353,"rgb(247,212,187)"],[1.0,"rgb(250,234,220)"]],"type":"contour"}],"heatmapgl":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2},"colorscale":[[0.0,"rgb(2,4,25)"],[0.06274509803921569,"rgb(24,15,41)"],[0.12549019607843137,"rgb(47,23,57)"],[0.18823529411764706,"rgb(71,28,72)"],[0.25098039215686274,"rgb(97,30,82)"],[0.3137254901960784,"rgb(123,30,89)"],[0.3764705882352941,"rgb(150,27,91)"],[0.4392156862745098,"rgb(177,22,88)"],[0.5019607843137255,"rgb(203,26,79)"],[0.5647058823529412,"rgb(223,47,67)"],[0.6274509803921569,"rgb(236,76,61)"],[0.6901960784313725,"rgb(242,107,73)"],[0.7529411764705882,"rgb(244,135,95)"],[0.8156862745098039,"rgb(245,162,122)"],[0.8784313725490196,"rgb(246,188,153)"],[0.9411764705882353,"rgb(247,212,187)"],[1.0,"rgb(250,234,220)"]],"type":"heatmapgl"}],"heatmap":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2},"colorscale":[[0.0,"rgb(2,4,25)"],[0.06274509803921569,"rgb(24,15,41)"],[0.12549019607843137,"rgb(47,23,57)"],[0.18823529411764706,"rgb(71,28,72)"],[0.25098039215686274,"rgb(97,30,82)"],[0.3137254901960784,"rgb(123,30,89)"],[0.3764705882352941,"rgb(150,27,91)"],[0.4392156862745098,"rgb(177,22,88)"],[0.5019607843137255,"rgb(203,26,79)"],[0.5647058823529412,"rgb(223,47,67)"],[0.6274509803921569,"rgb(236,76,61)"],[0.6901960784313725,"rgb(242,107,73)"],[0.7529411764705882,"rgb(244,135,95)"],[0.8156862745098039,"rgb(245,162,122)"],[0.8784313725490196,"rgb(246,188,153)"],[0.9411764705882353,"rgb(247,212,187)"],[1.0,"rgb(250,234,220)"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2},"colorscale":[[0.0,"rgb(2,4,25)"],[0.06274509803921569,"rgb(24,15,41)"],[0.12549019607843137,"rgb(47,23,57)"],[0.18823529411764706,"rgb(71,28,72)"],[0.25098039215686274,"rgb(97,30,82)"],[0.3137254901960784,"rgb(123,30,89)"],[0.3764705882352941,"rgb(150,27,91)"],[0.4392156862745098,"rgb(177,22,88)"],[0.5019607843137255,"rgb(203,26,79)"],[0.5647058823529412,"rgb(223,47,67)"],[0.6274509803921569,"rgb(236,76,61)"],[0.6901960784313725,"rgb(242,107,73)"],[0.7529411764705882,"rgb(244,135,95)"],[0.8156862745098039,"rgb(245,162,122)"],[0.8784313725490196,"rgb(246,188,153)"],[0.9411764705882353,"rgb(247,212,187)"],[1.0,"rgb(250,234,220)"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2},"colorscale":[[0.0,"rgb(2,4,25)"],[0.06274509803921569,"rgb(24,15,41)"],[0.12549019607843137,"rgb(47,23,57)"],[0.18823529411764706,"rgb(71,28,72)"],[0.25098039215686274,"rgb(97,30,82)"],[0.3137254901960784,"rgb(123,30,89)"],[0.3764705882352941,"rgb(150,27,91)"],[0.4392156862745098,"rgb(177,22,88)"],[0.5019607843137255,"rgb(203,26,79)"],[0.5647058823529412,"rgb(223,47,67)"],[0.6274509803921569,"rgb(236,76,61)"],[0.6901960784313725,"rgb(242,107,73)"],[0.7529411764705882,"rgb(244,135,95)"],[0.8156862745098039,"rgb(245,162,122)"],[0.8784313725490196,"rgb(246,188,153)"],[0.9411764705882353,"rgb(247,212,187)"],[1.0,"rgb(250,234,220)"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2}},"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2}},"type":"scattermapbox"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2},"colorscale":[[0.0,"rgb(2,4,25)"],[0.06274509803921569,"rgb(24,15,41)"],[0.12549019607843137,"rgb(47,23,57)"],[0.18823529411764706,"rgb(71,28,72)"],[0.25098039215686274,"rgb(97,30,82)"],[0.3137254901960784,"rgb(123,30,89)"],[0.3764705882352941,"rgb(150,27,91)"],[0.4392156862745098,"rgb(177,22,88)"],[0.5019607843137255,"rgb(203,26,79)"],[0.5647058823529412,"rgb(223,47,67)"],[0.6274509803921569,"rgb(236,76,61)"],[0.6901960784313725,"rgb(242,107,73)"],[0.7529411764705882,"rgb(244,135,95)"],[0.8156862745098039,"rgb(245,162,122)"],[0.8784313725490196,"rgb(246,188,153)"],[0.9411764705882353,"rgb(247,212,187)"],[1.0,"rgb(250,234,220)"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"rgb(231,231,240)"},"line":{"color":"white"}},"header":{"fill":{"color":"rgb(183,183,191)"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"rgb(67,103,167)"},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2}},"colorscale":{"sequential":[[0.0,"rgb(2,4,25)"],[0.06274509803921569,"rgb(24,15,41)"],[0.12549019607843137,"rgb(47,23,57)"],[0.18823529411764706,"rgb(71,28,72)"],[0.25098039215686274,"rgb(97,30,82)"],[0.3137254901960784,"rgb(123,30,89)"],[0.3764705882352941,"rgb(150,27,91)"],[0.4392156862745098,"rgb(177,22,88)"],[0.5019607843137255,"rgb(203,26,79)"],[0.5647058823529412,"rgb(223,47,67)"],[0.6274509803921569,"rgb(236,76,61)"],[0.6901960784313725,"rgb(242,107,73)"],[0.7529411764705882,"rgb(244,135,95)"],[0.8156862745098039,"rgb(245,162,122)"],[0.8784313725490196,"rgb(246,188,153)"],[0.9411764705882353,"rgb(247,212,187)"],[1.0,"rgb(250,234,220)"]],"sequentialminus":[[0.0,"rgb(2,4,25)"],[0.06274509803921569,"rgb(24,15,41)"],[0.12549019607843137,"rgb(47,23,57)"],[0.18823529411764706,"rgb(71,28,72)"],[0.25098039215686274,"rgb(97,30,82)"],[0.3137254901960784,"rgb(123,30,89)"],[0.3764705882352941,"rgb(150,27,91)"],[0.4392156862745098,"rgb(177,22,88)"],[0.5019607843137255,"rgb(203,26,79)"],[0.5647058823529412,"rgb(223,47,67)"],[0.6274509803921569,"rgb(236,76,61)"],[0.6901960784313725,"rgb(242,107,73)"],[0.7529411764705882,"rgb(244,135,95)"],[0.8156862745098039,"rgb(245,162,122)"],[0.8784313725490196,"rgb(246,188,153)"],[0.9411764705882353,"rgb(247,212,187)"],[1.0,"rgb(250,234,220)"]]},"colorway":["rgb(76,114,176)","rgb(221,132,82)","rgb(85,168,104)","rgb(196,78,82)","rgb(129,114,179)","rgb(147,120,96)","rgb(218,139,195)","rgb(140,140,140)","rgb(204,185,116)","rgb(100,181,205)"],"font":{"color":"rgb(36,36,36)"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"rgb(234,234,242)","showlakes":true,"showland":true,"subunitcolor":"white"},"hoverlabel":{"align":"left"},"hovermode":"closest","paper_bgcolor":"white","plot_bgcolor":"rgb(234,234,242)","polar":{"angularaxis":{"gridcolor":"white","linecolor":"white","showgrid":true,"ticks":""},"bgcolor":"rgb(234,234,242)","radialaxis":{"gridcolor":"white","linecolor":"white","showgrid":true,"ticks":""}},"scene":{"xaxis":{"backgroundcolor":"rgb(234,234,242)","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"showgrid":true,"ticks":"","zerolinecolor":"white"},"yaxis":{"backgroundcolor":"rgb(234,234,242)","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"showgrid":true,"ticks":"","zerolinecolor":"white"},"zaxis":{"backgroundcolor":"rgb(234,234,242)","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"showgrid":true,"ticks":"","zerolinecolor":"white"}},"shapedefaults":{"fillcolor":"rgb(67,103,167)","line":{"width":0},"opacity":0.5},"ternary":{"aaxis":{"gridcolor":"white","linecolor":"white","showgrid":true,"ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","showgrid":true,"ticks":""},"bgcolor":"rgb(234,234,242)","caxis":{"gridcolor":"white","linecolor":"white","showgrid":true,"ticks":""}},"xaxis":{"automargin":true,"gridcolor":"white","linecolor":"white","showgrid":true,"ticks":"","title":{"standoff":15},"zerolinecolor":"white"},"yaxis":{"automargin":true,"gridcolor":"white","linecolor":"white","showgrid":true,"ticks":"","title":{"standoff":15},"zerolinecolor":"white"}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"impressions"},"range":[0,1687.3500000000001]},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"query"},"autorange":"reversed"},"legend":{"tracegroupgap":0},"title":{"text":"Google Search Console \u003cb\u003emywebsite.com\u003c\u002fb\u003e\u003cbr\u003eimpressions per month - top 15"},"barmode":"relative","height":800,"updatemenus":[{"buttons":[{"args":[null,{"frame":{"duration":500,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":500,"easing":"linear"}}],"label":"&#9654;","method":"animate"},{"args":[[null],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"&#9724;","method":"animate"}],"direction":"left","pad":{"r":10,"t":70},"showactive":false,"type":"buttons","x":0.1,"xanchor":"right","y":0,"yanchor":"top"}],"sliders":[{"active":0,"currentvalue":{"prefix":"date: ","xanchor":"right","font":{"size":18.0}},"len":0.9,"pad":{"b":10,"t":60},"steps":[{"args":[["2022-01-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-01-31\u003cbr\u003eTotal: 36,641","method":"animate"},{"args":[["2022-02-28"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-02-28\u003cbr\u003eTotal: 37,459","method":"animate"},{"args":[["2022-03-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-03-31\u003cbr\u003eTotal: 42,595","method":"animate"},{"args":[["2022-04-30"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-04-30\u003cbr\u003eTotal: 54,802","method":"animate"},{"args":[["2022-05-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-05-31\u003cbr\u003eTotal: 59,629","method":"animate"},{"args":[["2022-06-30"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-06-30\u003cbr\u003eTotal: 50,125","method":"animate"},{"args":[["2022-07-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-07-31\u003cbr\u003eTotal: 60,275","method":"animate"},{"args":[["2022-08-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-08-31\u003cbr\u003eTotal: 58,196","method":"animate"},{"args":[["2022-09-30"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-09-30\u003cbr\u003eTotal: 59,516","method":"animate"},{"args":[["2022-10-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-10-31\u003cbr\u003eTotal: 60,222","method":"animate"},{"args":[["2022-11-30"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-11-30\u003cbr\u003eTotal: 73,656","method":"animate"},{"args":[["2022-12-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-12-31\u003cbr\u003eTotal: 74,079","method":"animate"}],"x":0.1,"xanchor":"left","y":0,"yanchor":"top","bgcolor":"#D5D5D5","borderwidth":0}],"font":{"size":12},"margin":{"l":250}},                        {"responsive": true}                    ).then(function(){
+                            Plotly.addFrames('82e64ffa-8325-4f38-9c1d-12f93afff7da', [{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-01-31\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","seo crawler","robots.txt tester","robots.txt checker","robots txt checker","word frequency analysis","check robots.txt","google knowledge graph","robots txt tester","seo crawler tool","seo spider","robots txt user agent","xml sitemaps","generate keywords","scraping in seo"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1374.0,823.0,811.0,801.0,625.0,592.0,572.0,567.0,519.0,506.0,443.0,414.0,351.0,326.0,310.0],"textposition":"auto","x":[1374,823,811,801,625,592,572,567,519,506,443,414,351,326,310],"xaxis":"x","y":["log file analysis","seo crawler","robots.txt tester","robots.txt checker","robots txt checker","word frequency analysis","check robots.txt","google knowledge graph","robots txt tester","seo crawler tool","seo spider","robots txt user agent","xml sitemaps","generate keywords","scraping in seo"],"yaxis":"y","type":"bar"}],"name":"2022-01-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-02-28\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","robots.txt tester","seo crawler","robots.txt checker","word frequency analysis","robots txt tester","robots txt checker","google knowledge graph","check robots.txt","seo crawler tool","seo spider","robots txt user agent","python seo","word_tokenize","api serp analysis"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1415.0,989.0,889.0,836.0,734.0,641.0,625.0,611.0,541.0,520.0,394.0,336.0,332.0,327.0,301.0],"textposition":"auto","x":[1415,989,889,836,734,641,625,611,541,520,394,336,332,327,301],"xaxis":"x","y":["log file analysis","robots.txt tester","seo crawler","robots.txt checker","word frequency analysis","robots txt tester","robots txt checker","google knowledge graph","check robots.txt","seo crawler tool","seo spider","robots txt user agent","python seo","word_tokenize","api serp analysis"],"yaxis":"y","type":"bar"}],"name":"2022-02-28"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-03-31\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","seo crawler","robots.txt tester","robots.txt checker","google knowledge graph","robots txt tester","seo crawler tool","robots txt checker","seo crawl","xml sitemaps","check robots.txt","logfile analysis","seo spider","sitemap index","word frequency analysis"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1466.0,1191.0,1075.0,862.0,846.0,726.0,660.0,654.0,514.0,494.0,491.0,407.0,400.0,357.0,353.0],"textposition":"auto","x":[1466,1191,1075,862,846,726,660,654,514,494,491,407,400,357,353],"xaxis":"x","y":["log file analysis","seo crawler","robots.txt tester","robots.txt checker","google knowledge graph","robots txt tester","seo crawler tool","robots txt checker","seo crawl","xml sitemaps","check robots.txt","logfile analysis","seo spider","sitemap index","word frequency analysis"],"yaxis":"y","type":"bar"}],"name":"2022-03-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-04-30\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","seo crawler","google knowledge graph","robots.txt tester","robots.txt checker","robots txt tester","seo crawler tool","robots txt checker","word frequency analysis","seo crawl","check robots.txt","xml sitemaps","word_tokenize","seo spider","serp analysis api"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1445.0,1243.0,1154.0,1081.0,815.0,728.0,674.0,629.0,576.0,523.0,485.0,479.0,471.0,468.0,411.0],"textposition":"auto","x":[1445,1243,1154,1081,815,728,674,629,576,523,485,479,471,468,411],"xaxis":"x","y":["log file analysis","seo crawler","google knowledge graph","robots.txt tester","robots.txt checker","robots txt tester","seo crawler tool","robots txt checker","word frequency analysis","seo crawl","check robots.txt","xml sitemaps","word_tokenize","seo spider","serp analysis api"],"yaxis":"y","type":"bar"}],"name":"2022-04-30"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-05-31\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","seo crawler","google knowledge graph","robots.txt tester","robots.txt checker","robots txt tester","xml sitemap","robots txt checker","seo crawler tool","google serp api","check robots.txt","xml sitemaps","word frequency analysis","seo spider","seo crawl"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1511.0,1206.0,1157.0,1043.0,919.0,816.0,707.0,689.0,625.0,493.0,491.0,474.0,473.0,466.0,465.0],"textposition":"auto","x":[1511,1206,1157,1043,919,816,707,689,625,493,491,474,473,466,465],"xaxis":"x","y":["log file analysis","seo crawler","google knowledge graph","robots.txt tester","robots.txt checker","robots txt tester","xml sitemap","robots txt checker","seo crawler tool","google serp api","check robots.txt","xml sitemaps","word frequency analysis","seo spider","seo crawl"],"yaxis":"y","type":"bar"}],"name":"2022-05-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-06-30\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","seo crawler","robots.txt tester","google knowledge graph","robots.txt checker","robots txt tester","seo crawler tool","robots txt checker","check robots.txt","sitemap xml","seo crawl","word frequency analysis","seo spider tool","seo spider","sitemap.xml"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1607.0,1238.0,1059.0,1055.0,871.0,836.0,691.0,658.0,588.0,474.0,465.0,415.0,411.0,404.0,398.0],"textposition":"auto","x":[1607,1238,1059,1055,871,836,691,658,588,474,465,415,411,404,398],"xaxis":"x","y":["log file analysis","seo crawler","robots.txt tester","google knowledge graph","robots.txt checker","robots txt tester","seo crawler tool","robots txt checker","check robots.txt","sitemap xml","seo crawl","word frequency analysis","seo spider tool","seo spider","sitemap.xml"],"yaxis":"y","type":"bar"}],"name":"2022-06-30"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-07-31\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","seo crawler","robots.txt tester","sitemap xml","google knowledge graph","robots txt tester","reverse dns lookup","xml sitemap","seo crawler tool","robots.txt checker","check robots.txt","robots txt checker","how to check robots.txt","seo crawl","check robots txt"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1574.0,1178.0,999.0,827.0,804.0,779.0,740.0,709.0,698.0,687.0,592.0,472.0,456.0,454.0,453.0],"textposition":"auto","x":[1574,1178,999,827,804,779,740,709,698,687,592,472,456,454,453],"xaxis":"x","y":["log file analysis","seo crawler","robots.txt tester","sitemap xml","google knowledge graph","robots txt tester","reverse dns lookup","xml sitemap","seo crawler tool","robots.txt checker","check robots.txt","robots txt checker","how to check robots.txt","seo crawl","check robots txt"],"yaxis":"y","type":"bar"}],"name":"2022-07-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-08-31\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","seo crawler","robots.txt tester","robots txt tester","reverse dns lookup","sitemap xml","robots.txt checker","seo crawler tool","check robots.txt","xml sitemap","robots txt checker","google serp analysis","sitemap.xml","word frequency analysis","seo crawl"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1555.0,1138.0,1029.0,867.0,777.0,745.0,736.0,571.0,563.0,556.0,551.0,457.0,448.0,443.0,431.0],"textposition":"auto","x":[1555,1138,1029,867,777,745,736,571,563,556,551,457,448,443,431],"xaxis":"x","y":["log file analysis","seo crawler","robots.txt tester","robots txt tester","reverse dns lookup","sitemap xml","robots.txt checker","seo crawler tool","check robots.txt","xml sitemap","robots txt checker","google serp analysis","sitemap.xml","word frequency analysis","seo crawl"],"yaxis":"y","type":"bar"}],"name":"2022-08-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-09-30\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","reverse dns lookup","google knowledge graph","robots.txt tester","seo crawler","google serp analysis","robots txt tester","sitemap xml","seo crawler tool","robots txt checker","check robots.txt","robots.txt checker","word_tokenize","sitemap.xml","generate keywords"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1543.0,1437.0,1241.0,1178.0,1102.0,976.0,966.0,700.0,593.0,544.0,540.0,528.0,505.0,454.0,436.0],"textposition":"auto","x":[1543,1437,1241,1178,1102,976,966,700,593,544,540,528,505,454,436],"xaxis":"x","y":["log file analysis","reverse dns lookup","google knowledge graph","robots.txt tester","seo crawler","google serp analysis","robots txt tester","sitemap xml","seo crawler tool","robots txt checker","check robots.txt","robots.txt checker","word_tokenize","sitemap.xml","generate keywords"],"yaxis":"y","type":"bar"}],"name":"2022-09-30"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-10-31\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","robots.txt tester","seo crawler","reverse dns lookup","google serp analysis","robots txt tester","sitemap xml","xml sitemap","seo crawler tool","check robots.txt","word_tokenize","seo spider","word frequency analysis","api serp analysis","serps analysis"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1465.0,1203.0,1128.0,1076.0,1054.0,996.0,792.0,663.0,618.0,596.0,525.0,514.0,461.0,438.0,418.0],"textposition":"auto","x":[1465,1203,1128,1076,1054,996,792,663,618,596,525,514,461,438,418],"xaxis":"x","y":["log file analysis","robots.txt tester","seo crawler","reverse dns lookup","google serp analysis","robots txt tester","sitemap xml","xml sitemap","seo crawler tool","check robots.txt","word_tokenize","seo spider","word frequency analysis","api serp analysis","serps analysis"],"yaxis":"y","type":"bar"}],"name":"2022-10-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-11-30\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["robots.txt tester","seo crawler","log file analysis","reverse dns lookup","robots txt tester","google serp analysis","seo crawl","robotstxt","xml sitemaps","analyze url","download sitemap","search serp","sitemap index","seo spiders","crawler list"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1497.0,1345.0,1302.0,1232.0,1057.0,935.0,919.0,857.0,805.0,766.0,738.0,718.0,684.0,638.0,629.0],"textposition":"auto","x":[1497,1345,1302,1232,1057,935,919,857,805,766,738,718,684,638,629],"xaxis":"x","y":["robots.txt tester","seo crawler","log file analysis","reverse dns lookup","robots txt tester","google serp analysis","seo crawl","robotstxt","xml sitemaps","analyze url","download sitemap","search serp","sitemap index","seo spiders","crawler list"],"yaxis":"y","type":"bar"}],"name":"2022-11-30"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-12-31\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","robots.txt tester","seo crawler","reverse dns lookup","robots txt tester","google serp analysis","robotstxt","seo crawl","xml sitemaps","seo spider","download sitemap","seo crawler tool","logfile analysis","sitemap xml","sitemap index"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1416.0,1317.0,1310.0,1104.0,1080.0,883.0,846.0,807.0,748.0,680.0,673.0,667.0,652.0,640.0,634.0],"textposition":"auto","x":[1416,1317,1310,1104,1080,883,846,807,748,680,673,667,652,640,634],"xaxis":"x","y":["log file analysis","robots.txt tester","seo crawler","reverse dns lookup","robots txt tester","google serp analysis","robotstxt","seo crawl","xml sitemaps","seo spider","download sitemap","seo crawler tool","logfile analysis","sitemap xml","sitemap index"],"yaxis":"y","type":"bar"}],"name":"2022-12-31"}]);
+                        }).then(function(){
+                            
+var gd = document.getElementById('82e64ffa-8325-4f38-9c1d-12f93afff7da');
+var x = new MutationObserver(function (mutations, observer) {{
+        var display = window.getComputedStyle(gd).display;
+        if (!display || display === 'none') {{
+            console.log([gd, 'removed!']);
+            Plotly.purge(gd);
+            observer.disconnect();
+        }}
+}});
+
+// Listen for the removal of the full notebook cells
+var notebookContainer = gd.closest('#notebook-container');
+if (notebookContainer) {{
+    x.observe(notebookContainer, {childList: true});
+}}
+
+// Listen for the clearing of the current output cell
+var outputEl = gd.closest('.output');
+if (outputEl) {{
+    x.observe(outputEl, {childList: true});
+}}
+
+                        })                };                });            </script>        </div>
+</div>
+</div>
+</section>
+<section id="filtering-entities" class="level2">
+<h2 class="anchored" data-anchor-id="filtering-entities">Filtering entities</h2>
+<p>Taking a look at the top queries is definitely interesting, but many times you may have tens or hundreds of thousands of queries, and you want to go deeper.</p>
+<p>One way is to filter those based on some criterion.</p>
+<p>For example, let’s see which are the top queries that contain “log” and see how we are doing on log file analysis queries:</p>
+<div id="0dfd0426-af51-4818-b721-60baf5e4fd7a" class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1"></a>fig <span class="op">=</span> racing_chart(</span>
+<span id="cb10-2"><a href="#cb10-2"></a>    queries[queries[<span class="st">"query"</span>].<span class="bu">str</span>.contains(<span class="st">"log"</span>)][[<span class="st">"query"</span>, <span class="st">"impressions"</span>, <span class="st">"date"</span>]],</span>
+<span id="cb10-3"><a href="#cb10-3"></a>    title<span class="op">=</span><span class="st">'Google Search Console &lt;b&gt;mywebsite.com&lt;/b&gt; - queries containing "log"&lt;br&gt;impressions per month - top 15'</span>,</span>
+<span id="cb10-4"><a href="#cb10-4"></a>    n<span class="op">=</span><span class="dv">15</span>,</span>
+<span id="cb10-5"><a href="#cb10-5"></a>    template<span class="op">=</span><span class="st">"seaborn"</span>,</span>
+<span id="cb10-6"><a href="#cb10-6"></a>    height<span class="op">=</span><span class="dv">800</span>,</span>
+<span id="cb10-7"><a href="#cb10-7"></a>)</span>
+<span id="cb10-8"><a href="#cb10-8"></a>fig.layout.margin.l <span class="op">=</span> <span class="dv">250</span></span>
+<span id="cb10-9"><a href="#cb10-9"></a>fig</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>                            <div id="8cc1c9a1-5947-4335-b627-8d1af4eb4559" class="plotly-graph-div" style="height:800px; width:100%;"></div>            <script type="text/javascript">                require(["plotly"], function(Plotly) {                    window.PLOTLYENV=window.PLOTLYENV || {};                                    if (document.getElementById("8cc1c9a1-5947-4335-b627-8d1af4eb4559")) {                    Plotly.newPlot(                        "8cc1c9a1-5947-4335-b627-8d1af4eb4559",                        [{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-01-31\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","logfile analysis","log file analyser","what is log file analysis","log file analysis python","python log analysis","python log analyzer","log file analysis seo","log file analyzers","python log analysis tools","python log file analysis","python parse log file","log filel analysis","log file analysis using python","convert log file to dataframe python"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1374.0,212.0,174.0,131.0,109.0,84.0,55.0,37.0,34.0,29.0,21.0,16.0,15.0,14.0,12.0],"textposition":"auto","x":[1374,212,174,131,109,84,55,37,34,29,21,16,15,14,12],"xaxis":"x","y":["log file analysis","logfile analysis","log file analyser","what is log file analysis","log file analysis python","python log analysis","python log analyzer","log file analysis seo","log file analyzers","python log analysis tools","python log file analysis","python parse log file","log filel analysis","log file analysis using python","convert log file to dataframe python"],"yaxis":"y","type":"bar"}],                        {"template":{"data":{"barpolar":[{"marker":{"line":{"color":"rgb(234,234,242)","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"barpolar"}],"bar":[{"error_x":{"color":"rgb(36,36,36)"},"error_y":{"color":"rgb(36,36,36)"},"marker":{"line":{"color":"rgb(234,234,242)","width":0.5},"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"bar"}],"carpet":[{"aaxis":{"endlinecolor":"rgb(36,36,36)","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"rgb(36,36,36)"},"baxis":{"endlinecolor":"rgb(36,36,36)","gridcolor":"white","linecolor":"white","minorgridcolor":"white","startlinecolor":"rgb(36,36,36)"},"type":"carpet"}],"choropleth":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2},"type":"choropleth"}],"contourcarpet":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2},"type":"contourcarpet"}],"contour":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2},"colorscale":[[0.0,"rgb(2,4,25)"],[0.06274509803921569,"rgb(24,15,41)"],[0.12549019607843137,"rgb(47,23,57)"],[0.18823529411764706,"rgb(71,28,72)"],[0.25098039215686274,"rgb(97,30,82)"],[0.3137254901960784,"rgb(123,30,89)"],[0.3764705882352941,"rgb(150,27,91)"],[0.4392156862745098,"rgb(177,22,88)"],[0.5019607843137255,"rgb(203,26,79)"],[0.5647058823529412,"rgb(223,47,67)"],[0.6274509803921569,"rgb(236,76,61)"],[0.6901960784313725,"rgb(242,107,73)"],[0.7529411764705882,"rgb(244,135,95)"],[0.8156862745098039,"rgb(245,162,122)"],[0.8784313725490196,"rgb(246,188,153)"],[0.9411764705882353,"rgb(247,212,187)"],[1.0,"rgb(250,234,220)"]],"type":"contour"}],"heatmapgl":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2},"colorscale":[[0.0,"rgb(2,4,25)"],[0.06274509803921569,"rgb(24,15,41)"],[0.12549019607843137,"rgb(47,23,57)"],[0.18823529411764706,"rgb(71,28,72)"],[0.25098039215686274,"rgb(97,30,82)"],[0.3137254901960784,"rgb(123,30,89)"],[0.3764705882352941,"rgb(150,27,91)"],[0.4392156862745098,"rgb(177,22,88)"],[0.5019607843137255,"rgb(203,26,79)"],[0.5647058823529412,"rgb(223,47,67)"],[0.6274509803921569,"rgb(236,76,61)"],[0.6901960784313725,"rgb(242,107,73)"],[0.7529411764705882,"rgb(244,135,95)"],[0.8156862745098039,"rgb(245,162,122)"],[0.8784313725490196,"rgb(246,188,153)"],[0.9411764705882353,"rgb(247,212,187)"],[1.0,"rgb(250,234,220)"]],"type":"heatmapgl"}],"heatmap":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2},"colorscale":[[0.0,"rgb(2,4,25)"],[0.06274509803921569,"rgb(24,15,41)"],[0.12549019607843137,"rgb(47,23,57)"],[0.18823529411764706,"rgb(71,28,72)"],[0.25098039215686274,"rgb(97,30,82)"],[0.3137254901960784,"rgb(123,30,89)"],[0.3764705882352941,"rgb(150,27,91)"],[0.4392156862745098,"rgb(177,22,88)"],[0.5019607843137255,"rgb(203,26,79)"],[0.5647058823529412,"rgb(223,47,67)"],[0.6274509803921569,"rgb(236,76,61)"],[0.6901960784313725,"rgb(242,107,73)"],[0.7529411764705882,"rgb(244,135,95)"],[0.8156862745098039,"rgb(245,162,122)"],[0.8784313725490196,"rgb(246,188,153)"],[0.9411764705882353,"rgb(247,212,187)"],[1.0,"rgb(250,234,220)"]],"type":"heatmap"}],"histogram2dcontour":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2},"colorscale":[[0.0,"rgb(2,4,25)"],[0.06274509803921569,"rgb(24,15,41)"],[0.12549019607843137,"rgb(47,23,57)"],[0.18823529411764706,"rgb(71,28,72)"],[0.25098039215686274,"rgb(97,30,82)"],[0.3137254901960784,"rgb(123,30,89)"],[0.3764705882352941,"rgb(150,27,91)"],[0.4392156862745098,"rgb(177,22,88)"],[0.5019607843137255,"rgb(203,26,79)"],[0.5647058823529412,"rgb(223,47,67)"],[0.6274509803921569,"rgb(236,76,61)"],[0.6901960784313725,"rgb(242,107,73)"],[0.7529411764705882,"rgb(244,135,95)"],[0.8156862745098039,"rgb(245,162,122)"],[0.8784313725490196,"rgb(246,188,153)"],[0.9411764705882353,"rgb(247,212,187)"],[1.0,"rgb(250,234,220)"]],"type":"histogram2dcontour"}],"histogram2d":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2},"colorscale":[[0.0,"rgb(2,4,25)"],[0.06274509803921569,"rgb(24,15,41)"],[0.12549019607843137,"rgb(47,23,57)"],[0.18823529411764706,"rgb(71,28,72)"],[0.25098039215686274,"rgb(97,30,82)"],[0.3137254901960784,"rgb(123,30,89)"],[0.3764705882352941,"rgb(150,27,91)"],[0.4392156862745098,"rgb(177,22,88)"],[0.5019607843137255,"rgb(203,26,79)"],[0.5647058823529412,"rgb(223,47,67)"],[0.6274509803921569,"rgb(236,76,61)"],[0.6901960784313725,"rgb(242,107,73)"],[0.7529411764705882,"rgb(244,135,95)"],[0.8156862745098039,"rgb(245,162,122)"],[0.8784313725490196,"rgb(246,188,153)"],[0.9411764705882353,"rgb(247,212,187)"],[1.0,"rgb(250,234,220)"]],"type":"histogram2d"}],"histogram":[{"marker":{"pattern":{"fillmode":"overlay","size":10,"solidity":0.2}},"type":"histogram"}],"mesh3d":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2},"type":"mesh3d"}],"parcoords":[{"line":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2}},"type":"parcoords"}],"pie":[{"automargin":true,"type":"pie"}],"scatter3d":[{"line":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2}},"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2}},"type":"scatter3d"}],"scattercarpet":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2}},"type":"scattercarpet"}],"scattergeo":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2}},"type":"scattergeo"}],"scattergl":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2}},"type":"scattergl"}],"scattermapbox":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2}},"type":"scattermapbox"}],"scatterpolargl":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2}},"type":"scatterpolargl"}],"scatterpolar":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2}},"type":"scatterpolar"}],"scatter":[{"fillpattern":{"fillmode":"overlay","size":10,"solidity":0.2},"type":"scatter"}],"scatterternary":[{"marker":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2}},"type":"scatterternary"}],"surface":[{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2},"colorscale":[[0.0,"rgb(2,4,25)"],[0.06274509803921569,"rgb(24,15,41)"],[0.12549019607843137,"rgb(47,23,57)"],[0.18823529411764706,"rgb(71,28,72)"],[0.25098039215686274,"rgb(97,30,82)"],[0.3137254901960784,"rgb(123,30,89)"],[0.3764705882352941,"rgb(150,27,91)"],[0.4392156862745098,"rgb(177,22,88)"],[0.5019607843137255,"rgb(203,26,79)"],[0.5647058823529412,"rgb(223,47,67)"],[0.6274509803921569,"rgb(236,76,61)"],[0.6901960784313725,"rgb(242,107,73)"],[0.7529411764705882,"rgb(244,135,95)"],[0.8156862745098039,"rgb(245,162,122)"],[0.8784313725490196,"rgb(246,188,153)"],[0.9411764705882353,"rgb(247,212,187)"],[1.0,"rgb(250,234,220)"]],"type":"surface"}],"table":[{"cells":{"fill":{"color":"rgb(231,231,240)"},"line":{"color":"white"}},"header":{"fill":{"color":"rgb(183,183,191)"},"line":{"color":"white"}},"type":"table"}]},"layout":{"annotationdefaults":{"arrowcolor":"rgb(67,103,167)"},"autotypenumbers":"strict","coloraxis":{"colorbar":{"outlinewidth":0,"tickcolor":"rgb(36,36,36)","ticklen":8,"ticks":"outside","tickwidth":2}},"colorscale":{"sequential":[[0.0,"rgb(2,4,25)"],[0.06274509803921569,"rgb(24,15,41)"],[0.12549019607843137,"rgb(47,23,57)"],[0.18823529411764706,"rgb(71,28,72)"],[0.25098039215686274,"rgb(97,30,82)"],[0.3137254901960784,"rgb(123,30,89)"],[0.3764705882352941,"rgb(150,27,91)"],[0.4392156862745098,"rgb(177,22,88)"],[0.5019607843137255,"rgb(203,26,79)"],[0.5647058823529412,"rgb(223,47,67)"],[0.6274509803921569,"rgb(236,76,61)"],[0.6901960784313725,"rgb(242,107,73)"],[0.7529411764705882,"rgb(244,135,95)"],[0.8156862745098039,"rgb(245,162,122)"],[0.8784313725490196,"rgb(246,188,153)"],[0.9411764705882353,"rgb(247,212,187)"],[1.0,"rgb(250,234,220)"]],"sequentialminus":[[0.0,"rgb(2,4,25)"],[0.06274509803921569,"rgb(24,15,41)"],[0.12549019607843137,"rgb(47,23,57)"],[0.18823529411764706,"rgb(71,28,72)"],[0.25098039215686274,"rgb(97,30,82)"],[0.3137254901960784,"rgb(123,30,89)"],[0.3764705882352941,"rgb(150,27,91)"],[0.4392156862745098,"rgb(177,22,88)"],[0.5019607843137255,"rgb(203,26,79)"],[0.5647058823529412,"rgb(223,47,67)"],[0.6274509803921569,"rgb(236,76,61)"],[0.6901960784313725,"rgb(242,107,73)"],[0.7529411764705882,"rgb(244,135,95)"],[0.8156862745098039,"rgb(245,162,122)"],[0.8784313725490196,"rgb(246,188,153)"],[0.9411764705882353,"rgb(247,212,187)"],[1.0,"rgb(250,234,220)"]]},"colorway":["rgb(76,114,176)","rgb(221,132,82)","rgb(85,168,104)","rgb(196,78,82)","rgb(129,114,179)","rgb(147,120,96)","rgb(218,139,195)","rgb(140,140,140)","rgb(204,185,116)","rgb(100,181,205)"],"font":{"color":"rgb(36,36,36)"},"geo":{"bgcolor":"white","lakecolor":"white","landcolor":"rgb(234,234,242)","showlakes":true,"showland":true,"subunitcolor":"white"},"hoverlabel":{"align":"left"},"hovermode":"closest","paper_bgcolor":"white","plot_bgcolor":"rgb(234,234,242)","polar":{"angularaxis":{"gridcolor":"white","linecolor":"white","showgrid":true,"ticks":""},"bgcolor":"rgb(234,234,242)","radialaxis":{"gridcolor":"white","linecolor":"white","showgrid":true,"ticks":""}},"scene":{"xaxis":{"backgroundcolor":"rgb(234,234,242)","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"showgrid":true,"ticks":"","zerolinecolor":"white"},"yaxis":{"backgroundcolor":"rgb(234,234,242)","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"showgrid":true,"ticks":"","zerolinecolor":"white"},"zaxis":{"backgroundcolor":"rgb(234,234,242)","gridcolor":"white","gridwidth":2,"linecolor":"white","showbackground":true,"showgrid":true,"ticks":"","zerolinecolor":"white"}},"shapedefaults":{"fillcolor":"rgb(67,103,167)","line":{"width":0},"opacity":0.5},"ternary":{"aaxis":{"gridcolor":"white","linecolor":"white","showgrid":true,"ticks":""},"baxis":{"gridcolor":"white","linecolor":"white","showgrid":true,"ticks":""},"bgcolor":"rgb(234,234,242)","caxis":{"gridcolor":"white","linecolor":"white","showgrid":true,"ticks":""}},"xaxis":{"automargin":true,"gridcolor":"white","linecolor":"white","showgrid":true,"ticks":"","title":{"standoff":15},"zerolinecolor":"white"},"yaxis":{"automargin":true,"gridcolor":"white","linecolor":"white","showgrid":true,"ticks":"","title":{"standoff":15},"zerolinecolor":"white"}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"impressions"},"range":[0,1687.3500000000001]},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"query"},"autorange":"reversed"},"legend":{"tracegroupgap":0},"title":{"text":"Google Search Console \u003cb\u003emywebsite.com\u003c\u002fb\u003e - queries containing \"log\"\u003cbr\u003eimpressions per month - top 15"},"barmode":"relative","height":800,"updatemenus":[{"buttons":[{"args":[null,{"frame":{"duration":500,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":500,"easing":"linear"}}],"label":"&#9654;","method":"animate"},{"args":[[null],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"&#9724;","method":"animate"}],"direction":"left","pad":{"r":10,"t":70},"showactive":false,"type":"buttons","x":0.1,"xanchor":"right","y":0,"yanchor":"top"}],"sliders":[{"active":0,"currentvalue":{"prefix":"date: ","xanchor":"right","font":{"size":18.0}},"len":0.9,"pad":{"b":10,"t":60},"steps":[{"args":[["2022-01-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-01-31\u003cbr\u003eTotal: 2,497","method":"animate"},{"args":[["2022-02-28"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-02-28\u003cbr\u003eTotal: 2,909","method":"animate"},{"args":[["2022-03-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-03-31\u003cbr\u003eTotal: 4,254","method":"animate"},{"args":[["2022-04-30"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-04-30\u003cbr\u003eTotal: 4,935","method":"animate"},{"args":[["2022-05-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-05-31\u003cbr\u003eTotal: 5,077","method":"animate"},{"args":[["2022-06-30"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-06-30\u003cbr\u003eTotal: 5,141","method":"animate"},{"args":[["2022-07-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-07-31\u003cbr\u003eTotal: 6,392","method":"animate"},{"args":[["2022-08-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-08-31\u003cbr\u003eTotal: 6,078","method":"animate"},{"args":[["2022-09-30"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-09-30\u003cbr\u003eTotal: 6,464","method":"animate"},{"args":[["2022-10-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-10-31\u003cbr\u003eTotal: 7,482","method":"animate"},{"args":[["2022-11-30"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-11-30\u003cbr\u003eTotal: 8,452","method":"animate"},{"args":[["2022-12-31"],{"frame":{"duration":0,"redraw":true},"mode":"immediate","fromcurrent":true,"transition":{"duration":0,"easing":"linear"}}],"label":"2022-12-31\u003cbr\u003eTotal: 7,890","method":"animate"}],"x":0.1,"xanchor":"left","y":0,"yanchor":"top","bgcolor":"#D5D5D5","borderwidth":0}],"font":{"size":12},"margin":{"l":250}},                        {"responsive": true}                    ).then(function(){
+                            Plotly.addFrames('8cc1c9a1-5947-4335-b627-8d1af4eb4559', [{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-01-31\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","logfile analysis","log file analyser","what is log file analysis","log file analysis python","python log analysis","python log analyzer","log file analysis seo","log file analyzers","python log analysis tools","python log file analysis","python parse log file","log filel analysis","log file analysis using python","convert log file to dataframe python"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1374.0,212.0,174.0,131.0,109.0,84.0,55.0,37.0,34.0,29.0,21.0,16.0,15.0,14.0,12.0],"textposition":"auto","x":[1374,212,174,131,109,84,55,37,34,29,21,16,15,14,12],"xaxis":"x","y":["log file analysis","logfile analysis","log file analyser","what is log file analysis","log file analysis python","python log analysis","python log analyzer","log file analysis seo","log file analyzers","python log analysis tools","python log file analysis","python parse log file","log filel analysis","log file analysis using python","convert log file to dataframe python"],"yaxis":"y","type":"bar"}],"name":"2022-01-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-02-28\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","log file analyser","logfile analysis","log file analysis python","what is log file analysis","python log analysis","python log analyzer","analyze log files","python log analysis tools","log file analyzer","analyze logs","log file analyzers","how to analyze log files","python log file analysis","python log scraper"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1415.0,199.0,196.0,152.0,144.0,102.0,90.0,51.0,44.0,38.0,37.0,34.0,28.0,28.0,28.0],"textposition":"auto","x":[1415,199,196,152,144,102,90,51,44,38,37,34,28,28,28],"xaxis":"x","y":["log file analysis","log file analyser","logfile analysis","log file analysis python","what is log file analysis","python log analysis","python log analyzer","analyze log files","python log analysis tools","log file analyzer","analyze logs","log file analyzers","how to analyze log files","python log file analysis","python log scraper"],"yaxis":"y","type":"bar"}],"name":"2022-02-28"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-03-31\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","logfile analysis","log file analyser","log file analysis python","python log analysis","what is log file analysis","log file analyzer","how to analyze log files","analyze logs","analyze log files","python log analyzer","python log analysis tools","python log scraper","python log reader","analyze log data"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1466.0,407.0,197.0,164.0,152.0,149.0,132.0,129.0,109.0,88.0,84.0,68.0,65.0,63.0,60.0],"textposition":"auto","x":[1466,407,197,164,152,149,132,129,109,88,84,68,65,63,60],"xaxis":"x","y":["log file analysis","logfile analysis","log file analyser","log file analysis python","python log analysis","what is log file analysis","log file analyzer","how to analyze log files","analyze logs","analyze log files","python log analyzer","python log analysis tools","python log scraper","python log reader","analyze log data"],"yaxis":"y","type":"bar"}],"name":"2022-03-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-04-30\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","logfile analysis","log file analyser","analyse log files","python log analysis","log files analysis","what is log file analysis","log file analysis python","python log analyzer","how to analyze log files","analyze logs","log file analyzer","logs analysis","python log reader","python log analysis tools"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1445.0,377.0,212.0,189.0,179.0,170.0,157.0,140.0,107.0,106.0,101.0,100.0,82.0,77.0,72.0],"textposition":"auto","x":[1445,377,212,189,179,170,157,140,107,106,101,100,82,77,72],"xaxis":"x","y":["log file analysis","logfile analysis","log file analyser","analyse log files","python log analysis","log files analysis","what is log file analysis","log file analysis python","python log analyzer","how to analyze log files","analyze logs","log file analyzer","logs analysis","python log reader","python log analysis tools"],"yaxis":"y","type":"bar"}],"name":"2022-04-30"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-05-31\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","logfile analysis","analyse log files","log file analyser","python log analysis","log files analysis","log file analysis python","what is log file analysis","python log analyzer","pandas read log file","python log analysis tools","python log reader","python parse log file","python log file parser","python log scraper"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1511.0,299.0,190.0,183.0,155.0,147.0,141.0,136.0,112.0,105.0,99.0,92.0,82.0,74.0,65.0],"textposition":"auto","x":[1511,299,190,183,155,147,141,136,112,105,99,92,82,74,65],"xaxis":"x","y":["log file analysis","logfile analysis","analyse log files","log file analyser","python log analysis","log files analysis","log file analysis python","what is log file analysis","python log analyzer","pandas read log file","python log analysis tools","python log reader","python parse log file","python log file parser","python log scraper"],"yaxis":"y","type":"bar"}],"name":"2022-05-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-06-30\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","logfile analysis","log files analysis","python log analysis","analyse log files","log file analysis python","log file analyser","python log analyzer","what is log file analysis","python parse log file","python log file parser","python log reader","parse log file python","python log analysis tools","logs analysis"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1607.0,311.0,209.0,172.0,162.0,152.0,150.0,137.0,136.0,125.0,107.0,103.0,99.0,99.0,84.0],"textposition":"auto","x":[1607,311,209,172,162,152,150,137,136,125,107,103,99,99,84],"xaxis":"x","y":["log file analysis","logfile analysis","log files analysis","python log analysis","analyse log files","log file analysis python","log file analyser","python log analyzer","what is log file analysis","python parse log file","python log file parser","python log reader","parse log file python","python log analysis tools","logs analysis"],"yaxis":"y","type":"bar"}],"name":"2022-06-30"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-07-31\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","logfile analysis","log file analyser","log files analysis","analyse log files","python log analysis","log file analysis seo","log file analysis python","what is log file analysis","python log analyzer","python log analysis tools","analyze logs","logs analysis","python parse log file","python log reader"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1574.0,313.0,204.0,200.0,193.0,185.0,162.0,161.0,153.0,145.0,133.0,129.0,115.0,107.0,98.0],"textposition":"auto","x":[1574,313,204,200,193,185,162,161,153,145,133,129,115,107,98],"xaxis":"x","y":["log file analysis","logfile analysis","log file analyser","log files analysis","analyse log files","python log analysis","log file analysis seo","log file analysis python","what is log file analysis","python log analyzer","python log analysis tools","analyze logs","logs analysis","python parse log file","python log reader"],"yaxis":"y","type":"bar"}],"name":"2022-07-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-08-31\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","logfile analysis","analyse log files","python log analysis","log files analysis","log file analyser","log file analysis seo","what is log file analysis","log file analysis python","how to analyze log files","analyze logs","python log analysis tools","python log analyzer","analyze log files","logs analysis"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1555.0,261.0,185.0,182.0,181.0,175.0,154.0,147.0,144.0,127.0,118.0,118.0,114.0,111.0,97.0],"textposition":"auto","x":[1555,261,185,182,181,175,154,147,144,127,118,118,114,111,97],"xaxis":"x","y":["log file analysis","logfile analysis","analyse log files","python log analysis","log files analysis","log file analyser","log file analysis seo","what is log file analysis","log file analysis python","how to analyze log files","analyze logs","python log analysis tools","python log analyzer","analyze log files","logs analysis"],"yaxis":"y","type":"bar"}],"name":"2022-08-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-09-30\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","logfile analysis","log files analysis","log file analyser","analyse log files","log file analysis tools","python log analysis","log file analysis python","what is log file analysis","log file analysis seo","python log analyzer","how to analyze log files","python read log file","analyze log files","pandas read log file"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1543.0,242.0,192.0,167.0,164.0,154.0,151.0,146.0,146.0,132.0,126.0,117.0,117.0,101.0,97.0],"textposition":"auto","x":[1543,242,192,167,164,154,151,146,146,132,126,117,117,101,97],"xaxis":"x","y":["log file analysis","logfile analysis","log files analysis","log file analyser","analyse log files","log file analysis tools","python log analysis","log file analysis python","what is log file analysis","log file analysis seo","python log analyzer","how to analyze log files","python read log file","analyze log files","pandas read log file"],"yaxis":"y","type":"bar"}],"name":"2022-09-30"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-10-31\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","python read log file","log file analysis tools","logfile analysis","log files analysis","log file analyser","analyse log files","log file analysis python","python log analysis","read log file python","what is log file analysis","how to analyze log files","python log analyzer","python parse log file","analyze logs"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1465.0,283.0,228.0,203.0,190.0,179.0,166.0,156.0,153.0,144.0,141.0,136.0,135.0,123.0,110.0],"textposition":"auto","x":[1465,283,228,203,190,179,166,156,153,144,141,136,135,123,110],"xaxis":"x","y":["log file analysis","python read log file","log file analysis tools","logfile analysis","log files analysis","log file analyser","analyse log files","log file analysis python","python log analysis","read log file python","what is log file analysis","how to analyze log files","python log analyzer","python parse log file","analyze logs"],"yaxis":"y","type":"bar"}],"name":"2022-10-31"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-11-30\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","logfile analysis","python read log file","log file analysis tools","read log file python","log data analysis","log file analyser","log files analysis","analyse log files","log file analysis python","python log analyzer","python log analysis","how to analyze log files","what is log file analysis","python parse log file"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1302.0,611.0,327.0,261.0,196.0,189.0,186.0,177.0,173.0,172.0,163.0,156.0,131.0,131.0,123.0],"textposition":"auto","x":[1302,611,327,261,196,189,186,177,173,172,163,156,131,131,123],"xaxis":"x","y":["log file analysis","logfile analysis","python read log file","log file analysis tools","read log file python","log data analysis","log file analyser","log files analysis","analyse log files","log file analysis python","python log analyzer","python log analysis","how to analyze log files","what is log file analysis","python parse log file"],"yaxis":"y","type":"bar"}],"name":"2022-11-30"},{"data":[{"alignmentgroup":"True","hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003edate=2022-12-31\u003cbr\u003eimpressions=%{text}\u003cbr\u003equery=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["log file analysis","logfile analysis","log data analysis","python read log file","log file analysis tools","python log analysis","log file analyser","log files analysis","analyse log files","log file analysis tool","log file analysis python","read log file python","what is log file analysis","how to analyze log files","python log analyzer"],"legendgroup":"","marker":{"color":"rgb(76,114,176)","pattern":{"shape":""}},"name":"","offsetgroup":"","orientation":"h","showlegend":false,"text":[1416.0,652.0,459.0,252.0,199.0,192.0,190.0,184.0,172.0,155.0,148.0,145.0,140.0,122.0,113.0],"textposition":"auto","x":[1416,652,459,252,199,192,190,184,172,155,148,145,140,122,113],"xaxis":"x","y":["log file analysis","logfile analysis","log data analysis","python read log file","log file analysis tools","python log analysis","log file analyser","log files analysis","analyse log files","log file analysis tool","log file analysis python","read log file python","what is log file analysis","how to analyze log files","python log analyzer"],"yaxis":"y","type":"bar"}],"name":"2022-12-31"}]);
+                        }).then(function(){
+                            
+var gd = document.getElementById('8cc1c9a1-5947-4335-b627-8d1af4eb4559');
+var x = new MutationObserver(function (mutations, observer) {{
+        var display = window.getComputedStyle(gd).display;
+        if (!display || display === 'none') {{
+            console.log([gd, 'removed!']);
+            Plotly.purge(gd);
+            observer.disconnect();
+        }}
+}});
+
+// Listen for the removal of the full notebook cells
+var notebookContainer = gd.closest('#notebook-container');
+if (notebookContainer) {{
+    x.observe(notebookContainer, {childList: true});
+}}
+
+// Listen for the clearing of the current output cell
+var outputEl = gd.closest('.output');
+if (outputEl) {{
+    x.observe(outputEl, {childList: true});
+}}
+
+                        })                };                });            </script>        </div>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/eliasdabbas\.github\.io\/adviz");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/eliasdabbas/adviz/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

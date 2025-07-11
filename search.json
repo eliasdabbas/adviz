@@ -1,0 +1,1192 @@
+[
+  {
+    "objectID": "style_table.html",
+    "href": "style_table.html",
+    "title": "Styling Tables",
+    "section": "",
+    "text": "source",
+    "crumbs": [
+      "Styling tables"
+    ]
+  },
+  {
+    "objectID": "style_table.html#getting-started---a-simple-table",
+    "href": "style_table.html#getting-started---a-simple-table",
+    "title": "Styling Tables",
+    "section": "Getting started - a simple table",
+    "text": "Getting started - a simple table\n\ndf = pd.DataFrame({\n    'text': ['one', 'two', 'three', 'four', 'five'],\n    'category': ['odd', 'even', 'odd', 'even', 'odd'],\n    'heatmap': [10, 20, 30, 40, 70],\n    'bar': [18, 17, 12, 10, 5]\n})\n\ndf\n\n\n\n\n\n\n\n\ntext\ncategory\nheatmap\nbar\n\n\n\n\n0\none\nodd\n10\n18\n\n\n1\ntwo\neven\n20\n17\n\n\n2\nthree\nodd\n30\n12\n\n\n3\nfour\neven\n40\n10\n\n\n4\nfive\nodd\n70\n5\n\n\n\n\n\n\n\n\nstyle_table(\n    df,\n    column_types=['text', 'category', 'heatmap', 'bar'])",
+    "crumbs": [
+      "Styling tables"
+    ]
+  },
+  {
+    "objectID": "style_table.html#styling-multiple-columns-with-multiple-chart-types",
+    "href": "style_table.html#styling-multiple-columns-with-multiple-chart-types",
+    "title": "Styling Tables",
+    "section": "Styling multiple columns with multiple chart types",
+    "text": "Styling multiple columns with multiple chart types\nFirst set the categorical order so we can sort medals by rank: bronze &lt; silver &lt; gold.\n\nmedals = px.data.medals_long()[['medal', 'nation', 'count']]\nmedals['medal'] = (medals['medal']\n                   .astype('category')\n                   .cat.reorder_categories(['bronze', 'silver', 'gold']))\nmedals = medals.sort_values(['medal', 'count'], ascending=False)\nmedals\n\n\n\n\n\n\n\n\nmedal\nnation\ncount\n\n\n\n\n0\ngold\nSouth Korea\n24\n\n\n1\ngold\nChina\n10\n\n\n2\ngold\nCanada\n9\n\n\n4\nsilver\nChina\n15\n\n\n3\nsilver\nSouth Korea\n13\n\n\n5\nsilver\nCanada\n12\n\n\n8\nbronze\nCanada\n12\n\n\n6\nbronze\nSouth Korea\n11\n\n\n7\nbronze\nChina\n8\n\n\n\n\n\n\n\nSince each column contains a different type of data, we want to set the types of chart we want ot use to visualize them:\n\nmedal: category\nnation: category\ncount: bar\n\nNote that when you have two categorical columns, different color scales are used to avoid confusion.\n\nstyle_table(\n    medals,\n    column_types=['category', 'category', 'bar'],\n    title='Olympic Medals',\n    theme='none',\n    precision=0,\n    width=800,\n    height=500)\n\n                                                \n\n\nYou can also use “heatmap” for numeric columns, and it depends on how you want to display it.\n\nstyle_table(\n    medals,\n    column_types=['category', 'category', 'heatmap'],\n    title='Olympic Medals',\n    theme='none',\n    precision=0,\n    width=800,\n    height=400)",
+    "crumbs": [
+      "Styling tables"
+    ]
+  },
+  {
+    "objectID": "style_table.html#styling-many-columns-with-multiple-chart-types",
+    "href": "style_table.html#styling-many-columns-with-multiple-chart-types",
+    "title": "Styling Tables",
+    "section": "Styling many columns with multiple chart types",
+    "text": "Styling many columns with multiple chart types\n\nelection = px.data.election().iloc[:, :-1]\nelection.head()\n\n\n\n\n\n\n\n\ndistrict\nCoderre\nBergeron\nJoly\ntotal\nwinner\nresult\n\n\n\n\n0\n101-Bois-de-Liesse\n2481\n1829\n3024\n7334\nJoly\nplurality\n\n\n1\n102-Cap-Saint-Jacques\n2525\n1163\n2675\n6363\nJoly\nplurality\n\n\n2\n11-Sault-au-Récollet\n3348\n2770\n2532\n8650\nCoderre\nplurality\n\n\n3\n111-Mile-End\n1734\n4782\n2514\n9030\nBergeron\nmajority\n\n\n4\n112-DeLorimier\n1770\n5933\n3044\n10747\nBergeron\nmajority\n\n\n\n\n\n\n\nUsing column_widths we can set the relative widths of each chart as appropriate. This can be set as any fraction between [0, 1]. The columns that contain a lot of data (like text for example) can be given a larger share of the chart, and you can interactively modify the widths using a list.\n\nstyle_table(\n    election.sort_values('total', ascending=False).head(20),\n    column_types=['text', 'heatmap', 'heatmap', 'heatmap', 'bar', 'category', 'category'],\n    column_widths=[.3, 0.12, 0.12, 0.12, 0.12, 0.12, 0.12 ],\n    precision=0,\n    theme='plotly_dark',\n    title='Election Results – Top 20',\n    height=750,\n)",
+    "crumbs": [
+      "Styling tables"
+    ]
+  },
+  {
+    "objectID": "style_table.html#producing-more-detailed-and-readable-tables",
+    "href": "style_table.html#producing-more-detailed-and-readable-tables",
+    "title": "Styling Tables",
+    "section": "Producing more detailed and readable tables",
+    "text": "Producing more detailed and readable tables\nWith large tables and many values, it’s good to filter and display the subset that you want, as we do here with the gapminder dataset. We first sort values by year and gdpPercap, and then get the top five countries for each year. Then we rename the columns to give them a nicer look.\n\ntop5_gdp_percap = (px.data\n                   .gapminder()\n                   .sort_values(['year', 'gdpPercap'],\n                                ascending=[True, False])\n                   .groupby('year').head().iloc[:, :-2]\n                   [['country', 'continent', 'year', 'gdpPercap', 'lifeExp', 'pop']]\n                   .rename(columns={\n                       'gdpPercap': 'GDP per capita',\n                       'lifeExp': 'Life expectancy',\n                       'pop': 'population'}))\ntop5_gdp_percap.head()\n\n\n\n\n\n\n\n\ncountry\ncontinent\nyear\nGDP per capita\nLife expectancy\npopulation\n\n\n\n\n852\nKuwait\nAsia\n1952\n108382.35290\n55.565\n160000\n\n\n1476\nSwitzerland\nEurope\n1952\n14734.23275\n69.620\n4815000\n\n\n1608\nUnited States\nAmericas\n1952\n13990.48208\n68.440\n157553000\n\n\n240\nCanada\nAmericas\n1952\n11367.16112\n68.750\n14785584\n\n\n1092\nNew Zealand\nOceania\n1952\n10556.57566\n69.390\n1994794\n\n\n\n\n\n\n\n\ntop5_gdp_percap\n\n\n\n\n\n\n\n\ncountry\ncontinent\nyear\nGDP per capita\nLife expectancy\npopulation\n\n\n\n\n852\nKuwait\nAsia\n1952\n108382.35290\n55.565\n160000\n\n\n1476\nSwitzerland\nEurope\n1952\n14734.23275\n69.620\n4815000\n\n\n1608\nUnited States\nAmericas\n1952\n13990.48208\n68.440\n157553000\n\n\n240\nCanada\nAmericas\n1952\n11367.16112\n68.750\n14785584\n\n\n1092\nNew Zealand\nOceania\n1952\n10556.57566\n69.390\n1994794\n\n\n853\nKuwait\nAsia\n1957\n113523.13290\n58.033\n212846\n\n\n1477\nSwitzerland\nEurope\n1957\n17909.48973\n70.560\n5126000\n\n\n1609\nUnited States\nAmericas\n1957\n14847.12712\n69.490\n171984000\n\n\n241\nCanada\nAmericas\n1957\n12489.95006\n69.960\n17010154\n\n\n1093\nNew Zealand\nOceania\n1957\n12247.39532\n70.260\n2229407\n\n\n854\nKuwait\nAsia\n1962\n95458.11176\n60.470\n358266\n\n\n1478\nSwitzerland\nEurope\n1962\n20431.09270\n71.320\n5666000\n\n\n1610\nUnited States\nAmericas\n1962\n16173.14586\n70.210\n186538000\n\n\n410\nDenmark\nEurope\n1962\n13583.31351\n72.350\n4646899\n\n\n242\nCanada\nAmericas\n1962\n13462.48555\n71.300\n18985849\n\n\n855\nKuwait\nAsia\n1967\n80894.88326\n64.624\n575003\n\n\n1479\nSwitzerland\nEurope\n1967\n22966.14432\n72.770\n6063000\n\n\n1611\nUnited States\nAmericas\n1967\n19530.36557\n70.760\n198712000\n\n\n903\nLibya\nAfrica\n1967\n18772.75169\n50.227\n1759224\n\n\n1311\nSaudi Arabia\nAsia\n1967\n16903.04886\n49.901\n5618198\n\n\n856\nKuwait\nAsia\n1972\n109347.86700\n67.712\n841934\n\n\n1480\nSwitzerland\nEurope\n1972\n27195.11304\n73.780\n6401400\n\n\n1312\nSaudi Arabia\nAsia\n1972\n24837.42865\n53.886\n6472756\n\n\n1612\nUnited States\nAmericas\n1972\n21806.03594\n71.340\n209896000\n\n\n904\nLibya\nAfrica\n1972\n21011.49721\n52.773\n2183877\n\n\n857\nKuwait\nAsia\n1977\n59265.47714\n69.343\n1140357\n\n\n1313\nSaudi Arabia\nAsia\n1977\n34167.76260\n58.690\n8128505\n\n\n1481\nSwitzerland\nEurope\n1977\n26982.29052\n75.390\n6316424\n\n\n1613\nUnited States\nAmericas\n1977\n24072.63213\n73.380\n220239000\n\n\n1145\nNorway\nEurope\n1977\n23311.34939\n75.370\n4043205\n\n\n1314\nSaudi Arabia\nAsia\n1982\n33693.17525\n63.012\n11254672\n\n\n858\nKuwait\nAsia\n1982\n31354.03573\n71.309\n1497494\n\n\n1482\nSwitzerland\nEurope\n1982\n28397.71512\n76.210\n6468126\n\n\n1146\nNorway\nEurope\n1982\n26298.63531\n75.970\n4114787\n\n\n1614\nUnited States\nAmericas\n1982\n25009.55914\n74.650\n232187835\n\n\n1147\nNorway\nEurope\n1987\n31540.97480\n75.890\n4186147\n\n\n1483\nSwitzerland\nEurope\n1987\n30281.70459\n77.410\n6649942\n\n\n1615\nUnited States\nAmericas\n1987\n29884.35041\n75.020\n242803533\n\n\n859\nKuwait\nAsia\n1987\n28118.42998\n74.174\n1891487\n\n\n691\nIceland\nEurope\n1987\n26923.20628\n77.230\n244676\n\n\n860\nKuwait\nAsia\n1992\n34932.91959\n75.190\n1418095\n\n\n1148\nNorway\nEurope\n1992\n33965.66115\n77.320\n4286357\n\n\n1616\nUnited States\nAmericas\n1992\n32003.93224\n76.090\n256894189\n\n\n1484\nSwitzerland\nEurope\n1992\n31871.53030\n78.030\n6995447\n\n\n80\nAustria\nEurope\n1992\n27042.01868\n76.040\n7914969\n\n\n1149\nNorway\nEurope\n1997\n41283.16433\n78.320\n4405672\n\n\n861\nKuwait\nAsia\n1997\n40300.61996\n76.156\n1765345\n\n\n1617\nUnited States\nAmericas\n1997\n35767.43303\n76.810\n272911760\n\n\n1365\nSingapore\nAsia\n1997\n33519.47660\n77.158\n3802309\n\n\n1485\nSwitzerland\nEurope\n1997\n32135.32301\n79.370\n7193761\n\n\n1150\nNorway\nEurope\n2002\n44683.97525\n79.050\n4535591\n\n\n1618\nUnited States\nAmericas\n2002\n39097.09955\n77.310\n287675526\n\n\n1366\nSingapore\nAsia\n2002\n36023.10540\n78.770\n4197776\n\n\n862\nKuwait\nAsia\n2002\n35110.10566\n76.904\n2111561\n\n\n1486\nSwitzerland\nEurope\n2002\n34480.95771\n80.620\n7361757\n\n\n1151\nNorway\nEurope\n2007\n49357.19017\n80.196\n4627926\n\n\n863\nKuwait\nAsia\n2007\n47306.98978\n77.588\n2505559\n\n\n1367\nSingapore\nAsia\n2007\n47143.17964\n79.972\n4553009\n\n\n1619\nUnited States\nAmericas\n2007\n42951.65309\n78.242\n301139947\n\n\n755\nIreland\nEurope\n2007\n40675.99635\n78.885\n4109086\n\n\n\n\n\n\n\n\nstyle_table(\n    top5_gdp_percap,\n    ['text', 'category', 'category', 'bar', 'heatmap', 'heatmap'],\n    column_widths=[.1, .07, .05, .12, .12, .12, ],\n    theme='seaborn',\n    precision=0,\n    title=\"Top 5 countries per year – GDP per capita\",\n    height=1300)",
+    "crumbs": [
+      "Styling tables"
+    ]
+  },
+  {
+    "objectID": "style_table.html#visualizing-hierarchicacal-data",
+    "href": "style_table.html#visualizing-hierarchicacal-data",
+    "title": "Styling Tables",
+    "section": "Visualizing hierarchicacal data",
+    "text": "Visualizing hierarchicacal data\nSee also: the adviz.status_codes chart.\n\nstatus_codes = pd.read_csv('data/status_codes.csv')\nstatus_codes['category'] = status_codes['status'].round(-2)\nstatus_codes\n\n\n\n\n\n\n\n\nstatus\ncategory\n\n\n\n\n0\n200\n200\n\n\n1\n200\n200\n\n\n2\n200\n200\n\n\n3\n200\n200\n\n\n4\n200\n200\n\n\n...\n...\n...\n\n\n414398\n200\n200\n\n\n414399\n200\n200\n\n\n414400\n200\n200\n\n\n414401\n200\n200\n\n\n414402\n200\n200\n\n\n\n\n414403 rows × 2 columns\n\n\n\n\nstyle_table(\n    status_codes[['category', 'status']].value_counts().reset_index().sort_values(['category', 'count'], ascending=[True, False]),\n    column_types=['category', 'text', 'bar'],\n    column_widths=[.2, .2, .6],\n    precision=0,\n    theme='none',\n    title='Status Codes',\n    height=600, width=700)",
+    "crumbs": [
+      "Styling tables"
+    ]
+  },
+  {
+    "objectID": "url_structure_slides.html#url-structure",
+    "href": "url_structure_slides.html#url-structure",
+    "title": "adviz",
+    "section": "URL Structure",
+    "text": "URL Structure\n\nSee how a website is structured by seeing how much each folder represents in terms of URLs\n\n\nProvide a lit of URLs\nSet height, width, and theme (optional)\nDetermine the number of items per level\n“See” the website",
+    "crumbs": [
+      "URL structure (slides)"
+    ]
+  },
+  {
+    "objectID": "url_structure_slides.html#read-a-list-of-urls-from-a-textcsv-file",
+    "href": "url_structure_slides.html#read-a-list-of-urls-from-a-textcsv-file",
+    "title": "adviz",
+    "section": "Read a list of URLs from a text/CSV file",
+    "text": "Read a list of URLs from a text/CSV file\nimport adviz\nimport pandas as pd\n\n\n\n\n\n\n\n\n\nurl\n\n\n\n\n0\nhttps://www.apple.com/ae/shop/accessories/all\n\n\n1\nhttps://www.apple.com/ae/shop/accessories/all/accessibility\n\n\n2\nhttps://www.apple.com/ae/shop/accessories/all/airtag\n\n\n3\nhttps://www.apple.com/ae/shop/accessories/all/beats\n\n\n4\nhttps://www.apple.com/ae/shop/accessories/all/beats-featured\n\n\n5\nhttps://www.apple.com/ae/shop/accessories/all/cases-protection\n\n\n6\nhttps://www.apple.com/ae/shop/accessories/all/creativity\n\n\n7\nhttps://www.apple.com/ae/shop/accessories/all/displays-mounts\n\n\n8\nhttps://www.apple.com/ae/shop/accessories/all/drones\n\n\n9\nhttps://www.apple.com/ae/shop/accessories/all/headphones-speakers",
+    "crumbs": [
+      "URL structure (slides)"
+    ]
+  },
+  {
+    "objectID": "url_structure_slides.html#visualize-the-url-structure-with",
+    "href": "url_structure_slides.html#visualize-the-url-structure-with",
+    "title": "adviz",
+    "section": "Visualize the URL structure with",
+    "text": "Visualize the URL structure with\n\nadviz.url_structure(apple[\"url\"])",
+    "crumbs": [
+      "URL structure (slides)"
+    ]
+  },
+  {
+    "objectID": "url_structure_slides.html#number-of-items-per-level",
+    "href": "url_structure_slides.html#number-of-items-per-level",
+    "title": "adviz",
+    "section": "Number of items per level",
+    "text": "Number of items per level\n\nadviz.url_structure(url_list=apple[\"url\"], items_per_level=5)",
+    "crumbs": [
+      "URL structure (slides)"
+    ]
+  },
+  {
+    "objectID": "url_structure_slides.html#number-of-items-per-level-1",
+    "href": "url_structure_slides.html#number-of-items-per-level-1",
+    "title": "adviz",
+    "section": "Number of items per level",
+    "text": "Number of items per level\n\nadviz.url_structure(url_list=apple[\"url\"], items_per_level=25)",
+    "crumbs": [
+      "URL structure (slides)"
+    ]
+  },
+  {
+    "objectID": "url_structure_slides.html#pick-a-template",
+    "href": "url_structure_slides.html#pick-a-template",
+    "title": "adviz",
+    "section": "Pick a template",
+    "text": "Pick a template\n\nadviz.url_structure(url_list=apple[\"url\"], items_per_level=25, template=\"plotly_dark\")",
+    "crumbs": [
+      "URL structure (slides)"
+    ]
+  },
+  {
+    "objectID": "url_structure_slides.html#pick-a-template-1",
+    "href": "url_structure_slides.html#pick-a-template-1",
+    "title": "adviz",
+    "section": "Pick a template",
+    "text": "Pick a template\n\nadviz.url_structure(url_list=apple[\"url\"], items_per_level=15, template=\"seaborn\")",
+    "crumbs": [
+      "URL structure (slides)"
+    ]
+  },
+  {
+    "objectID": "url_structure_slides.html#set-domain-name-and-chart-title",
+    "href": "url_structure_slides.html#set-domain-name-and-chart-title",
+    "title": "adviz",
+    "section": "Set domain name and chart title",
+    "text": "Set domain name and chart title\n\n\nCode\nadviz.url_structure(\n    url_list=apple[\"url\"],\n    items_per_level=15,\n    template=\"ggplot2\",\n    domain=\"apple.com\",\n    title='URL Structure: &lt;b&gt;apple.com&lt;/b&gt;&lt;br&gt;Raw data: &lt;a href=\"data/apple_url_list.csv\"&gt;Apple.com URLs&lt;/a&gt;',\n)",
+    "crumbs": [
+      "URL structure (slides)"
+    ]
+  },
+  {
+    "objectID": "url_structure_slides.html#get-started-now",
+    "href": "url_structure_slides.html#get-started-now",
+    "title": "adviz",
+    "section": "Get started now:",
+    "text": "Get started now:\n\n\npython3 -m pip install adviz\n\n\nExplore more advertools data visualizations",
+    "crumbs": [
+      "URL structure (slides)"
+    ]
+  },
+  {
+    "objectID": "status_codes.html",
+    "href": "status_codes.html",
+    "title": "Status Codes",
+    "section": "",
+    "text": "source",
+    "crumbs": [
+      "Status Codes"
+    ]
+  },
+  {
+    "objectID": "status_codes.html#change-the-template-with-the-template-parameter",
+    "href": "status_codes.html#change-the-template-with-the-template-parameter",
+    "title": "Status Codes",
+    "section": "Change the template with the template parameter",
+    "text": "Change the template with the template parameter\n\nstatus_codes(codes[\"status\"], template=\"seaborn\")\n\n                            \n                                            \n\n\n\nstatus_codes(codes[\"status\"], template=\"plotly_dark\")",
+    "crumbs": [
+      "Status Codes"
+    ]
+  },
+  {
+    "objectID": "status_codes.html#change-the-dimensions-of-the-charts-with-width-and-height",
+    "href": "status_codes.html#change-the-dimensions-of-the-charts-with-width-and-height",
+    "title": "Status Codes",
+    "section": "Change the dimensions of the charts with width and height",
+    "text": "Change the dimensions of the charts with width and height\n\nstatus_codes(codes[\"status\"], width=700, height=700, subtitle=\"example.com\")",
+    "crumbs": [
+      "Status Codes"
+    ]
+  },
+  {
+    "objectID": "status_codes.html#modify-the-title-of-the-chart-and-make-use-of-various-html-tags-a-b-br-i-sub-sup",
+    "href": "status_codes.html#modify-the-title-of-the-chart-and-make-use-of-various-html-tags-a-b-br-i-sub-sup",
+    "title": "Status Codes",
+    "section": "Modify the title of the chart, and make use of various HTML tags <a>, <b>, <br>, <i>, <sub>, <sup>",
+    "text": "Modify the title of the chart, and make use of various HTML tags &lt;a&gt;, &lt;b&gt;, &lt;br&gt;, &lt;i&gt;, &lt;sub&gt;, &lt;sup&gt;\n\nwebsite = \"MyWebsite.com\"\ntitle = f'Error Codes distribution &lt;b&gt;400&lt;/b&gt; and &lt;b&gt;500&lt;/b&gt;&lt;br&gt;clickable: &lt;i&gt;&lt;a href=\"https://mywebsite.com\"&gt;{website}&lt;/i&gt; – April 3, 2023'\n\nstatus_codes(\n    codes.query(\"status &gt;= 400\")[\"status\"],\n    title=title,\n    height=700,\n    width=1300,\n    template=\"ggplot2\",\n)\n\n                            \n                                            \n\n\n\nTry downloading, interacting with, and emailing this chart. File link",
+    "crumbs": [
+      "Status Codes"
+    ]
+  },
+  {
+    "objectID": "serp_heatmap.html",
+    "href": "serp_heatmap.html",
+    "title": "SERP Heatmap",
+    "section": "",
+    "text": "source",
+    "crumbs": [
+      "SERP Heatmap"
+    ]
+  },
+  {
+    "objectID": "serp_heatmap.html#exploring-the-serp-dataset",
+    "href": "serp_heatmap.html#exploring-the-serp-dataset",
+    "title": "SERP Heatmap",
+    "section": "Exploring the SERP dataset",
+    "text": "Exploring the SERP dataset\nThis table is the result of using the advertools.serp_goog function, which connects to the official Google Custom Search API. You can use other SERP data providers if you want.\n\n\n\n\n\n\n\n\n\ngl\nsearchTerms\nrank\ntitle\nsnippet\ndisplayLink\nlink\nqueryTime\ntotalResults\ncacheId\ncount\ncseName\ncx\nfileFormat\nformattedSearchTime\nformattedTotalResults\nformattedUrl\nhtmlFormattedUrl\nhtmlSnippet\nhtmlTitle\ninputEncoding\nkind\nmime\noutputEncoding\npagemap\nsafe\nsearchTime\nstartIndex\ncse_thumbnail\nmetatags\ncse_image\nthumbnail\nlistitem\ntable\norganization\npostaladdress\nhcard\nimageobject\nperson\ninteractioncounter\nwebpage\nblogposting\nhatomfeed\nproduct\naggregaterating\nhproduct\nvideoobject\ncollection\ncreativework\nsocialmediaposting\nsoftwaresourcecode\ncomment\narticle\nhreviewaggregate\nsitenavigationelement\nnewsarticle\nwpheader\nterm-def.xml\nspeakablespecification\nmaincontentofpage\nquestion\nanswer\nWebPage\ncorporation\ncontactpoint\nngo\nBreadcrumbList\nrating\noffer\nbrand\nDocument\ndocument\nxfn\npropertyvalue\nreview\nindividualproduct\nbreadcrumb\nwebapplication\nscraped\nog:image\nviewport\ntwitter:card\nmsapplication-square70x70logo\nsailthru.tags\nog:site_name\nemailt1\nmsapplication-wide310x150logo\nmsapplication-tileimage\nog:description\ntwitter:image\ntwitter:site\nmsapplication-square310x310logo\nsailthru.title\nemailcontenttype\nmsapplication-tilecolor\nsailthru.date\nog:type\ntwitter:title\nemailvertical\nog:title\nmsapplication-square150x150logo\nsailthru.image.thumb\nfb:app_id\ntwitter:description\nog:url\nsailthru.author\np:domain_verify\nmetatag_thumbnail\nauthor\ntwitter:creator\nnews_keywords\nog:locale\ntwitter:url\nfb:admins\ntwitter:app:id:googleplay\ntwitter:app:id:ipad\ntwitter:app:id:iphone\nreferrer\nformat-detection\nog:image:width\n\n\n\n\n0\nus\nwhat is bitcoin\n1\nBitcoin - Open source P2P money\nBitcoin uses peer-to-peer technology to operat...\nbitcoin.org\nhttps://bitcoin.org/\n2022-04-24 18:10:18.884769+00:00\n8100000000\neftmar-x2ocJ\n10\nPySearch\n012859022920491477448:pubdbfjmmec\nNaN\n0.31\n8,100,000,000\nhttps://bitcoin.org/\nhttps://&lt;b&gt;bitcoin&lt;/b&gt;.org/\n&lt;b&gt;Bitcoin&lt;/b&gt; uses peer-to-peer technology to...\n&lt;b&gt;Bitcoin&lt;/b&gt; - Open source P2P money\nutf8\ncustomsearch#result\nNaN\nutf8\n{'cse_thumbnail': [{'src': 'https://encrypted-...\noff\n0.309795\n1\n[{'src': 'https://encrypted-tbn1.gstatic.com/i...\n[{'og:image': 'https://bitcoin.org/img/icons/o...\n[{'src': 'https://bitcoin.org/img/icons/opengr...\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nhttps://bitcoin.org/img/icons/opengraph.png?16...\nwidth=device-width, initial-scale=1.0, user-sc...\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\n\n\n1\nus\nwhat is bitcoin\n2\nBitcoin Definition\nBitcoin is a digital or virtual currency creat...\nwww.investopedia.com\nhttps://www.investopedia.com/terms/b/bitcoin.asp\n2022-04-24 18:10:18.884769+00:00\n8100000000\nq3G-51w_tGYJ\n10\nPySearch\n012859022920491477448:pubdbfjmmec\nNaN\n0.31\n8,100,000,000\nhttps://www.investopedia.com/terms/b/bitcoin.asp\nhttps://www.investopedia.com/terms/b/&lt;b&gt;bitcoi...\n&lt;b&gt;Bitcoin&lt;/b&gt; is a digital or virtual currenc...\n&lt;b&gt;Bitcoin&lt;/b&gt; Definition\nutf8\ncustomsearch#result\nNaN\nutf8\n{'cse_thumbnail': [{'src': 'https://encrypted-...\noff\n0.309795\n1\n[{'src': 'https://encrypted-tbn2.gstatic.com/i...\n[{'og:image': 'https://www.investopedia.com/th...\n[{'src': 'https://www.investopedia.com/thmb/wj...\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nhttps://www.investopedia.com/thmb/wjXQJxSVbGQ5...\nwidth=device-width, initial-scale=1.0\nsummary\n/static/1.229.0/icons/favicons/mstile-70x70.png\ninvesting,cryptocurrency,bitcoin\nInvestopedia\nInvesting\n/static/1.229.0/icons/favicons/mstile-310x150.png\n/static/1.229.0/icons/favicons/mstile-144x144.png\nBitcoin is a digital or virtual currency creat...\nhttps://www.investopedia.com/thmb/wjXQJxSVbGQ5...\n@Investopedia\n/static/1.229.0/icons/favicons/mstile-310x310.png\nBitcoin Definition: How Does Bitcoin Work?\nTERMSC\n#F4F4F4\n2022-02-20T12:34:05.191Z\narticle\nBitcoin Definition: How Does Bitcoin Work?\nINVESTOPEDIA\nBitcoin Definition: How Does Bitcoin Work?\n/static/1.229.0/icons/favicons/mstile-150x150.png\nhttps://www.investopedia.com/thmb/TQvY4XfgB7Za...\n6.590541e+14\nBitcoin is a digital or virtual currency creat...\nhttps://www.investopedia.com/terms/b/bitcoin.asp\nJake Frankenfield\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\n\n\n2\nus\nwhat is bitcoin\n3\nWhat is bitcoin and how does it work? | New Sc...\nBitcoin is a digital currency which operates f...\nwww.newscientist.com\nhttps://www.newscientist.com/definition/bitcoin/\n2022-04-24 18:10:18.884769+00:00\n8100000000\nEembwztvXSwJ\n10\nPySearch\n012859022920491477448:pubdbfjmmec\nNaN\n0.31\n8,100,000,000\nhttps://www.newscientist.com/definition/bitcoin/\nhttps://www.newscientist.com/definition/&lt;b&gt;bit...\n&lt;b&gt;Bitcoin&lt;/b&gt; is a digital currency which ope...\n&lt;b&gt;What is bitcoin&lt;/b&gt; and how does it work? |...\nutf8\ncustomsearch#result\nNaN\nutf8\n{'thumbnail': [{'src': 'https://images.newscie...\noff\n0.309795\n1\nNaN\n[{'p:domain_verify': 'e1ad6b074bd56738db29f7d0...\n[{'src': 'https://images.newscientist.com/wp-c...\n[{'src': 'https://images.newscientist.com/wp-c...\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nhttps://images.newscientist.com/wp-content/upl...\nwidth=device-width, initial-scale=1.0, maximum...\nsummary_large_image\nNaN\nNaN\nNew Scientist\nNaN\nNaN\nNaN\nBitcoin is a digital currency which operates f...\nhttps://images.newscientist.com/wp-content/upl...\n@newscientist\nNaN\nNaN\nNaN\nNaN\nNaN\narticle\nWhat is bitcoin and how does it work? | New Sc...\nNaN\nWhat is bitcoin and how does it work?\nNaN\nNaN\nNaN\nBitcoin is a digital currency which operates f...\nhttps://www.newscientist.com/definition/bitcoin/\nNaN\ne1ad6b074bd56738db29f7d0150698c9\nhttps://images.newscientist.com/wp-content/upl...\n#author.fullName}\n@newscientist\ncryptocurrency,bitcoin\nen_US\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\n\n\n3\nus\nwhat is bitcoin\n4\nWhat is bitcoin? - CNNMoney\nBitcoin is a cryptocurrency created in 2009. M...\nmoney.cnn.com\nhttps://money.cnn.com/infographic/technology/w...\n2022-04-24 18:10:18.884769+00:00\n8100000000\nejebbzzk3kEJ\n10\nPySearch\n012859022920491477448:pubdbfjmmec\nNaN\n0.31\n8,100,000,000\nhttps://money.cnn.com/infographic/technology/w...\nhttps://money.cnn.com/infographic/technology/&lt;...\n&lt;b&gt;Bitcoin&lt;/b&gt; is a &lt;b&gt;cryptocurrency&lt;/b&gt; crea...\n&lt;b&gt;What is bitcoin&lt;/b&gt;? - CNNMoney\nutf8\ncustomsearch#result\nNaN\nutf8\n{'cse_thumbnail': [{'src': 'https://encrypted-...\noff\n0.309795\n1\n[{'src': 'https://encrypted-tbn1.gstatic.com/i...\n[{'og:image': 'https://cdn.cnn.com/cnn/2018/im...\n[{'src': 'https://cdn.cnn.com/cnn/2018/images/...\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nhttps://cdn.cnn.com/cnn/2018/images/08/08/cnni...\nwidth=device-width, initial-scale=1.0, maximum...\nsummary_large_image\nNaN\nNaN\nCNNMoney\nNaN\nNaN\nNaN\nBitcoin is a cryptocurrency created in 2009. M...\nhttps://cdn.cnn.com/cnn/2018/images/08/08/cnni...\n@CNNMoney\nNaN\nNaN\nNaN\nNaN\nNaN\narticle\nWhat is bitcoin? - CNNMoney\nNaN\nWhat is bitcoin? - CNNMoney\nNaN\nNaN\n5.218482e+14\nBitcoin is a cryptocurrency created in 2009. M...\nhttps://money.cnn.com/infographic/technology/w...\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nhttps://money.cnn.com/infographic/technology/w...\n100000014300691\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\n\n\n4\nus\nwhat is bitcoin\n5\nWhat is Bitcoin? | Coinbase\nBitcoin is a currency native to the Internet. ...\nwww.coinbase.com\nhttps://www.coinbase.com/learn/crypto-basics/w...\n2022-04-24 18:10:18.884769+00:00\n8100000000\n6QRw_cV35OkJ\n10\nPySearch\n012859022920491477448:pubdbfjmmec\nNaN\n0.31\n8,100,000,000\nhttps://www.coinbase.com/learn/crypto-basics/w...\nhttps://www.coinbase.com/learn/&lt;b&gt;crypto&lt;/b&gt;-b...\n&lt;b&gt;Bitcoin&lt;/b&gt; is a currency native to the Int...\n&lt;b&gt;What is Bitcoin&lt;/b&gt;? | Coinbase\nutf8\ncustomsearch#result\nNaN\nutf8\n{'metatags': [{'twitter:app:id:googleplay': 'c...\noff\n0.309795\n1\nNaN\n[{'twitter:app:id:googleplay': 'com.coinbase.a...\nNaN\nNaN\n[{'item': 'Learn', 'name': 'Learn', 'position'...\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nwidth=device-width, initial-scale=1.0\nsummary_large_image\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nBitcoin is the world's first widely adopted cr...\nNaN\n@coinbase\nNaN\nNaN\nNaN\nNaN\nNaN\nwebsite\nWhat is Bitcoin?\nNaN\nWhat is Bitcoin?\nNaN\nNaN\nNaN\nBitcoin is the world's first widely adopted cr...\nNaN\nNaN\nNaN\nNaN\nNaN\n@coinbase\nNaN\nNaN\nNaN\nNaN\ncom.coinbase.android\n886427730.0\n886427730.0\nNaN\nNaN\nNaN\n\n\n\n\n\n\n\n\nWatch a discussion about analyzing SERPs:\n\n\nThis SERP dataset was created by running the adv.serp_goog function as follows:\n\nGet the top 36 crypto currencies’ names\nGenerate two variations for each coin: “what is &lt;coin&gt;” and “&lt;coin&gt; price”\nRun the serp_goog function for all coins, query variations and in two countries, US, and UK\n\n\n\n36 coins x 2 variations x 2 countries = 144 requests (1,440 SERP results)\nAs you can see, there are numerous columns that are returned by the API, although many of them are empty. The default ones will always be full though, and they are placed in the beginning of the DataFrame.\n\n\nSample results for the “what is &lt;coin&gt;” query\n\n\n\n\n\n\n\n\n\ngl\nsearchTerms\nrank\ndisplayLink\nlink\nsnippet\n\n\n\n\n0\nus\nwhat is bitcoin\n1\nbitcoin.org\nhttps://bitcoin.org/\nBitcoin uses peer-to-peer technology to operat...\n\n\n1\nus\nwhat is bitcoin\n2\nwww.investopedia.com\nhttps://www.investopedia.com/terms/b/bitcoin.asp\nBitcoin is a digital or virtual currency creat...\n\n\n2\nus\nwhat is bitcoin\n3\nwww.newscientist.com\nhttps://www.newscientist.com/definition/bitcoin/\nBitcoin is a digital currency which operates f...\n\n\n10\nuk\nwhat is bitcoin\n1\nbitcoin.org\nhttps://bitcoin.org/\nBitcoin uses peer-to-peer technology to operat...\n\n\n11\nuk\nwhat is bitcoin\n2\nwww.newscientist.com\nhttps://www.newscientist.com/definition/bitcoin/\nBitcoin is a digital currency which operates f...\n\n\n12\nuk\nwhat is bitcoin\n3\nwww.investopedia.com\nhttps://www.investopedia.com/terms/b/bitcoin.asp\nBitcoin is a digital or virtual currency creat...\n\n\n20\nus\nwhat is litecoin\n1\nlitecoin.org\nhttps://litecoin.org/\nWhat is Litecoin? ... Litecoin is a peer-to-pe...\n\n\n21\nus\nwhat is litecoin\n2\nwww.investopedia.com\nhttps://www.investopedia.com/articles/investin...\nLitecoin (LTC) is a cryptocurrency created fro...\n\n\n22\nus\nwhat is litecoin\n3\ncoinmarketcap.com\nhttps://coinmarketcap.com/currencies/litecoin/\nThe live Litecoin price today is $104.96 USD w...\n\n\n30\nuk\nwhat is litecoin\n1\nwww.investopedia.com\nhttps://www.investopedia.com/articles/investin...\nLitecoin (LTC) is a cryptocurrency created fro...\n\n\n31\nuk\nwhat is litecoin\n2\nlitecoin.org\nhttps://litecoin.org/\nWhat is Litecoin? ... Litecoin is a peer-to-pe...\n\n\n32\nuk\nwhat is litecoin\n3\nwww.investopedia.com\nhttps://www.investopedia.com/articles/investin...\n18 Dec 2021 ... An application-specific integr...\n\n\n40\nus\nwhat is namecoin\n1\nwww.namecoin.org\nhttps://www.namecoin.org/\nNamecoin is an experimental open-source techno...\n\n\n41\nus\nwhat is namecoin\n2\nwww.investopedia.com\nhttps://www.investopedia.com/terms/n/namecoin.asp\nMar 1, 2021 ... Namecoin is a key/value pair r...\n\n\n42\nus\nwhat is namecoin\n3\nen.wikipedia.org\nhttps://en.wikipedia.org/wiki/Namecoin\nor NMC) is a cryptocurrency originally forked ...\n\n\n\n\n\n\n\n\n\nSample results for the “&lt;coin&gt; price” query\n\n\n\n\n\n\n\n\n\ngl\nsearchTerms\nrank\ndisplayLink\nlink\nsnippet\n\n\n\n\n720\nus\nbitcoin price\n1\nwww.coindesk.com\nhttps://www.coindesk.com/price/bitcoin/\nThe Bitcoin price is $39,934.91, a change of -...\n\n\n721\nus\nbitcoin price\n2\nwww.coinbase.com\nhttps://www.coinbase.com/price/bitcoin\nApril 23, 2022 - The current price of Bitcoin ...\n\n\n722\nus\nbitcoin price\n3\ncoinmarketcap.com\nhttps://coinmarketcap.com/currencies/bitcoin/\nThe live Bitcoin price today is $39,717.61 USD...\n\n\n730\nuk\nbitcoin price\n1\nwww.coindesk.com\nhttps://www.coindesk.com/price/bitcoin/\nThe Bitcoin price is $39,934.91, a change of -...\n\n\n731\nuk\nbitcoin price\n2\nwww.coinbase.com\nhttps://www.coinbase.com/price/bitcoin\nApril 23, 2022 - The current price of Bitcoin ...\n\n\n732\nuk\nbitcoin price\n3\ncoinmarketcap.com\nhttps://coinmarketcap.com/currencies/bitcoin/\nThe live Bitcoin price today is $39,606.70 USD...\n\n\n740\nus\nlitecoin price\n1\ncoinmarketcap.com\nhttps://coinmarketcap.com/currencies/litecoin/\nThe live Litecoin price today is $104.96 USD w...\n\n\n741\nus\nlitecoin price\n2\nwww.coinbase.com\nhttps://www.coinbase.com/price/litecoin\nThe price of Litecoin has fallen by 7.35% in t...\n\n\n742\nus\nlitecoin price\n3\nwww.coindesk.com\nhttps://www.coindesk.com/price/litecoin/\nLitecoin Price ; 24H Open. $114.00 ; 24H Chang...\n\n\n750\nuk\nlitecoin price\n1\ncoinmarketcap.com\nhttps://coinmarketcap.com/currencies/litecoin/\nThe live Litecoin price today is $104.96 USD w...\n\n\n751\nuk\nlitecoin price\n2\nwww.coinbase.com\nhttps://www.coinbase.com/price/litecoin\nThe price of Litecoin has fallen by 7.74% in t...\n\n\n752\nuk\nlitecoin price\n3\nwww.coindesk.com\nhttps://www.coindesk.com/price/litecoin/\nLitecoin Price ; 24H Open. $114.00 ; 24H Chang...\n\n\n760\nus\nnamecoin price\n1\nwww.namecoin.org\nhttps://www.namecoin.org/\nNamecoin. Namecoin is an experimental open-sou...\n\n\n761\nus\nnamecoin price\n2\ncoinmarketcap.com\nhttps://coinmarketcap.com/currencies/namecoin/\nThe live Namecoin price today is $2.12 USD wit...\n\n\n762\nus\nnamecoin price\n3\nwww.coinbase.com\nhttps://www.coinbase.com/price/namecoin\nApril 23, 2022 - The current price of Namecoin...\n\n\n\n\n\n\n\nWe can easily create our hetmap with one command:\n\nserp_heatmap(serp)",
+    "crumbs": [
+      "SERP Heatmap"
+    ]
+  },
+  {
+    "objectID": "serp_heatmap.html#modify-some-of-the-default-options",
+    "href": "serp_heatmap.html#modify-some-of-the-default-options",
+    "title": "SERP Heatmap",
+    "section": "Modify some of the default options",
+    "text": "Modify some of the default options\n\nserp_heatmap(\n    serp,\n    num_domains=15,\n    title='SERP Heatmap - crypto currencies&lt;br&gt;&lt;b&gt;\"what is &lt;coin&gt;\"&lt;/b&gt; and &lt;b&gt;\"&lt;coin&gt; price\"&lt;/b&gt;',\n    template=\"ggplot2\",\n)\n\n                                                \n\n\n\nserp_heatmap(\n    serp[serp[\"gl\"].eq(\"uk\")],\n    template=\"plotly_dark\",\n    num_domains=7,\n    title=\"SERP Heatmap - UK\",\n    width=800,\n    height=600,\n)\n\n                                                \n\n\n\nserp_heatmap(serp, template=\"seaborn\", num_domains=15)",
+    "crumbs": [
+      "SERP Heatmap"
+    ]
+  },
+  {
+    "objectID": "serp_heatmap.html#analysis---splitting-the-serp-dataframe-for-a-more-meaningful-subset",
+    "href": "serp_heatmap.html#analysis---splitting-the-serp-dataframe-for-a-more-meaningful-subset",
+    "title": "SERP Heatmap",
+    "section": "Analysis - splitting the SERP DataFrame for a more meaningful subset",
+    "text": "Analysis - splitting the SERP DataFrame for a more meaningful subset\n\nwhat_is_df = serp[serp[\"searchTerms\"].str.contains(\"what is\")]\nserp_heatmap(what_is_df, title='SERP Heatmap&lt;br&gt;&lt;b&gt;\"what is &lt;coin&gt;\"&lt;/b&gt; keywords')\n\n                                                \n\n\n\nprice_df = serp[serp[\"searchTerms\"].str.contains(\"price\")]\nserp_heatmap(price_df, title='SERP Heatmap&lt;br&gt;&lt;b&gt;\"&lt;coin&gt; price\"&lt;/b&gt; keywords')\n\n                                                \n\n\nIt’s clear how different the dominant domains are when split by keyword variant, in this case the “what is &lt;coin&gt;” keywords vs. the “coin &lt;price&gt;” keywords",
+    "crumbs": [
+      "SERP Heatmap"
+    ]
+  },
+  {
+    "objectID": "serp_heatmap.html#add-shapes-and-annotations-for-better-guiding-your-users",
+    "href": "serp_heatmap.html#add-shapes-and-annotations-for-better-guiding-your-users",
+    "title": "SERP Heatmap",
+    "section": "Add shapes and annotations for better guiding your users",
+    "text": "Add shapes and annotations for better guiding your users\n\nAdd a rectangle to highight one or more domains\nMake the rectangle colored, or simply color the edges of the rectangle\nOptionally add a label to inform users about domain(s) in this rectangle\n\n\nfig = serp_heatmap(\n    # \"price\" keywords in the USA:\n    serp[serp[\"gl\"].eq(\"us\") & serp[\"searchTerms\"].str.contains(\"price\")],\n    template=\"plotly_white\",\n    title='SERP Heatmap &lt;b&gt;\"&lt;coin&gt; price\"&lt;/b&gt; keywords – USA',\n    num_domains=13,\n)\nfig.add_shape(\n    type=\"rect\", x0=0.5, x1=1.5, y0=-0.5, y1=10.5, fillcolor=\"gray\", opacity=0.15\n)\nfig.add_shape(\n    type=\"rect\",\n    x0=4.5,\n    x1=6.5,\n    y0=-0.5,\n    y1=11.5,\n    line={\"color\": \"darkgreen\"},\n    label={\n        \"text\": \"This is a label\",\n        \"font\": {\"family\": \"Arial Black\"},\n        \"textposition\": \"bottom center\",\n    },\n)\nfig",
+    "crumbs": [
+      "SERP Heatmap"
+    ]
+  },
+  {
+    "objectID": "serp_heatmap.html#serp-heatmap-chart-details",
+    "href": "serp_heatmap.html#serp-heatmap-chart-details",
+    "title": "SERP Heatmap",
+    "section": "SERP Heatmap chart details",
+    "text": "SERP Heatmap chart details\n\nAvg. Pos.: The average position of the domain shown on this column\nCoverage: The number of appearances of the domain on the SERP, divided by the total queries. A ratio above 100% can exist, where some domains appear more than once in the same SERP.\nTotal appearances: the number of times the domain appeared in the SERP (from this dataset).\nNumbers in circles: Show the number of times each domain appeared in its respective position.",
+    "crumbs": [
+      "SERP Heatmap"
+    ]
+  },
+  {
+    "objectID": "serp_heatmap.html#data-from-other-sources",
+    "href": "serp_heatmap.html#data-from-other-sources",
+    "title": "SERP Heatmap",
+    "section": "Data from other sources",
+    "text": "Data from other sources\nThis chart doest not need the data from Google custom search API exclusively. There are other similar data sources like YouTube, SERP API, and SearchAPI for example. The only requirement is that you have a DataFrame with “rank”, “searchTerms”, and “displayLink”. These columns might be named differently, in which case you only need to rename those columns. You might have “searchTerms” named as “keyword” or “query” for example, or “displayLink” named “domain”. This should be straightforward.",
+    "crumbs": [
+      "SERP Heatmap"
+    ]
+  },
+  {
+    "objectID": "value_counts.html",
+    "href": "value_counts.html",
+    "title": "Counting values",
+    "section": "",
+    "text": "source",
+    "crumbs": [
+      "Counting Values (new)"
+    ]
+  },
+  {
+    "objectID": "value_counts.html#get-url-data-and-count-values",
+    "href": "value_counts.html#get-url-data-and-count-values",
+    "title": "Counting values",
+    "section": "Get URL data and count values",
+    "text": "Get URL data and count values\n\napple = pd.read_csv(\"data/apple_url_list.csv\")\nurldf = adv.url_to_df(apple[\"url\"])\nurldf.head()\n\n\n\n\n\n\n\n\nurl\nscheme\nnetloc\npath\nquery\nfragment\ndir_1\ndir_2\ndir_3\ndir_4\n...\nquery_itscg\nquery_itsct\nquery_useASL\nquery_modelList\nquery_select\ndir_8\nquery_nearby\nquery_int_cid\nquery_board_id\nquery_sel\n\n\n\n\n0\nhttps://www.apple.com/ae/shop/accessories/all\nhttps\nwww.apple.com\n/ae/shop/accessories/all\nNone\nNone\nae\nshop\naccessories\nall\n...\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\n\n\n1\nhttps://www.apple.com/ae/shop/accessories/all/...\nhttps\nwww.apple.com\n/ae/shop/accessories/all/accessibility\nNone\nNone\nae\nshop\naccessories\nall\n...\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\n\n\n2\nhttps://www.apple.com/ae/shop/accessories/all/...\nhttps\nwww.apple.com\n/ae/shop/accessories/all/airtag\nNone\nNone\nae\nshop\naccessories\nall\n...\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\n\n\n3\nhttps://www.apple.com/ae/shop/accessories/all/...\nhttps\nwww.apple.com\n/ae/shop/accessories/all/beats\nNone\nNone\nae\nshop\naccessories\nall\n...\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\n\n\n4\nhttps://www.apple.com/ae/shop/accessories/all/...\nhttps\nwww.apple.com\n/ae/shop/accessories/all/beats-featured\nNone\nNone\nae\nshop\naccessories\nall\n...\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\n\n\n\n\n5 rows × 28 columns",
+    "crumbs": [
+      "Counting Values (new)"
+    ]
+  },
+  {
+    "objectID": "value_counts.html#default-behavior-for-a-single-column",
+    "href": "value_counts.html#default-behavior-for-a-single-column",
+    "title": "Counting values",
+    "section": "Default behavior for a single column",
+    "text": "Default behavior for a single column\n\nvalue_counts(urldf[\"dir_1\"])",
+    "crumbs": [
+      "Counting Values (new)"
+    ]
+  },
+  {
+    "objectID": "value_counts.html#count-unique-row-combinations-in-more-than-one-column",
+    "href": "value_counts.html#count-unique-row-combinations-in-more-than-one-column",
+    "title": "Counting values",
+    "section": "Count unique row combinations in more than one column",
+    "text": "Count unique row combinations in more than one column\nSetting width=None will make the width responsive and takes on the width of the chart’s container.\n\nvalue_counts(urldf[[\"dir_1\", \"dir_2\"]], width=None)",
+    "crumbs": [
+      "Counting Values (new)"
+    ]
+  },
+  {
+    "objectID": "value_counts.html#filter-for-a-better-overview-and-change-colorscale",
+    "href": "value_counts.html#filter-for-a-better-overview-and-change-colorscale",
+    "title": "Counting values",
+    "section": "Filter for a better overview and change colorscale",
+    "text": "Filter for a better overview and change colorscale\n\nvalue_counts(urldf[urldf[\"dir_1\"].eq(\"shop\")][\"dir_2\"], colorscale=\"magma\")",
+    "crumbs": [
+      "Counting Values (new)"
+    ]
+  },
+  {
+    "objectID": "value_counts.html#filter-data-and-set-an-informative-title-for-the-chart",
+    "href": "value_counts.html#filter-data-and-set-an-informative-title-for-the-chart",
+    "title": "Counting values",
+    "section": "Filter data and set an informative title for the chart",
+    "text": "Filter data and set an informative title for the chart\n\nvalue_counts(\n    urldf[urldf[\"dir_1\"].eq(\"ca\")][\"dir_2\"],\n    title=\"Subfolder counts for /dir_2/\",\n    subtitle=\"&lt;b&gt;apple.com/ca/dir_2/&lt;/b&gt;\",\n)",
+    "crumbs": [
+      "Counting Values (new)"
+    ]
+  },
+  {
+    "objectID": "ecdf.html",
+    "href": "ecdf.html",
+    "title": "Visualizing distributions: histograms and cumulative distributions",
+    "section": "",
+    "text": "The ecdf function is a thin wrapper for the plotly.express function of the same name. It adds a few minor options to it.\nIt can be used to visualize how numeric variables are distributed, both using a histogram, as well the cumulative distribution (ecdf: empirical cumulative distribution function).\nWhile the histogram shows us how many observations we have for each interval, the ecdf shows each observation and its particular position in the ranking order.\nNote that you have access to all the parameters of the ecdf function, so please check them if you want to see what else can be modified with:\nsource",
+    "crumbs": [
+      "Visualizing distributions: ecdf"
+    ]
+  },
+  {
+    "objectID": "ecdf.html#visualizing-the-distribution-of-gsc-queries-and-their-impressions",
+    "href": "ecdf.html#visualizing-the-distribution-of-gsc-queries-and-their-impressions",
+    "title": "Visualizing distributions: histograms and cumulative distributions",
+    "section": "Visualizing the distribution of GSC queries and their impressions",
+    "text": "Visualizing the distribution of GSC queries and their impressions\nTo see how these query impressions are distributed we simply run ecdf.\n\nSelect a column from the DataFrame to display its value on hover\nIn this case, we set hover_name='query' and now we can see which query each marker represents.\n\necdf(by_query, x=\"impressions\", hover_name=\"query\")",
+    "crumbs": [
+      "Visualizing distributions: ecdf"
+    ]
+  },
+  {
+    "objectID": "ecdf.html#hover-label",
+    "href": "ecdf.html#hover-label",
+    "title": "Visualizing distributions: histograms and cumulative distributions",
+    "section": "Hover label",
+    "text": "Hover label\n\nHovering over any of the points gives you a set of data about that point, and tells you more about it relative to the dataset:\n\n\n\n\n\n\n\nlabel\nmeaning\n\n\n\n\ntop label\nthis is the actual value, in this case it is the keyword “api serp analysis”\n\n\nfirst value (impressions)\nthis is the metric and value of this item, in this case we are measuring impressions, and the impressions for “api serp analysis” is 3,785\n\n\nCounts\nthis section has four values that tell you about the counts of the items\n\n\npercent\nthe percentage of items below the current value, 99.6% of the items are less than or equal to the current one in this case\n\n\ncount below\nhow many items are less than the current one\n\n\ncount above\nhow many items are greater than the current one\n\n\ntotal count\nthe number of all items in the dataset, this is unchanged throughout the dataset\n\n\nValues\nthis section shows two values telling about the dataset’s sum of values up to this data point\n\n\ncumulative sum\nthe total metric (impressions in this case) up to this point\n\n\ncumulative percentage\nthe percentage of metric (impressions) up to this point\n\n\n\nIn other words, the keyword “api serp analysis” generated more impressions than 99.6% of the items in the list. There are 6,886 keywords with less impressions, and 25 keywords with more impressions (out of a total of 6,912 keywords).\nKeywords up to this point have generated a total of 501,328 impressions, which is 75.1% of the sum of all impressions of all keywords.\nIn other cases the distribution can be much more extreme, as is the case in some examples below.\nThe aim is to show how (in)significant a set of values are in the dataset.\nMousing over any of the circles you see the query it represents, the value represented (impressions in this case), how many other observations are equal-to or below it as a percentage, and also the counts of observations above and below.",
+    "crumbs": [
+      "Visualizing distributions: ecdf"
+    ]
+  },
+  {
+    "objectID": "ecdf.html#publishing-trends-from-xml-sitemaps",
+    "href": "ecdf.html#publishing-trends-from-xml-sitemaps",
+    "title": "Visualizing distributions: histograms and cumulative distributions",
+    "section": "Publishing trends from XML sitemaps",
+    "text": "Publishing trends from XML sitemaps\n\nbrighton = pd.read_csv(\"data/brightonseo_sitemap.csv\", parse_dates=[\"lastmod\"])\nbrighton[\"segment\"] = \"/\" + brighton[\"segment\"] + \"/\"\nbrighton.head()\n\n\n\n\n\n\n\n\nloc\nlastmod\nsitemap\nsitemap_size_mb\ndownload_date\nscheme\nnetloc\npath\nquery\nfragment\ndir_1\ndir_2\ndir_3\ndir_4\nlast_dir\nsegment\n\n\n\n\n0\nhttps://brightonseo.com\n2024-04-29 10:03:31+00:00\nhttps://brightonseo.com/sitemap.xml\n0.149905\n2024-06-08 19:15:35.969506+00:00\nhttps\nbrightonseo.com\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\nNaN\n/Others/\n\n\n1\nhttps://brightonseo.com/ssas-october-2024\n2024-05-15 12:43:37+00:00\nhttps://brightonseo.com/sitemap.xml\n0.149905\n2024-06-08 19:15:35.969506+00:00\nhttps\nbrightonseo.com\n/ssas-october-2024\nNaN\nNaN\nssas-october-2024\nNaN\nNaN\nNaN\nssas-october-2024\n/Others/\n\n\n2\nhttps://brightonseo.com/training\n2024-05-26 20:48:41+00:00\nhttps://brightonseo.com/sitemap.xml\n0.149905\n2024-06-08 19:15:35.969506+00:00\nhttps\nbrightonseo.com\n/training\nNaN\nNaN\ntraining\nNaN\nNaN\nNaN\ntraining\n/Others/\n\n\n3\nhttps://brightonseo.com/measurefest-october-2024\n2024-05-24 13:27:10+00:00\nhttps://brightonseo.com/sitemap.xml\n0.149905\n2024-06-08 19:15:35.969506+00:00\nhttps\nbrightonseo.com\n/measurefest-october-2024\nNaN\nNaN\nmeasurefest-october-2024\nNaN\nNaN\nNaN\nmeasurefest-october-2024\n/Others/\n\n\n4\nhttps://brightonseo.com/mailing-list\n2023-09-07 10:56:08+00:00\nhttps://brightonseo.com/sitemap.xml\n0.149905\n2024-06-08 19:15:35.969506+00:00\nhttps\nbrightonseo.com\n/mailing-list\nNaN\nNaN\nmailing-list\nNaN\nNaN\nNaN\nmailing-list\n/Others/\n\n\n\n\n\n\n\nLet’s do the same with URLs in an XML sitemap. We can visualize the cumulative distribution of the loc tags, and give it more context by showing each URL when we mouseover. This becomes a rich report with a lot of data on each URL.\nWe can immediately see in the above chart that the content on this website spans the period September 2023 - June 2024. We can clearly see that most updates happened in the first periods by looking at the top histogram.\nWhen we have a vertically looking set of dots, we know that there were many updates happening in a very short period of time. These are likely being updated in a batch.\nWith a simple option we can split and color the chart by the website segment.\nI took the top five values in /dir_1/ and labelled all other values as “Others”.\nBy using facet_row=\"segment\" we have six charts showing us the trend for each segment of the website separately.\n\necdf(\n    brighton,\n    x=\"lastmod\",\n    height=1300,\n    hover_name=\"loc\",\n    template=\"seaborn\",\n    facet_row=\"segment\",  \n    color=\"segment\",  \n    title=\"URL lastmod trend by page category&lt;br&gt;&lt;b&gt;BrightonSEO.com&lt;/b&gt;\",\n)",
+    "crumbs": [
+      "Visualizing distributions: ecdf"
+    ]
+  },
+  {
+    "objectID": "ecdf.html#visualizing-clusteredclassified-keywords",
+    "href": "ecdf.html#visualizing-clusteredclassified-keywords",
+    "title": "Visualizing distributions: histograms and cumulative distributions",
+    "section": "Visualizing clustered/classified keywords",
+    "text": "Visualizing clustered/classified keywords\nThe same applies to keywords, as it is crucial to know how they are distributed. We can also gain more insight after categorizing the keywords and applying the same technique we applied in the previous example.\n\nphotography = pd.read_csv(\"data/photgraphy_keywords.csv\")\nphotography\n\n\n\n\n\n\n\n\nkeyword\nvolume\ncategory\n\n\n\n\n0\ninstagram landscape dimensions\n1600\nSocial Media and Digital Platforms\n\n\n1\ninstagram profile picture size\n4700\nSocial Media and Digital Platforms\n\n\n2\ninches to pixels\n14000\nDesign and Graphics\n\n\n3\nprofile picture\n74000\nPhotography and Image Editing\n\n\n4\nhow to make a watermark\n1900\nDesign and Graphics\n\n\n...\n...\n...\n...\n\n\n590\neharmony blurry photos\n20\nPhotography and Image Editing\n\n\n591\nbooed images\n30\nPhotography and Image Editing\n\n\n592\nhow to make a good checklist\n30\nIdeas and Inspiration\n\n\n593\npicmonkey coupon\n30\nNaN\n\n\n594\nprintable garage sale sign\n20\nDesign and Graphics\n\n\n\n\n595 rows × 3 columns\n\n\n\n\necdf(\n    photography,\n    x=\"volume\",\n    hover_name=\"keyword\",\n    height=650,\n    template=\"plotly_dark\",\n    title=\"Photography keywords\",\n    subtitle=\"Keyword research data\",\n)",
+    "crumbs": [
+      "Visualizing distributions: ecdf"
+    ]
+  },
+  {
+    "objectID": "ecdf.html#visualizing-keywords-split-by-category",
+    "href": "ecdf.html#visualizing-keywords-split-by-category",
+    "title": "Visualizing distributions: histograms and cumulative distributions",
+    "section": "Visualizing keywords split by category",
+    "text": "Visualizing keywords split by category\n\nfig = ecdf(\n    photography,\n    x=\"volume\",\n    hover_name=\"keyword\",\n    height=750,\n    title=\"Photography keywords\",\n    subtitle=\"Keyword research data - split by category\",\n    template=\"plotly_dark\",\n    facet_row=\"category\",  \n    color=\"category\",\n)  \nfor annotation in fig.layout.annotations:\n    annotation.text = \"\"\nfig",
+    "crumbs": [
+      "Visualizing distributions: ecdf"
+    ]
+  },
+  {
+    "objectID": "ecdf.html#gsc-queries---by-device",
+    "href": "ecdf.html#gsc-queries---by-device",
+    "title": "Visualizing distributions: histograms and cumulative distributions",
+    "section": "GSC queries - by device",
+    "text": "GSC queries - by device\n\nnba = pd.read_csv(\"data/nba_keywords.csv\")\nnba.head()\n\n\n\n\n\n\n\n\nquery\ndevice\nimpressions\n\n\n\n\n0\nlarry bird stats\nMobile\n215\n\n\n1\nstephen curry stats\nDesktop\n209\n\n\n2\nmichael jordan stats\nDesktop\n197\n\n\n3\nlarry bird stats\nDesktop\n174\n\n\n4\nkobe bryant stats\nDesktop\n129",
+    "crumbs": [
+      "Visualizing distributions: ecdf"
+    ]
+  },
+  {
+    "objectID": "ecdf.html#groupby-queries-and-visualize-impressions",
+    "href": "ecdf.html#groupby-queries-and-visualize-impressions",
+    "title": "Visualizing distributions: histograms and cumulative distributions",
+    "section": "Groupby queries and visualize impressions",
+    "text": "Groupby queries and visualize impressions\n\nfig = ecdf(\n    nba.groupby(\"query\")[\"impressions\"].sum().reset_index(),\n    x=\"impressions\",\n    title=\"GSC impressions by query\",\n    height=550,\n    template=\"plotly_dark\",\n    hover_name=\"query\",\n)\n# optional, just to demonstrate styling options\nfig.data[0].marker.color = \"silver\"\nfig.data[1].marker.color = \"silver\"\nfig.layout.font.color = \"silver\"\nfig.update_xaxes(gridcolor=\"#222222\")\nfig.update_yaxes(gridcolor=\"#222222\")\nfig.layout.yaxis.zeroline = False\nfig.layout.yaxis2.zeroline = False\nfig",
+    "crumbs": [
+      "Visualizing distributions: ecdf"
+    ]
+  },
+  {
+    "objectID": "ecdf.html#gsc-queries---by-device-1",
+    "href": "ecdf.html#gsc-queries---by-device-1",
+    "title": "Visualizing distributions: histograms and cumulative distributions",
+    "section": "GSC queries - by device",
+    "text": "GSC queries - by device\n\nfig = ecdf(\n    nba,\n    x=\"impressions\",\n    template=\"plotly_white\",\n    facet_row=\"device\",  \n    color=\"device\",  \n    hover_name=\"query\",\n    height=600,\n    color_discrete_sequence=px.colors.qualitative.Vivid,\n    title=\"GSC query impressions - by device\",\n)\n# optional, just to demonstrate styling options\nfig.layout.paper_bgcolor = \"#efefef\"\nfig.layout.plot_bgcolor = \"#efefef\"\nfig.update_xaxes(gridcolor=\"gray\")\nfig.update_yaxes(gridcolor=\"gray\")\nfig",
+    "crumbs": [
+      "Visualizing distributions: ecdf"
+    ]
+  },
+  {
+    "objectID": "racing_chart.html",
+    "href": "racing_chart.html",
+    "title": "Racing Bar Chart",
+    "section": "",
+    "text": "source",
+    "crumbs": [
+      "Racing Bar Chart"
+    ]
+  },
+  {
+    "objectID": "racing_chart.html#entity-metric-period-dataframe",
+    "href": "racing_chart.html#entity-metric-period-dataframe",
+    "title": "Racing Bar Chart",
+    "section": "Entity-Metric-Period DataFrame",
+    "text": "Entity-Metric-Period DataFrame\n\n\nCode\n# import random\n# [random.randint(10, 35) for i in range(20)]\n\ndf = (\n    pd.DataFrame(\n        {\n            \"entity\": [\"blue\", \"green\", \"yellow\", \"red\", \"orange\"] * 4,\n            \"metric\": [\n                16,\n                35,\n                10,\n                25,\n                13,\n                35,\n                25,\n                25,\n                27,\n                19,\n                10,\n                18,\n                34,\n                20,\n                25,\n                20,\n                24,\n                25,\n                14,\n                21,\n            ],\n            \"period\": [i for i in range(1, 5) for x in range(5)],\n        }\n    )\n    .sort_values([\"period\", \"metric\"], ascending=[True, False])\n    .reset_index(drop=True)\n)  # noqa\ndisplay_html(  #'&lt;div style=\"margin-left: 20%\"&gt;' +\n    df.style.hide()\n    .bar(subset=[\"metric\"], color=\"lightgray\")\n    .background_gradient(subset=[\"period\"], cmap=\"Blues\")\n    .to_html(),\n    # + '&lt;/div&gt;'\n    raw=True,\n)\n\n\n\n\n\n\n\nentity\nmetric\nperiod\n\n\n\n\ngreen\n35\n1\n\n\nred\n25\n1\n\n\nblue\n16\n1\n\n\norange\n13\n1\n\n\nyellow\n10\n1\n\n\nblue\n35\n2\n\n\nred\n27\n2\n\n\ngreen\n25\n2\n\n\nyellow\n25\n2\n\n\norange\n19\n2\n\n\nyellow\n34\n3\n\n\norange\n25\n3\n\n\nred\n20\n3\n\n\ngreen\n18\n3\n\n\nblue\n10\n3\n\n\nyellow\n25\n4\n\n\ngreen\n24\n4\n\n\norange\n21\n4\n\n\nblue\n20\n4\n\n\nred\n14\n4",
+    "crumbs": [
+      "Racing Bar Chart"
+    ]
+  },
+  {
+    "objectID": "racing_chart.html#get-the-top-three-values-for-each-period",
+    "href": "racing_chart.html#get-the-top-three-values-for-each-period",
+    "title": "Racing Bar Chart",
+    "section": "Get the top three values for each period",
+    "text": "Get the top three values for each period\n\nracing_chart(df, n=3)",
+    "crumbs": [
+      "Racing Bar Chart"
+    ]
+  },
+  {
+    "objectID": "racing_chart.html#important",
+    "href": "racing_chart.html#important",
+    "title": "Racing Bar Chart",
+    "section": "Important",
+    "text": "Important\n\nThe DataFrame supplied to the racing_chart function needs to have the three columns containing entity, metric, and period, in exactly this particular order. Their names don’t matter, but the order does\n\n\nEntities\nSome examples:\n\ncountries\nURLs\nkeywords\nproduct names\n\n\n\nMetrics\n\nclicks\nimpressions\nsales\nconversions\npopulation\ncount\n\n\n\nPeriod\n\ndays\nmonths\nweeks\nquarters\nyears",
+    "crumbs": [
+      "Racing Bar Chart"
+    ]
+  },
+  {
+    "objectID": "racing_chart.html#example-google-search-console-data",
+    "href": "racing_chart.html#example-google-search-console-data",
+    "title": "Racing Bar Chart",
+    "section": "Example: Google Search Console data",
+    "text": "Example: Google Search Console data\nFirst three contries and months by clicks:\n\ngsc = pd.read_csv(\"data/gsc_country_month_report.csv\")\ngsc[\"flag\"] = [adviz.flag(cc) for cc in gsc[\"country\"]]\ngsc.groupby(\"date\").head(3).head(9)\n\n\nKeyboardInterrupt",
+    "crumbs": [
+      "Racing Bar Chart"
+    ]
+  },
+  {
+    "objectID": "racing_chart.html#modifying-the-animation-speed-with-animation_duration-in-milliseconds",
+    "href": "racing_chart.html#modifying-the-animation-speed-with-animation_duration-in-milliseconds",
+    "title": "Racing Bar Chart",
+    "section": "Modifying the animation speed with animation_duration (in milliseconds)",
+    "text": "Modifying the animation speed with animation_duration (in milliseconds)\n\nracing_chart(\n    gsc[[\"country\", \"clicks\", \"date\"]],\n    frame_duration=1500,\n    height=700,\n    title=\"Google Search Console &lt;b&gt;mywebsite.com&lt;/b&gt;&lt;br&gt;clicks per month - top 10&lt;br&gt;&lt;b&gt;frame_duration=1500&lt;/b&gt;\",\n    template=\"plotly_dark\",\n)",
+    "crumbs": [
+      "Racing Bar Chart"
+    ]
+  },
+  {
+    "objectID": "racing_chart.html#make-it-faster-and-use-flags-instead-of-country-codes",
+    "href": "racing_chart.html#make-it-faster-and-use-flags-instead-of-country-codes",
+    "title": "Racing Bar Chart",
+    "section": "Make it faster and use flags instead of country codes",
+    "text": "Make it faster and use flags instead of country codes\n\nfig = racing_chart(\n    gsc[[\"flag\", \"clicks\", \"date\"]],\n    frame_duration=500,\n    height=700,\n    title=\"Google Search Console &lt;b&gt;mywebsite.com&lt;/b&gt;&lt;br&gt;clicks per month - top 10&lt;br&gt;&lt;b&gt;frame_duration=500&lt;/b&gt;\",\n    template=\"plotly_dark\",\n)\nfig.layout.yaxis.tickfont.size = 25\nfor frame in fig.frames:\n    frame.data[0].marker.color = \"white\"\nfig.data[0].marker.color = \"white\"\nfig\n\n                                                \n\n\n\nqueries = pd.read_csv(\"data/gsc_query_month_report.csv\")\nqueries\n\n\n\n\n\n\n\n\nquery\nclicks\nimpressions\nctr\nposition\ndate\n\n\n\n\n0\nadvertools\n156\n246\n0.634146\n1.016260\n2022-01-31\n\n\n1\nadvertools python\n27\n43\n0.627907\n1.000000\n2022-01-31\n\n\n2\npython advertools\n19\n24\n0.791667\n1.000000\n2022-01-31\n\n\n3\npython seo crawler\n5\n7\n0.714286\n1.000000\n2022-01-31\n\n\n4\nadvertools github\n4\n26\n0.153846\n3.846154\n2022-01-31\n\n\n...\n...\n...\n...\n...\n...\n...\n\n\n30166\n🤟 emoji\n0\n1\n0.000000\n43.000000\n2022-12-31\n\n\n30167\n🥑 meaning in text\n0\n1\n0.000000\n45.000000\n2022-12-31\n\n\n30168\n🥔 meaning in text\n0\n1\n0.000000\n38.000000\n2022-12-31\n\n\n30169\n🥕 meaning in text\n0\n1\n0.000000\n36.000000\n2022-12-31\n\n\n30170\n🫐 meaning in text\n0\n1\n0.000000\n27.000000\n2022-12-31\n\n\n\n\n30171 rows × 6 columns",
+    "crumbs": [
+      "Racing Bar Chart"
+    ]
+  },
+  {
+    "objectID": "racing_chart.html#explore-the-top-queries-by-month-impressions",
+    "href": "racing_chart.html#explore-the-top-queries-by-month-impressions",
+    "title": "Racing Bar Chart",
+    "section": "Explore the top queries by month (impressions)",
+    "text": "Explore the top queries by month (impressions)\nQueries can be long and take a lot of space, so we can set the left margin of the Figure object to a larger number to fit them.\n\nfig = racing_chart(\n    queries[[\"query\", \"impressions\", \"date\"]],\n    title=\"Google Search Console &lt;b&gt;mywebsite.com&lt;/b&gt;&lt;br&gt;impressions per month - top 15\",\n    n=15,\n    template=\"seaborn\",\n    height=800,\n)\nfig.layout.margin.l = 250\nfig",
+    "crumbs": [
+      "Racing Bar Chart"
+    ]
+  },
+  {
+    "objectID": "racing_chart.html#filtering-entities",
+    "href": "racing_chart.html#filtering-entities",
+    "title": "Racing Bar Chart",
+    "section": "Filtering entities",
+    "text": "Filtering entities\nTaking a look at the top queries is definitely interesting, but many times you may have tens or hundreds of thousands of queries, and you want to go deeper.\nOne way is to filter those based on some criterion.\nFor example, let’s see which are the top queries that contain “log” and see how we are doing on log file analysis queries:\n\nfig = racing_chart(\n    queries[queries[\"query\"].str.contains(\"log\")][[\"query\", \"impressions\", \"date\"]],\n    title='Google Search Console &lt;b&gt;mywebsite.com&lt;/b&gt; - queries containing \"log\"&lt;br&gt;impressions per month - top 15',\n    n=15,\n    template=\"seaborn\",\n    height=800,\n)\nfig.layout.margin.l = 250\nfig",
+    "crumbs": [
+      "Racing Bar Chart"
+    ]
+  },
+  {
+    "objectID": "url_structure.html",
+    "href": "url_structure.html",
+    "title": "URL Structure",
+    "section": "",
+    "text": "source",
+    "crumbs": [
+      "URL structure"
+    ]
+  },
+  {
+    "objectID": "url_structure.html#read-a-list-of-urls-from-a-textcsv-file",
+    "href": "url_structure.html#read-a-list-of-urls-from-a-textcsv-file",
+    "title": "URL Structure",
+    "section": "Read a list of URLs from a text/CSV file",
+    "text": "Read a list of URLs from a text/CSV file\n\napple = pd.read_csv(filepath)\napple.head(10)\n\n\n\n\n\n\n\n\nurl\n\n\n\n\n0\nhttps://www.apple.com/ae/shop/accessories/all\n\n\n1\nhttps://www.apple.com/ae/shop/accessories/all/...\n\n\n2\nhttps://www.apple.com/ae/shop/accessories/all/...\n\n\n3\nhttps://www.apple.com/ae/shop/accessories/all/...\n\n\n4\nhttps://www.apple.com/ae/shop/accessories/all/...\n\n\n5\nhttps://www.apple.com/ae/shop/accessories/all/...\n\n\n6\nhttps://www.apple.com/ae/shop/accessories/all/...\n\n\n7\nhttps://www.apple.com/ae/shop/accessories/all/...\n\n\n8\nhttps://www.apple.com/ae/shop/accessories/all/...\n\n\n9\nhttps://www.apple.com/ae/shop/accessories/all/...",
+    "crumbs": [
+      "URL structure"
+    ]
+  },
+  {
+    "objectID": "url_structure.html#visualize-the-url-structure-with",
+    "href": "url_structure.html#visualize-the-url-structure-with",
+    "title": "URL Structure",
+    "section": "Visualize the URL structure with",
+    "text": "Visualize the URL structure with\n\nurl_structure(apple[\"url\"])",
+    "crumbs": [
+      "URL structure"
+    ]
+  },
+  {
+    "objectID": "url_structure.html#number-of-items-per-level",
+    "href": "url_structure.html#number-of-items-per-level",
+    "title": "URL Structure",
+    "section": "Number of items per level",
+    "text": "Number of items per level\n\nurl_structure(url_list=apple[\"url\"], items_per_level=5)",
+    "crumbs": [
+      "URL structure"
+    ]
+  },
+  {
+    "objectID": "url_structure.html#number-of-items-per-level-1",
+    "href": "url_structure.html#number-of-items-per-level-1",
+    "title": "URL Structure",
+    "section": "Number of items per level",
+    "text": "Number of items per level\n\nurl_structure(url_list=apple[\"url\"], items_per_level=25)",
+    "crumbs": [
+      "URL structure"
+    ]
+  },
+  {
+    "objectID": "url_structure.html#pick-a-template",
+    "href": "url_structure.html#pick-a-template",
+    "title": "URL Structure",
+    "section": "Pick a template",
+    "text": "Pick a template\n\nurl_structure(url_list=apple[\"url\"], items_per_level=25, template=\"plotly_dark\")",
+    "crumbs": [
+      "URL structure"
+    ]
+  },
+  {
+    "objectID": "url_structure.html#pick-a-template-1",
+    "href": "url_structure.html#pick-a-template-1",
+    "title": "URL Structure",
+    "section": "Pick a template",
+    "text": "Pick a template\n\nurl_structure(url_list=apple[\"url\"], items_per_level=15, template=\"seaborn\")",
+    "crumbs": [
+      "URL structure"
+    ]
+  },
+  {
+    "objectID": "url_structure.html#set-domain-name-and-chart-title",
+    "href": "url_structure.html#set-domain-name-and-chart-title",
+    "title": "URL Structure",
+    "section": "Set domain name and chart title",
+    "text": "Set domain name and chart title\n\n\nCode\nurl_structure(\n    url_list=apple[\"url\"],\n    items_per_level=15,\n    template=\"ggplot2\",\n    domain=\"apple.com\",\n    title='URL Structure: &lt;b&gt;apple.com&lt;/b&gt;&lt;br&gt;Raw data: &lt;a href=\"data/apple_url_list.csv\"&gt;Apple.com URLs&lt;/a&gt;',\n)",
+    "crumbs": [
+      "URL structure"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus.html",
+    "href": "value_counts_plus.html",
+    "title": "Counting Values",
+    "section": "",
+    "text": "source",
+    "crumbs": [
+      "Counting values"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus.html#changing-the-name-of-the-data-and-caption-title-with-name",
+    "href": "value_counts_plus.html#changing-the-name-of-the-data-and-caption-title-with-name",
+    "title": "Counting Values",
+    "section": "Changing the name of the data and caption title with name",
+    "text": "Changing the name of the data and caption title with name\n\nvalue_counts_plus(\n    colors,\n    name='Status codes')\n\n\n\n  Counts of Status codes\n  \n    \n       \n      Status codes\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      lightseagreen\n      258\n      258\n      2.5%\n      2.5%\n    \n    \n      2\n      burlywood\n      255\n      513\n      2.5%\n      5.0%\n    \n    \n      3\n      cyan\n      252\n      765\n      2.5%\n      7.5%\n    \n    \n      4\n      slategray\n      252\n      1,017\n      2.5%\n      9.9%\n    \n    \n      5\n      lightsteelblue\n      251\n      1,268\n      2.5%\n      12.4%\n    \n    \n      6\n      aliceblue\n      245\n      1,513\n      2.4%\n      14.8%\n    \n    \n      7\n      steelblue\n      243\n      1,756\n      2.4%\n      17.1%\n    \n    \n      8\n      azure\n      242\n      1,998\n      2.4%\n      19.5%\n    \n    \n      9\n      sienna\n      242\n      2,240\n      2.4%\n      21.9%\n    \n    \n      10\n      indigo\n      241\n      2,481\n      2.4%\n      24.2%\n    \n    \n      11\n      Others:\n      7,759\n      10,240\n      75.8%\n      100.0%",
+    "crumbs": [
+      "Counting values"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus.html#use-the-function-on-dataframes-to-get-multi-level-counts",
+    "href": "value_counts_plus.html#use-the-function-on-dataframes-to-get-multi-level-counts",
+    "title": "Counting Values",
+    "section": "Use the function on DataFrames to get multi-level counts",
+    "text": "Use the function on DataFrames to get multi-level counts\n\nExplore the URL structure of apple.com (~300k URLs):\n\nurldf = adv.url_to_df(pd.read_csv('data/apple_url_list.csv')['url'])\nurldf.filter(regex='netloc|dir_\\d+')\n\n\n\n\n  \n    \n      \n      netloc\n      dir_1\n      dir_2\n      dir_3\n      dir_4\n      dir_5\n      dir_6\n      dir_7\n      dir_8\n    \n  \n  \n    \n      0\n      www.apple.com\n      ae\n      shop\n      accessories\n      all\n      NaN\n      NaN\n      NaN\n      NaN\n    \n    \n      1\n      www.apple.com\n      ae\n      shop\n      accessories\n      all\n      accessibility\n      NaN\n      NaN\n      NaN\n    \n    \n      2\n      www.apple.com\n      ae\n      shop\n      accessories\n      all\n      airtag\n      NaN\n      NaN\n      NaN\n    \n    \n      3\n      www.apple.com\n      ae\n      shop\n      accessories\n      all\n      beats\n      NaN\n      NaN\n      NaN\n    \n    \n      4\n      www.apple.com\n      ae\n      shop\n      accessories\n      all\n      beats-featured\n      NaN\n      NaN\n      NaN\n    \n    \n      ...\n      ...\n      ...\n      ...\n      ...\n      ...\n      ...\n      ...\n      ...\n      ...\n    \n    \n      296005\n      www.apple.com\n      today\n      event\n      skills-getting-started-with-iphone\n      7015126954609578141\n      NaN\n      NaN\n      NaN\n      NaN\n    \n    \n      296006\n      www.apple.com\n      today\n      event\n      skills-getting-started-with-iphone\n      7015489343309862057\n      NaN\n      NaN\n      NaN\n      NaN\n    \n    \n      296007\n      www.apple.com\n      today\n      event\n      skills-getting-started-with-iphone\n      7016938895023916237\n      NaN\n      NaN\n      NaN\n      NaN\n    \n    \n      296008\n      www.apple.com\n      today\n      event\n      skills-getting-started-with-iphone\n      7017663669723312297\n      NaN\n      NaN\n      NaN\n      NaN\n    \n    \n      296009\n      www.apple.com\n      today\n      event\n      skills-getting-started-with-ipad\n      7018026058515849077\n      NaN\n      NaN\n      NaN\n      NaN\n    \n  \n\n296010 rows × 9 columns\n\n\n\n\nvalue_counts_plus(urldf[['netloc']], name='apple.com URL directories')\n\n\n\n  Counts of apple.com URL directories\n  \n    \n       \n      netloc\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      www.apple.com\n      289,093\n      289,093\n      97.7%\n      97.7%\n    \n    \n      2\n      www.apple.com.cn\n      6,917\n      296,010\n      2.3%\n      100.0%\n    \n  \n\n\n\n\nvalue_counts_plus(urldf[['netloc', 'dir_1']], name='apple.com URL directories &lt;code&gt;domain/dir_1')\n\n\n\n  Counts of apple.com URL directories domain/dir_1\n  \n    \n       \n      netloc\n      dir_1\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      www.apple.com\n      today\n      13,229\n      13,229\n      4.5%\n      4.5%\n    \n    \n      2\n      www.apple.com\n      ca\n      8,432\n      21,661\n      2.8%\n      7.3%\n    \n    \n      3\n      www.apple.com\n      shop\n      8,424\n      30,085\n      2.8%\n      10.2%\n    \n    \n      4\n      www.apple.com\n      de\n      7,677\n      37,762\n      2.6%\n      12.8%\n    \n    \n      5\n      www.apple.com\n      uk\n      7,589\n      45,351\n      2.6%\n      15.3%\n    \n    \n      6\n      www.apple.com\n      xf\n      7,540\n      52,891\n      2.5%\n      17.9%\n    \n    \n      7\n      www.apple.com\n      au\n      7,410\n      60,301\n      2.5%\n      20.4%\n    \n    \n      8\n      www.apple.com\n      hk\n      7,378\n      67,679\n      2.5%\n      22.9%\n    \n    \n      9\n      www.apple.com\n      it\n      7,355\n      75,034\n      2.5%\n      25.3%\n    \n    \n      10\n      www.apple.com\n      es\n      7,257\n      82,291\n      2.5%\n      27.8%\n    \n    \n      11\n      Others:\n      \n      213,719\n      296,010\n      72.2%\n      100.0%\n    \n  \n\n\n\n\n\nCheck counts of the first two directories’ combinations\n\nvalue_counts_plus(urldf[['dir_1', 'dir_2']], name='apple.com URL directories&lt;code&gt;dir_1/dir_2&lt;/code&gt;')\n\n\n\n  Counts of apple.com URL directoriesdir_1/dir_2\n  \n    \n       \n      dir_1\n      dir_2\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      today\n      event\n      12,118\n      12,118\n      4.1%\n      4.1%\n    \n    \n      2\n      xf\n      shop\n      7,539\n      19,657\n      2.5%\n      6.6%\n    \n    \n      3\n      ca\n      shop\n      7,450\n      27,107\n      2.5%\n      9.2%\n    \n    \n      4\n      de\n      shop\n      7,201\n      34,308\n      2.4%\n      11.6%\n    \n    \n      5\n      uk\n      shop\n      7,080\n      41,388\n      2.4%\n      14.0%\n    \n    \n      6\n      au\n      shop\n      6,915\n      48,303\n      2.3%\n      16.3%\n    \n    \n      7\n      it\n      shop\n      6,875\n      55,178\n      2.3%\n      18.6%\n    \n    \n      8\n      es\n      shop\n      6,789\n      61,967\n      2.3%\n      20.9%\n    \n    \n      9\n      fr\n      shop\n      6,716\n      68,683\n      2.3%\n      23.2%\n    \n    \n      10\n      sg\n      shop\n      6,714\n      75,397\n      2.3%\n      25.5%\n    \n    \n      11\n      Others:\n      \n      220,613\n      296,010\n      74.5%\n      100.0%\n    \n  \n\n\n\n\n\nFilter for a country (de) and show counts of combinations of dir_2 and dir_3\n\nvalue_counts_plus(urldf[urldf['dir_1'].eq('de')][['dir_2', 'dir_3']], name='apple.com/de URL directories', show_top=20)\n\n\n\n  Counts of apple.com/de URL directories\n  \n    \n       \n      dir_2\n      dir_3\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      shop\n      accessories\n      1,964\n      1,964\n      25.6%\n      25.6%\n    \n    \n      2\n      shop\n      product\n      1,866\n      3,830\n      24.3%\n      49.9%\n    \n    \n      3\n      shop\n      buy-watch\n      865\n      4,695\n      11.3%\n      61.2%\n    \n    \n      4\n      shop\n      refurbished\n      464\n      5,159\n      6.0%\n      67.2%\n    \n    \n      5\n      shop\n      mac\n      461\n      5,620\n      6.0%\n      73.2%\n    \n    \n      6\n      shop\n      ipad\n      424\n      6,044\n      5.5%\n      78.7%\n    \n    \n      7\n      shop\n      iphone\n      419\n      6,463\n      5.5%\n      84.2%\n    \n    \n      8\n      shop\n      watch\n      299\n      6,762\n      3.9%\n      88.1%\n    \n    \n      9\n      shop\n      buy-iphone\n      131\n      6,893\n      1.7%\n      89.8%\n    \n    \n      10\n      tv-pr\n      originals\n      106\n      6,999\n      1.4%\n      91.2%\n    \n    \n      11\n      shop\n      buy-ipad\n      106\n      7,105\n      1.4%\n      92.5%\n    \n    \n      12\n      shop\n      buy-mac\n      91\n      7,196\n      1.2%\n      93.7%\n    \n    \n      13\n      shop\n      smart-home\n      56\n      7,252\n      0.7%\n      94.5%\n    \n    \n      14\n      business\n      success-stories\n      26\n      7,278\n      0.3%\n      94.8%\n    \n    \n      15\n      legal\n      sales-support\n      23\n      7,301\n      0.3%\n      95.1%\n    \n    \n      16\n      shop\n      help\n      16\n      7,317\n      0.2%\n      95.3%\n    \n    \n      17\n      legal\n      internet-services\n      10\n      7,327\n      0.1%\n      95.4%\n    \n    \n      18\n      legal\n      intellectual-property\n      10\n      7,337\n      0.1%\n      95.6%\n    \n    \n      19\n      support\n      products\n      9\n      7,346\n      0.1%\n      95.7%\n    \n    \n      20\n      education\n      k12\n      7\n      7,353\n      0.1%\n      95.8%\n    \n    \n      21\n      Others:\n      \n      324\n      7,677\n      4.2%\n      100.0%",
+    "crumbs": [
+      "Counting values"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus.html#change-the-size-of-table-size",
+    "href": "value_counts_plus.html#change-the-size-of-table-size",
+    "title": "Counting Values",
+    "section": "Change the size of table: size",
+    "text": "Change the size of table: size\n\nvalue_counts_plus(colors, size=5)\n\n\n\n  Counts of data\n  \n    \n       \n      data\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      lightseagreen\n      258\n      258\n      2.5%\n      2.5%\n    \n    \n      2\n      burlywood\n      255\n      513\n      2.5%\n      5.0%\n    \n    \n      3\n      cyan\n      252\n      765\n      2.5%\n      7.5%\n    \n    \n      4\n      slategray\n      252\n      1,017\n      2.5%\n      9.9%\n    \n    \n      5\n      lightsteelblue\n      251\n      1,268\n      2.5%\n      12.4%\n    \n    \n      6\n      aliceblue\n      245\n      1,513\n      2.4%\n      14.8%\n    \n    \n      7\n      steelblue\n      243\n      1,756\n      2.4%\n      17.1%\n    \n    \n      8\n      azure\n      242\n      1,998\n      2.4%\n      19.5%\n    \n    \n      9\n      sienna\n      242\n      2,240\n      2.4%\n      21.9%\n    \n    \n      10\n      indigo\n      241\n      2,481\n      2.4%\n      24.2%\n    \n    \n      11\n      Others:\n      7,759\n      10,240\n      75.8%\n      100.0%\n    \n  \n\n\n\n\nvalue_counts_plus(colors, size=20)\n\n\n\n  Counts of data\n  \n    \n       \n      data\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      lightseagreen\n      258\n      258\n      2.5%\n      2.5%\n    \n    \n      2\n      burlywood\n      255\n      513\n      2.5%\n      5.0%\n    \n    \n      3\n      cyan\n      252\n      765\n      2.5%\n      7.5%\n    \n    \n      4\n      slategray\n      252\n      1,017\n      2.5%\n      9.9%\n    \n    \n      5\n      lightsteelblue\n      251\n      1,268\n      2.5%\n      12.4%\n    \n    \n      6\n      aliceblue\n      245\n      1,513\n      2.4%\n      14.8%\n    \n    \n      7\n      steelblue\n      243\n      1,756\n      2.4%\n      17.1%\n    \n    \n      8\n      azure\n      242\n      1,998\n      2.4%\n      19.5%\n    \n    \n      9\n      sienna\n      242\n      2,240\n      2.4%\n      21.9%\n    \n    \n      10\n      indigo\n      241\n      2,481\n      2.4%\n      24.2%\n    \n    \n      11\n      Others:\n      7,759\n      10,240\n      75.8%\n      100.0%",
+    "crumbs": [
+      "Counting values"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus.html#completely-change-the-caption-using-an-html-string-with-set_caption",
+    "href": "value_counts_plus.html#completely-change-the-caption-using-an-html-string-with-set_caption",
+    "title": "Counting Values",
+    "section": "Completely change the caption using an HTML string with set_caption",
+    "text": "Completely change the caption using an HTML string with set_caption\n\ncaption = '&lt;h4&gt;Status codes&lt;/h4&gt;Top 5 values &lt;a href=\"https://example.com\"&gt;raw data&lt;/a&gt;'\nvalue_counts_plus(\n    colors,\n    name='Statuses',\n    show_top=5).set_caption(caption)\n\n\n\n  Status codesTop 5 values raw data\n  \n    \n       \n      Statuses\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      lightseagreen\n      258\n      258\n      2.5%\n      2.5%\n    \n    \n      2\n      burlywood\n      255\n      513\n      2.5%\n      5.0%\n    \n    \n      3\n      cyan\n      252\n      765\n      2.5%\n      7.5%\n    \n    \n      4\n      slategray\n      252\n      1,017\n      2.5%\n      9.9%\n    \n    \n      5\n      lightsteelblue\n      251\n      1,268\n      2.5%\n      12.4%\n    \n    \n      6\n      Others:\n      8,972\n      10,240\n      87.6%\n      100.0%\n    \n  \n\n\n\n\nRemoving table styling if you want a pure DataFrame:\n\nCounting in non-styled DataFrames is 0-based in case you want to further process it\nColumns are displayed in a slightly different manner\n\n\nvalue_counts_plus(colors, style=False)\n\n\n\n\n  \n    \n      \n      data\n      count\n      cum_count\n      perc\n      cum_perc\n    \n  \n  \n    \n      0\n      lightseagreen\n      258\n      258\n      0.025195\n      0.025195\n    \n    \n      1\n      burlywood\n      255\n      513\n      0.024902\n      0.050098\n    \n    \n      2\n      cyan\n      252\n      765\n      0.024609\n      0.074707\n    \n    \n      3\n      slategray\n      252\n      1017\n      0.024609\n      0.099316\n    \n    \n      4\n      lightsteelblue\n      251\n      1268\n      0.024512\n      0.123828\n    \n    \n      5\n      aliceblue\n      245\n      1513\n      0.023926\n      0.147754\n    \n    \n      6\n      steelblue\n      243\n      1756\n      0.023730\n      0.171484\n    \n    \n      7\n      azure\n      242\n      1998\n      0.023633\n      0.195117\n    \n    \n      8\n      sienna\n      242\n      2240\n      0.023633\n      0.218750\n    \n    \n      9\n      indigo\n      241\n      2481\n      0.023535\n      0.242285\n    \n    \n      0\n      Others:\n      7759\n      10240\n      0.757715\n      1.000000",
+    "crumbs": [
+      "Counting values"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus.html#counting-continuous-data",
+    "href": "value_counts_plus.html#counting-continuous-data",
+    "title": "Counting Values",
+    "section": "Counting continuous data",
+    "text": "Counting continuous data\nWe can easily make continuous data discrete by binning them. One easy way to do that is the pandas.cut function.\nFor example, if we want to count countries’ populations, we can first bin them under 50M intervals, and run value_counts_plus.\n\ngm = px.data.gapminder().query('year == 2007')\ngm['pop_interval'] = pd.cut(gm['pop'], range(0, 1_500_000_000, 50_000_000))\ngm.sort_values('pop', ascending=False).head(15)\n\n\n\n\n  \n    \n      \n      country\n      continent\n      year\n      lifeExp\n      pop\n      gdpPercap\n      iso_alpha\n      iso_num\n      pop_interval\n    \n  \n  \n    \n      299\n      China\n      Asia\n      2007\n      72.961\n      1318683096\n      4959.114854\n      CHN\n      156\n      (1300000000, 1350000000]\n    \n    \n      707\n      India\n      Asia\n      2007\n      64.698\n      1110396331\n      2452.210407\n      IND\n      356\n      (1100000000, 1150000000]\n    \n    \n      1619\n      United States\n      Americas\n      2007\n      78.242\n      301139947\n      42951.653090\n      USA\n      840\n      (300000000, 350000000]\n    \n    \n      719\n      Indonesia\n      Asia\n      2007\n      70.650\n      223547000\n      3540.651564\n      IDN\n      360\n      (200000000, 250000000]\n    \n    \n      179\n      Brazil\n      Americas\n      2007\n      72.390\n      190010647\n      9065.800825\n      BRA\n      76\n      (150000000, 200000000]\n    \n    \n      1175\n      Pakistan\n      Asia\n      2007\n      65.483\n      169270617\n      2605.947580\n      PAK\n      586\n      (150000000, 200000000]\n    \n    \n      107\n      Bangladesh\n      Asia\n      2007\n      64.062\n      150448339\n      1391.253792\n      BGD\n      50\n      (150000000, 200000000]\n    \n    \n      1139\n      Nigeria\n      Africa\n      2007\n      46.859\n      135031164\n      2013.977305\n      NGA\n      566\n      (100000000, 150000000]\n    \n    \n      803\n      Japan\n      Asia\n      2007\n      82.603\n      127467972\n      31656.068060\n      JPN\n      392\n      (100000000, 150000000]\n    \n    \n      995\n      Mexico\n      Americas\n      2007\n      76.195\n      108700891\n      11977.574960\n      MEX\n      484\n      (100000000, 150000000]\n    \n    \n      1223\n      Philippines\n      Asia\n      2007\n      71.688\n      91077287\n      3190.481016\n      PHL\n      608\n      (50000000, 100000000]\n    \n    \n      1655\n      Vietnam\n      Asia\n      2007\n      74.249\n      85262356\n      2441.576404\n      VNM\n      704\n      (50000000, 100000000]\n    \n    \n      575\n      Germany\n      Europe\n      2007\n      79.406\n      82400996\n      32170.374420\n      DEU\n      276\n      (50000000, 100000000]\n    \n    \n      467\n      Egypt\n      Africa\n      2007\n      71.338\n      80264543\n      5581.180998\n      EGY\n      818\n      (50000000, 100000000]\n    \n    \n      515\n      Ethiopia\n      Africa\n      2007\n      52.947\n      76511887\n      690.805576\n      ETH\n      231\n      (50000000, 100000000]\n    \n  \n\n\n\n\n\nvalue_counts_plus(\n    gm['pop_interval'],\n    name='Population intervals - 2007',\n    background_gradient='RdBu')\n\n\n\n  Counts of Population intervals - 2007\n  \n    \n       \n      pop_interval\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      (0, 50000000]\n      120\n      120\n      84.5%\n      84.5%\n    \n    \n      2\n      (50000000, 100000000]\n      12\n      132\n      8.5%\n      93.0%\n    \n    \n      3\n      (100000000, 150000000]\n      3\n      135\n      2.1%\n      95.1%\n    \n    \n      4\n      (150000000, 200000000]\n      3\n      138\n      2.1%\n      97.2%\n    \n    \n      5\n      (1100000000, 1150000000]\n      1\n      139\n      0.7%\n      97.9%\n    \n    \n      6\n      (200000000, 250000000]\n      1\n      140\n      0.7%\n      98.6%\n    \n    \n      7\n      (300000000, 350000000]\n      1\n      141\n      0.7%\n      99.3%\n    \n    \n      8\n      (1300000000, 1350000000]\n      1\n      142\n      0.7%\n      100.0%\n    \n    \n      9\n      (950000000, 1000000000]\n      0\n      142\n      0.0%\n      100.0%\n    \n    \n      10\n      (1000000000, 1050000000]\n      0\n      142\n      0.0%\n      100.0%\n    \n    \n      11\n      Others:\n      0\n      142\n      0.0%\n      100.0%\n    \n  \n\n\n\nNow we can see that there are 120 countries with a population less than 50M. You can play around with the bin interval to get an appropriate value for your data.\n\nChanging the theme used with theme\n\nvalue_counts_plus(colors, background_gradient='Greens')\n\n\n\n  Counts of data\n  \n    \n       \n      data\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      lightseagreen\n      258\n      258\n      2.5%\n      2.5%\n    \n    \n      2\n      burlywood\n      255\n      513\n      2.5%\n      5.0%\n    \n    \n      3\n      cyan\n      252\n      765\n      2.5%\n      7.5%\n    \n    \n      4\n      slategray\n      252\n      1,017\n      2.5%\n      9.9%\n    \n    \n      5\n      lightsteelblue\n      251\n      1,268\n      2.5%\n      12.4%\n    \n    \n      6\n      aliceblue\n      245\n      1,513\n      2.4%\n      14.8%\n    \n    \n      7\n      steelblue\n      243\n      1,756\n      2.4%\n      17.1%\n    \n    \n      8\n      azure\n      242\n      1,998\n      2.4%\n      19.5%\n    \n    \n      9\n      sienna\n      242\n      2,240\n      2.4%\n      21.9%\n    \n    \n      10\n      indigo\n      241\n      2,481\n      2.4%\n      24.2%\n    \n    \n      11\n      Others:\n      7,759\n      10,240\n      75.8%\n      100.0%\n    \n  \n\n\n\n\nvalue_counts_plus(colors, background_gradient='cool')\n\n\n\n  Counts of data\n  \n    \n       \n      data\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      lightseagreen\n      258\n      258\n      2.5%\n      2.5%\n    \n    \n      2\n      burlywood\n      255\n      513\n      2.5%\n      5.0%\n    \n    \n      3\n      cyan\n      252\n      765\n      2.5%\n      7.5%\n    \n    \n      4\n      slategray\n      252\n      1,017\n      2.5%\n      9.9%\n    \n    \n      5\n      lightsteelblue\n      251\n      1,268\n      2.5%\n      12.4%\n    \n    \n      6\n      aliceblue\n      245\n      1,513\n      2.4%\n      14.8%\n    \n    \n      7\n      steelblue\n      243\n      1,756\n      2.4%\n      17.1%\n    \n    \n      8\n      azure\n      242\n      1,998\n      2.4%\n      19.5%\n    \n    \n      9\n      sienna\n      242\n      2,240\n      2.4%\n      21.9%\n    \n    \n      10\n      indigo\n      241\n      2,481\n      2.4%\n      24.2%\n    \n    \n      11\n      Others:\n      7,759\n      10,240\n      75.8%\n      100.0%\n    \n  \n\n\n\n\n\nConvert the table to raw HTML for embedding in a blog or web page\n\nprint(value_counts_plus(colors).to_html()[:700])\n\n&lt;style type=\"text/css\"&gt;\n#T_c9396_row0_col1, #T_c9396_row0_col2, #T_c9396_row0_col3, #T_c9396_row0_col4, #T_c9396_row1_col1, #T_c9396_row1_col3, #T_c9396_row2_col1, #T_c9396_row2_col3, #T_c9396_row3_col1, #T_c9396_row3_col3, #T_c9396_row4_col1, #T_c9396_row4_col3, #T_c9396_row5_col1, #T_c9396_row5_col3, #T_c9396_row6_col1, #T_c9396_row6_col3, #T_c9396_row7_col1, #T_c9396_row7_col3, #T_c9396_row8_col1, #T_c9396_row8_col3, #T_c9396_row9_col1, #T_c9396_row9_col3 {\n  background-color: #00224e;\n  color: #f1f1f1;\n}\n#T_c9396_row1_col2, #T_c9396_row1_col4 {\n  background-color: #002758;\n  color: #f1f1f1;\n}\n#T_c9396_row2_col2, #T_c9396_row2_col4 {\n  background-color: #002c64;\n  color: #f1f1f1;\n}\n#T_c93",
+    "crumbs": [
+      "Counting values"
+    ]
+  },
+  {
+    "objectID": "style_table_slides.html#getting-started---a-simple-table",
+    "href": "style_table_slides.html#getting-started---a-simple-table",
+    "title": "Styling Tables and DataFrames",
+    "section": "Getting started - a simple table",
+    "text": "Getting started - a simple table\n\ndf = pd.DataFrame({\n    'text': ['one', 'two', 'three', 'four', 'five'],\n    'category': ['odd', 'even', 'odd', 'even', 'odd'],\n    'heatmap': [10, 20, 30, 40, 70],\n    'bar': [18, 17, 12, 10, 5]\n})\ndf\n\n\n\n\n\n\n\n\ntext\ncategory\nheatmap\nbar\n\n\n\n\n0\none\nodd\n10\n18\n\n\n1\ntwo\neven\n20\n17\n\n\n2\nthree\nodd\n30\n12\n\n\n3\nfour\neven\n40\n10\n\n\n4\nfive\nodd\n70\n5",
+    "crumbs": [
+      "Styling tables (slides)"
+    ]
+  },
+  {
+    "objectID": "style_table_slides.html#using-simple-default-options",
+    "href": "style_table_slides.html#using-simple-default-options",
+    "title": "Styling Tables and DataFrames",
+    "section": "Using simple default options",
+    "text": "Using simple default options\n\nadviz.style_table(\n    df,\n    column_types=['text', 'category', 'heatmap', 'bar'])",
+    "crumbs": [
+      "Styling tables (slides)"
+    ]
+  },
+  {
+    "objectID": "style_table_slides.html#modify-look-and-feel",
+    "href": "style_table_slides.html#modify-look-and-feel",
+    "title": "Styling Tables and DataFrames",
+    "section": "Modify look and feel",
+    "text": "Modify look and feel\n\nadviz.style_table(\n    df,\n    column_types=['text', 'category', 'heatmap', 'bar'],\n    column_widths=[0.15, 0.25, 0.2, 0.4],\n    title='Styling tables with &lt;b&gt;adviz',\n    theme='plotly_dark',\n    precision=0,\n    width=600,\n    height=400,\n    font_size=14,\n    title_font_size=25)",
+    "crumbs": [
+      "Styling tables (slides)"
+    ]
+  },
+  {
+    "objectID": "style_table_slides.html#multiple-columns-multiple-types",
+    "href": "style_table_slides.html#multiple-columns-multiple-types",
+    "title": "Styling Tables and DataFrames",
+    "section": "Multiple columns & multiple types",
+    "text": "Multiple columns & multiple types\n\nmedals = px.data.medals_long()[['medal', 'nation', 'count']]\nmedals['medal'] = (medals['medal']\n                   .astype('category')\n                   .cat.reorder_categories(['bronze', 'silver', 'gold']))\nmedals = medals.sort_values(['medal', 'count'], ascending=False)\nmedals\n\n\n\n\n\n\n\n\nmedal\nnation\ncount\n\n\n\n\n0\ngold\nSouth Korea\n24\n\n\n1\ngold\nChina\n10\n\n\n2\ngold\nCanada\n9\n\n\n4\nsilver\nChina\n15\n\n\n3\nsilver\nSouth Korea\n13\n\n\n5\nsilver\nCanada\n12\n\n\n8\nbronze\nCanada\n12\n\n\n6\nbronze\nSouth Korea\n11\n\n\n7\nbronze\nChina\n8",
+    "crumbs": [
+      "Styling tables (slides)"
+    ]
+  },
+  {
+    "objectID": "style_table_slides.html#style-the-table",
+    "href": "style_table_slides.html#style-the-table",
+    "title": "Styling Tables and DataFrames",
+    "section": "Style the table",
+    "text": "Style the table\n\nadviz.style_table(\n    medals,\n    column_types=['category', 'category', 'bar'],\n    title='Olympic Medals',\n    theme='none',\n    precision=0,\n    width=800,\n    height=500)",
+    "crumbs": [
+      "Styling tables (slides)"
+    ]
+  },
+  {
+    "objectID": "style_table_slides.html#using-heatmap-instead-of-bar",
+    "href": "style_table_slides.html#using-heatmap-instead-of-bar",
+    "title": "Styling Tables and DataFrames",
+    "section": "Using heatmap instead of bar",
+    "text": "Using heatmap instead of bar\n\nadviz.style_table(\n    medals,\n    column_types=['category', 'category', 'heatmap'],\n    title='Olympic Medals',\n    theme='none',\n    precision=0,\n    width=800,\n    height=400)",
+    "crumbs": [
+      "Styling tables (slides)"
+    ]
+  },
+  {
+    "objectID": "style_table_slides.html#styling-many-columns-with-multiple-chart-types",
+    "href": "style_table_slides.html#styling-many-columns-with-multiple-chart-types",
+    "title": "Styling Tables and DataFrames",
+    "section": "Styling many columns with multiple chart types",
+    "text": "Styling many columns with multiple chart types\n\nelection = px.data.election().iloc[:, :-1]\nelection.head()\n\n\n\n\n\n\n\n\ndistrict\nCoderre\nBergeron\nJoly\ntotal\nwinner\nresult\n\n\n\n\n0\n101-Bois-de-Liesse\n2481\n1829\n3024\n7334\nJoly\nplurality\n\n\n1\n102-Cap-Saint-Jacques\n2525\n1163\n2675\n6363\nJoly\nplurality\n\n\n2\n11-Sault-au-Récollet\n3348\n2770\n2532\n8650\nCoderre\nplurality\n\n\n3\n111-Mile-End\n1734\n4782\n2514\n9030\nBergeron\nmajority\n\n\n4\n112-DeLorimier\n1770\n5933\n3044\n10747\nBergeron\nmajority",
+    "crumbs": [
+      "Styling tables (slides)"
+    ]
+  },
+  {
+    "objectID": "style_table_slides.html#visualizing-a-more-complex-table",
+    "href": "style_table_slides.html#visualizing-a-more-complex-table",
+    "title": "Styling Tables and DataFrames",
+    "section": "Visualizing a more complex table",
+    "text": "Visualizing a more complex table\n\nadviz.style_table(\n    election.sort_values('total', ascending=False).head(20),\n    column_types=['text', 'heatmap', 'heatmap', 'heatmap', 'bar', 'category', 'category'],\n    column_widths=[.3, 0.12, 0.12, 0.12, 0.12, 0.12, 0.12 ],\n    precision=0,\n    theme='plotly_dark',\n    title='Election Results – Top 20',\n    height=750,\n)",
+    "crumbs": [
+      "Styling tables (slides)"
+    ]
+  },
+  {
+    "objectID": "style_table_slides.html#producing-more-detailed-and-readable-tables",
+    "href": "style_table_slides.html#producing-more-detailed-and-readable-tables",
+    "title": "Styling Tables and DataFrames",
+    "section": "Producing more detailed and readable tables",
+    "text": "Producing more detailed and readable tables\n\ntop5_gdp_percap = (px.data\n                   .gapminder()\n                   .sort_values(['year', 'gdpPercap'],\n                                ascending=[True, False])\n                   .groupby('year').head().iloc[:, :-2]\n                   [['country', 'continent', 'year', 'gdpPercap', 'lifeExp', 'pop']]\n                   .rename(columns={\n                       'gdpPercap': 'GDP per capita',\n                       'lifeExp': 'Life expectancy',\n                       'pop': 'population'}))\ntop5_gdp_percap.head()\n\n\n\n\n\n\n\n\ncountry\ncontinent\nyear\nGDP per capita\nLife expectancy\npopulation\n\n\n\n\n852\nKuwait\nAsia\n1952\n108382.35290\n55.565\n160000\n\n\n1476\nSwitzerland\nEurope\n1952\n14734.23275\n69.620\n4815000\n\n\n1608\nUnited States\nAmericas\n1952\n13990.48208\n68.440\n157553000\n\n\n240\nCanada\nAmericas\n1952\n11367.16112\n68.750\n14785584\n\n\n1092\nNew Zealand\nOceania\n1952\n10556.57566\n69.390\n1994794",
+    "crumbs": [
+      "Styling tables (slides)"
+    ]
+  },
+  {
+    "objectID": "style_table_slides.html#more-complex-and-customized-report",
+    "href": "style_table_slides.html#more-complex-and-customized-report",
+    "title": "Styling Tables and DataFrames",
+    "section": "More complex and customized report",
+    "text": "More complex and customized report\n\nadviz.style_table(\n    top5_gdp_percap,\n    ['text', 'category', 'category', 'bar', 'heatmap', 'heatmap'],\n    column_widths=[.1, .07, .05, .12, .12, .12, ],\n    theme='seaborn',\n    precision=0,\n    title=\"Top 5 countries per year – GDP per capita\",\n    height=1300)",
+    "crumbs": [
+      "Styling tables (slides)"
+    ]
+  },
+  {
+    "objectID": "style_table_slides.html#visualizing-hierarchical-data",
+    "href": "style_table_slides.html#visualizing-hierarchical-data",
+    "title": "Styling Tables and DataFrames",
+    "section": "Visualizing hierarchical data",
+    "text": "Visualizing hierarchical data\nSee also: the adviz.status_codes chart.\n\nstatus_codes = pd.read_csv('data/status_codes.csv')\nstatus_codes['category'] = status_codes['status'].round(-2)\nstatus_codes\n\n\n\n\n\n\n\n\nstatus\ncategory\n\n\n\n\n0\n200\n200\n\n\n1\n200\n200\n\n\n2\n200\n200\n\n\n3\n200\n200\n\n\n4\n200\n200\n\n\n...\n...\n...\n\n\n414398\n200\n200\n\n\n414399\n200\n200\n\n\n414400\n200\n200\n\n\n414401\n200\n200\n\n\n414402\n200\n200\n\n\n\n\n414403 rows × 2 columns",
+    "crumbs": [
+      "Styling tables (slides)"
+    ]
+  },
+  {
+    "objectID": "style_table_slides.html#hierarchical-table",
+    "href": "style_table_slides.html#hierarchical-table",
+    "title": "Styling Tables and DataFrames",
+    "section": "Hierarchical table",
+    "text": "Hierarchical table\n\nadviz.style_table(\n    status_codes[['category', 'status']].value_counts().reset_index().sort_values(['category', 'count'], ascending=[True, False]),\n    column_types=['category', 'text', 'bar'],\n    column_widths=[.2, .2, .6],\n    precision=0,\n    theme='plotly_dark',\n    title='Status Codes',\n    height=600, width=700)",
+    "crumbs": [
+      "Styling tables (slides)"
+    ]
+  },
+  {
+    "objectID": "style_table_slides.html#get-started-now",
+    "href": "style_table_slides.html#get-started-now",
+    "title": "Styling Tables and DataFrames",
+    "section": "Get started now:",
+    "text": "Get started now:\n\n\npython3 -m pip install adviz\n\n\nExplore more advertools data visualizations",
+    "crumbs": [
+      "Styling tables (slides)"
+    ]
+  },
+  {
+    "objectID": "flag_slides.html#get-some-country-flags",
+    "href": "flag_slides.html#get-some-country-flags",
+    "title": "Flag Emojis with adviz",
+    "section": "Get some country flags",
+    "text": "Get some country flags\n\nimport adviz\n\nadviz.flag(\"pt\"), adviz.flag(\"prt\")\n\n('🇵🇹', '🇵🇹')\n\n\n\n(\n    adviz.flag(\"jp\"),\n    adviz.flag(\"jpn\"),\n    adviz.flag(\"JPN\"),\n    adviz.flag(\"JAPAN\"),\n    adviz.flag(\"japan\"),\n)\n\n('🇯🇵', '🇯🇵', '🇯🇵', '🇯🇵', '🇯🇵')\n\n\n\nadviz.flag(\"za\")\n\n'🇿🇦'",
+    "crumbs": [
+      "Flag Emoji (slides)"
+    ]
+  },
+  {
+    "objectID": "flag_slides.html#use-in-an-html-string-for-more-granular-control",
+    "href": "flag_slides.html#use-in-an-html-string-for-more-granular-control",
+    "title": "Flag Emojis with adviz",
+    "section": "Use in an HTML string for more granular control",
+    "text": "Use in an HTML string for more granular control\n\nhtml(\n    f'&lt;h3 style=\"font-size: 40pt; color: gold;\"&gt;This is the flag of Zimbabwe: &lt;span style=\"font-size: 60pt;\"&gt;{adviz.flag(\"zw\")}&lt;/span&gt;&lt;/h1&gt;'\n)\nhtml(\n    f'&lt;h3 style=\"font-size: 40pt; color: steelblue;\"&gt;This is the flag of Sweden: &lt;span style=\"font-size: 60pt;\"&gt;{adviz.flag(\"se\")}&lt;/span&gt;&lt;/h1&gt;'\n)\n\nThis is the flag of Zimbabwe: 🇿🇼\n\n\nThis is the flag of Sweden: 🇸🇪",
+    "crumbs": [
+      "Flag Emoji (slides)"
+    ]
+  },
+  {
+    "objectID": "flag_slides.html#using-flags-in-plotly-charts",
+    "href": "flag_slides.html#using-flags-in-plotly-charts",
+    "title": "Flag Emojis with adviz",
+    "section": "Using flags in Plotly charts",
+    "text": "Using flags in Plotly charts\nUse flags to make country data more recognizable\n\n\n\n\n\n\n\n\n\ncountry\npopulation\ncode\n\n\n\n\n0\nChina\n1439323776\ncn\n\n\n1\nIndia\n1380004385\nin\n\n\n2\nUnited States\n331002651\nus\n\n\n3\nIndonesia\n273523615\nid\n\n\n4\nPakistan\n220892340\npk",
+    "crumbs": [
+      "Flag Emoji (slides)"
+    ]
+  },
+  {
+    "objectID": "flag_slides.html#adding-country-flags-makes-them-easily-recognizable",
+    "href": "flag_slides.html#adding-country-flags-makes-them-easily-recognizable",
+    "title": "Flag Emojis with adviz",
+    "section": "Adding country flags makes them easily recognizable",
+    "text": "Adding country flags makes them easily recognizable\n\n\nCode\nimport plotly.express as px\n\nfig = px.bar(\n    population,\n    x=\"country\",\n    y=\"population\",\n    height=500,\n    text=[adviz.flag(cc) for cc in population[\"code\"]],\n    template=\"plotly_dark\",\n)\nfig.data[0].textfont.size = 35\nfig.data[0].marker.color = \"steelblue\"\nfig",
+    "crumbs": [
+      "Flag Emoji (slides)"
+    ]
+  },
+  {
+    "objectID": "flag_slides.html#horizontal-chart",
+    "href": "flag_slides.html#horizontal-chart",
+    "title": "Flag Emojis with adviz",
+    "section": "Horizontal chart",
+    "text": "Horizontal chart\n\n\nCode\nfig = px.bar(\n    population.sort_values(\"population\"),\n    y=\"country\",\n    x=\"population\",\n    orientation=\"h\",\n    height=500,\n    opacity=0.8,\n    text=[adviz.flag(cc) for cc in population.sort_values(\"population\")[\"code\"]],\n    template=\"plotly_dark\",\n)\nfig.data[0].textfont.size = 35\nfig.data[0].marker.color = \"teal\"\nfig",
+    "crumbs": [
+      "Flag Emoji (slides)"
+    ]
+  },
+  {
+    "objectID": "flag_slides.html#make-scatter-plots-easier-to-read-with-flags",
+    "href": "flag_slides.html#make-scatter-plots-easier-to-read-with-flags",
+    "title": "Flag Emojis with adviz",
+    "section": "Make scatter plots easier to read with flags",
+    "text": "Make scatter plots easier to read with flags\nZoom in when some flags are overlapping\n\n\n\n\n\n\n\n\n\ncountry\ncontinent\nyear\nlifeExp\npop\ngdpPercap\niso_alpha\niso_num\nflag\n\n\n\n\n11\nAfghanistan\nAsia\n2007\n43.828\n31889923\n974.580338\nAFG\n4\n🇦🇫\n\n\n23\nAlbania\nEurope\n2007\n76.423\n3600523\n5937.029526\nALB\n8\n🇦🇱\n\n\n35\nAlgeria\nAfrica\n2007\n72.301\n33333216\n6223.367465\nDZA\n12\n🇩🇿\n\n\n47\nAngola\nAfrica\n2007\n42.731\n12420476\n4797.231267\nAGO\n24\n🇦🇴\n\n\n59\nArgentina\nAmericas\n2007\n75.320\n40301927\n12779.379640\nARG\n32\n🇦🇷\n\n\n71\nAustralia\nOceania\n2007\n81.235\n20434176\n34435.367440\nAUS\n36\n🇦🇺\n\n\n83\nAustria\nEurope\n2007\n79.829\n8199783\n36126.492700\nAUT\n40\n🇦🇹\n\n\n95\nBahrain\nAsia\n2007\n75.635\n708573\n29796.048340\nBHR\n48\n🇧🇭\n\n\n107\nBangladesh\nAsia\n2007\n64.062\n150448339\n1391.253792\nBGD\n50\n🇧🇩\n\n\n119\nBelgium\nEurope\n2007\n79.441\n10392226\n33692.605080\nBEL\n56\n🇧🇪",
+    "crumbs": [
+      "Flag Emoji (slides)"
+    ]
+  },
+  {
+    "objectID": "flag_slides.html#europe",
+    "href": "flag_slides.html#europe",
+    "title": "Flag Emojis with adviz",
+    "section": "Europe",
+    "text": "Europe",
+    "crumbs": [
+      "Flag Emoji (slides)"
+    ]
+  },
+  {
+    "objectID": "flag_slides.html#americas",
+    "href": "flag_slides.html#americas",
+    "title": "Flag Emojis with adviz",
+    "section": "Americas",
+    "text": "Americas",
+    "crumbs": [
+      "Flag Emoji (slides)"
+    ]
+  },
+  {
+    "objectID": "flag_slides.html#africa",
+    "href": "flag_slides.html#africa",
+    "title": "Flag Emojis with adviz",
+    "section": "Africa",
+    "text": "Africa",
+    "crumbs": [
+      "Flag Emoji (slides)"
+    ]
+  },
+  {
+    "objectID": "flag_slides.html#asia",
+    "href": "flag_slides.html#asia",
+    "title": "Flag Emojis with adviz",
+    "section": "Asia",
+    "text": "Asia",
+    "crumbs": [
+      "Flag Emoji (slides)"
+    ]
+  },
+  {
+    "objectID": "flag_slides.html#oceania",
+    "href": "flag_slides.html#oceania",
+    "title": "Flag Emojis with adviz",
+    "section": "Oceania",
+    "text": "Oceania",
+    "crumbs": [
+      "Flag Emoji (slides)"
+    ]
+  },
+  {
+    "objectID": "flag_slides.html#get-started-now",
+    "href": "flag_slides.html#get-started-now",
+    "title": "Flag Emojis with adviz",
+    "section": "Get started now:",
+    "text": "Get started now:\n\n\npython3 -m pip install adviz\n\n\nExplore more advertools data visualizations",
+    "crumbs": [
+      "Flag Emoji (slides)"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus_slides.html#counting-values",
+    "href": "value_counts_plus_slides.html#counting-values",
+    "title": "adviz",
+    "section": "Counting values",
+    "text": "Counting values\n\nCount the unique values in a collection of items\n\n\nCount in absolute and proportion (percentage) terms\nShow the cumulative count and percent\nDetermine the number of top items to show\nShow all remaining items lumped into one item named Others:\nChange the name of the items, as well as the caption and various other styling options",
+    "crumbs": [
+      "Counting values (slides)"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus_slides.html#installation-and-usage",
+    "href": "value_counts_plus_slides.html#installation-and-usage",
+    "title": "adviz",
+    "section": "Installation and usage",
+    "text": "Installation and usage\nInstallation:\npython3 -m pip install adviz\nUsage:\nimport adviz\nadv.value_counts_plus([item_1, item_2, ... item_n], ...)",
+    "crumbs": [
+      "Counting values (slides)"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus_slides.html#usage-1",
+    "href": "value_counts_plus_slides.html#usage-1",
+    "title": "adviz",
+    "section": "Usage",
+    "text": "Usage\nGenerate a random list of 10,000 colors\n\n\nCode\nimport random\nimport numpy as np\nimport matplotlib as mpl\nimport pandas as pd\nimport plotly.express as px\n\ncolors = list(mpl.colors.cnames.keys())\ncolors = random.choices(colors, weights=[0.9, 0.04, 0.05, 0.09]*37, k=10_000)\ncolors += [np.nan for i in range(240)]\ncolors[:20]\n\n\n['mediumslateblue',\n 'purple',\n 'darkred',\n 'lightgreen',\n 'coral',\n 'red',\n 'forestgreen',\n 'fuchsia',\n 'olive',\n 'deeppink',\n 'navajowhite',\n 'darkmagenta',\n 'olivedrab',\n 'plum',\n 'salmon',\n 'cyan',\n 'cyan',\n 'olivedrab',\n 'lightgreen',\n 'indigo']",
+    "crumbs": [
+      "Counting values (slides)"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus_slides.html#view-default-output",
+    "href": "value_counts_plus_slides.html#view-default-output",
+    "title": "adviz",
+    "section": "View default output",
+    "text": "View default output\n\nimport adviz\nadviz.value_counts_plus(colors)\n\n\n\n  Counts of data\n  \n    \n       \n      data\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      lightsteelblue\n      255\n      255\n      2.5%\n      2.5%\n    \n    \n      2\n      lavenderblush\n      254\n      509\n      2.5%\n      5.0%\n    \n    \n      3\n      mediumslateblue\n      249\n      758\n      2.4%\n      7.4%\n    \n    \n      4\n      indigo\n      246\n      1,004\n      2.4%\n      9.8%\n    \n    \n      5\n      lightgreen\n      243\n      1,247\n      2.4%\n      12.2%\n    \n    \n      6\n      nan\n      240\n      1,487\n      2.3%\n      14.5%\n    \n    \n      7\n      plum\n      237\n      1,724\n      2.3%\n      16.8%\n    \n    \n      8\n      burlywood\n      237\n      1,961\n      2.3%\n      19.2%\n    \n    \n      9\n      lightseagreen\n      237\n      2,198\n      2.3%\n      21.5%\n    \n    \n      10\n      deeppink\n      236\n      2,434\n      2.3%\n      23.8%\n    \n    \n      11\n      Others:\n      7,806\n      10,240\n      76.2%\n      100.0%",
+    "crumbs": [
+      "Counting values (slides)"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus_slides.html#change-the-number-of-top-values-show_topn",
+    "href": "value_counts_plus_slides.html#change-the-number-of-top-values-show_topn",
+    "title": "adviz",
+    "section": "Change the number of top values: show_top=n",
+    "text": "Change the number of top values: show_top=n\n\nadviz.value_counts_plus(\n    colors,\n    show_top=5)\n\n\n\n  Counts of data\n  \n    \n       \n      data\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      lightsteelblue\n      255\n      255\n      2.5%\n      2.5%\n    \n    \n      2\n      lavenderblush\n      254\n      509\n      2.5%\n      5.0%\n    \n    \n      3\n      mediumslateblue\n      249\n      758\n      2.4%\n      7.4%\n    \n    \n      4\n      indigo\n      246\n      1,004\n      2.4%\n      9.8%\n    \n    \n      5\n      lightgreen\n      243\n      1,247\n      2.4%\n      12.2%\n    \n    \n      6\n      Others:\n      8,993\n      10,240\n      87.8%\n      100.0%",
+    "crumbs": [
+      "Counting values (slides)"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus_slides.html#remove-styling-stylefalse",
+    "href": "value_counts_plus_slides.html#remove-styling-stylefalse",
+    "title": "adviz",
+    "section": "Remove styling: style=False",
+    "text": "Remove styling: style=False\n\nadviz.value_counts_plus(\n    colors,\n    show_top=5,\n    style=False)\n\n\n\n\n  \n    \n      \n      data\n      count\n      cum_count\n      perc\n      cum_perc\n    \n  \n  \n    \n      0\n      lightsteelblue\n      255\n      255\n      0.024902\n      0.024902\n    \n    \n      1\n      lavenderblush\n      254\n      509\n      0.024805\n      0.049707\n    \n    \n      2\n      mediumslateblue\n      249\n      758\n      0.024316\n      0.074023\n    \n    \n      3\n      indigo\n      246\n      1004\n      0.024023\n      0.098047\n    \n    \n      4\n      lightgreen\n      243\n      1247\n      0.023730\n      0.121777\n    \n    \n      5\n      Others:\n      8993\n      10240\n      0.878223\n      1.000000",
+    "crumbs": [
+      "Counting values (slides)"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus_slides.html#styled-vs-non-styled-tables",
+    "href": "value_counts_plus_slides.html#styled-vs-non-styled-tables",
+    "title": "adviz",
+    "section": "Styled vs non-styled tables",
+    "text": "Styled vs non-styled tables\n\nIndexing starts with 1 to be more accessible to non-tech audience\nIndexing remains 0-based in non-styled tables for further processing\nColumn headers are displayed in a more readable way\n\n\n\n\n\n\n  Counts of data\n  \n    \n       \n      data\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      lightsteelblue\n      255\n      255\n      2.5%\n      2.5%\n    \n    \n      2\n      lavenderblush\n      254\n      509\n      2.5%\n      5.0%\n    \n    \n      3\n      mediumslateblue\n      249\n      758\n      2.4%\n      7.4%\n    \n    \n      4\n      indigo\n      246\n      1,004\n      2.4%\n      9.8%\n    \n    \n      5\n      lightgreen\n      243\n      1,247\n      2.4%\n      12.2%\n    \n    \n      6\n      Others:\n      8,993\n      10,240\n      87.8%\n      100.0%\n    \n  \n\n\n\n\n\n\n  \n    \n      \n      data\n      count\n      cum_count\n      perc\n      cum_perc\n    \n  \n  \n    \n      0\n      lightsteelblue\n      255\n      255\n      0.024902\n      0.024902\n    \n    \n      1\n      lavenderblush\n      254\n      509\n      0.024805\n      0.049707\n    \n    \n      2\n      mediumslateblue\n      249\n      758\n      0.024316\n      0.074023\n    \n    \n      3\n      indigo\n      246\n      1004\n      0.024023\n      0.098047\n    \n    \n      4\n      lightgreen\n      243\n      1247\n      0.023730\n      0.121777\n    \n    \n      5\n      Others:\n      8993\n      10240\n      0.878223\n      1.000000",
+    "crumbs": [
+      "Counting values (slides)"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus_slides.html#change-the-size-of-the-table-size",
+    "href": "value_counts_plus_slides.html#change-the-size-of-the-table-size",
+    "title": "adviz",
+    "section": "Change the size of the table: size",
+    "text": "Change the size of the table: size\n\nadviz.value_counts_plus(\n    colors,\n    size=5)\n\n\n\n  Counts of data\n  \n    \n       \n      data\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      lightsteelblue\n      255\n      255\n      2.5%\n      2.5%\n    \n    \n      2\n      lavenderblush\n      254\n      509\n      2.5%\n      5.0%\n    \n    \n      3\n      mediumslateblue\n      249\n      758\n      2.4%\n      7.4%\n    \n    \n      4\n      indigo\n      246\n      1,004\n      2.4%\n      9.8%\n    \n    \n      5\n      lightgreen\n      243\n      1,247\n      2.4%\n      12.2%\n    \n    \n      6\n      nan\n      240\n      1,487\n      2.3%\n      14.5%\n    \n    \n      7\n      plum\n      237\n      1,724\n      2.3%\n      16.8%\n    \n    \n      8\n      burlywood\n      237\n      1,961\n      2.3%\n      19.2%\n    \n    \n      9\n      lightseagreen\n      237\n      2,198\n      2.3%\n      21.5%\n    \n    \n      10\n      deeppink\n      236\n      2,434\n      2.3%\n      23.8%\n    \n    \n      11\n      Others:\n      7,806\n      10,240\n      76.2%\n      100.0%",
+    "crumbs": [
+      "Counting values (slides)"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus_slides.html#change-the-size-of-the-table-size-1",
+    "href": "value_counts_plus_slides.html#change-the-size-of-the-table-size-1",
+    "title": "adviz",
+    "section": "Change the size of the table: size",
+    "text": "Change the size of the table: size\n\nadviz.value_counts_plus(\n    colors,\n    size=20)\n\n\n\n  Counts of data\n  \n    \n       \n      data\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      lightsteelblue\n      255\n      255\n      2.5%\n      2.5%\n    \n    \n      2\n      lavenderblush\n      254\n      509\n      2.5%\n      5.0%\n    \n    \n      3\n      mediumslateblue\n      249\n      758\n      2.4%\n      7.4%\n    \n    \n      4\n      indigo\n      246\n      1,004\n      2.4%\n      9.8%\n    \n    \n      5\n      lightgreen\n      243\n      1,247\n      2.4%\n      12.2%\n    \n    \n      6\n      nan\n      240\n      1,487\n      2.3%\n      14.5%\n    \n    \n      7\n      plum\n      237\n      1,724\n      2.3%\n      16.8%\n    \n    \n      8\n      burlywood\n      237\n      1,961\n      2.3%\n      19.2%\n    \n    \n      9\n      lightseagreen\n      237\n      2,198\n      2.3%\n      21.5%\n    \n    \n      10\n      deeppink\n      236\n      2,434\n      2.3%\n      23.8%\n    \n    \n      11\n      Others:\n      7,806\n      10,240\n      76.2%\n      100.0%",
+    "crumbs": [
+      "Counting values (slides)"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus_slides.html#sort-others",
+    "href": "value_counts_plus_slides.html#sort-others",
+    "title": "adviz",
+    "section": "Sort Others:",
+    "text": "Sort Others:\n\nAre other values significant?\nWhat would the data look like if all others were in their sorted order?\n\n\nadviz.value_counts_plus(\n    colors,\n    sort_others=True)\n\n\n\n  Counts of data\n  \n    \n       \n      data\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      Others:\n      7,806\n      7,806\n      76.2%\n      76.2%\n    \n    \n      2\n      lightsteelblue\n      255\n      8,061\n      2.5%\n      78.7%\n    \n    \n      3\n      lavenderblush\n      254\n      8,315\n      2.5%\n      81.2%\n    \n    \n      4\n      mediumslateblue\n      249\n      8,564\n      2.4%\n      83.6%\n    \n    \n      5\n      indigo\n      246\n      8,810\n      2.4%\n      86.0%\n    \n    \n      6\n      lightgreen\n      243\n      9,053\n      2.4%\n      88.4%\n    \n    \n      7\n      nan\n      240\n      9,293\n      2.3%\n      90.8%\n    \n    \n      8\n      plum\n      237\n      9,530\n      2.3%\n      93.1%\n    \n    \n      9\n      burlywood\n      237\n      9,767\n      2.3%\n      95.4%\n    \n    \n      10\n      lightseagreen\n      237\n      10,004\n      2.3%\n      97.7%\n    \n    \n      11\n      deeppink\n      236\n      10,240\n      2.3%\n      100.0%",
+    "crumbs": [
+      "Counting values (slides)"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus_slides.html#counting-continuous-data",
+    "href": "value_counts_plus_slides.html#counting-continuous-data",
+    "title": "adviz",
+    "section": "Counting continuous data",
+    "text": "Counting continuous data\n\nMake continuous data discrete by binning them with pandas.cut.\nExample: Count countries’ life expectancy by binning them under ten-year intervals.\n\n\ngm = px.data.gapminder().query('year == 2007')\ngm['lifeExp_bin'] = pd.cut(gm['lifeExp'], range(0, 100, 10))\ngm.sort_values('lifeExp', ascending=False).head(10)\n\n\n\n\n  \n    \n      \n      country\n      continent\n      year\n      lifeExp\n      pop\n      gdpPercap\n      iso_alpha\n      iso_num\n      lifeExp_bin\n    \n  \n  \n    \n      803\n      Japan\n      Asia\n      2007\n      82.603\n      127467972\n      31656.06806\n      JPN\n      392\n      (80, 90]\n    \n    \n      671\n      Hong Kong, China\n      Asia\n      2007\n      82.208\n      6980412\n      39724.97867\n      HKG\n      344\n      (80, 90]\n    \n    \n      695\n      Iceland\n      Europe\n      2007\n      81.757\n      301931\n      36180.78919\n      ISL\n      352\n      (80, 90]\n    \n    \n      1487\n      Switzerland\n      Europe\n      2007\n      81.701\n      7554661\n      37506.41907\n      CHE\n      756\n      (80, 90]\n    \n    \n      71\n      Australia\n      Oceania\n      2007\n      81.235\n      20434176\n      34435.36744\n      AUS\n      36\n      (80, 90]\n    \n    \n      1427\n      Spain\n      Europe\n      2007\n      80.941\n      40448191\n      28821.06370\n      ESP\n      724\n      (80, 90]\n    \n    \n      1475\n      Sweden\n      Europe\n      2007\n      80.884\n      9031088\n      33859.74835\n      SWE\n      752\n      (80, 90]\n    \n    \n      767\n      Israel\n      Asia\n      2007\n      80.745\n      6426679\n      25523.27710\n      ISR\n      376\n      (80, 90]\n    \n    \n      539\n      France\n      Europe\n      2007\n      80.657\n      61083916\n      30470.01670\n      FRA\n      250\n      (80, 90]\n    \n    \n      251\n      Canada\n      Americas\n      2007\n      80.653\n      33390141\n      36319.23501\n      CAN\n      124\n      (80, 90]",
+    "crumbs": [
+      "Counting values (slides)"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus_slides.html#counts-of-continuous-data",
+    "href": "value_counts_plus_slides.html#counts-of-continuous-data",
+    "title": "adviz",
+    "section": "Counts of continuous data",
+    "text": "Counts of continuous data\n\nadviz.value_counts_plus(\n    gm['lifeExp_bin'],\n    name='Life Expectancy - 2007',\n    background_gradient='RdBu')\n\n\n\n  Counts of Life Expectancy - 2007\n  \n    \n       \n      Life Expectancy - 2007\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      (70, 80]\n      70\n      70\n      49.3%\n      49.3%\n    \n    \n      2\n      (50, 60]\n      24\n      94\n      16.9%\n      66.2%\n    \n    \n      3\n      (40, 50]\n      18\n      112\n      12.7%\n      78.9%\n    \n    \n      4\n      (60, 70]\n      16\n      128\n      11.3%\n      90.1%\n    \n    \n      5\n      (80, 90]\n      13\n      141\n      9.2%\n      99.3%\n    \n    \n      6\n      (30, 40]\n      1\n      142\n      0.7%\n      100.0%\n    \n    \n      7\n      (0, 10]\n      0\n      142\n      0.0%\n      100.0%\n    \n    \n      8\n      (10, 20]\n      0\n      142\n      0.0%\n      100.0%\n    \n    \n      9\n      (20, 30]\n      0\n      142\n      0.0%\n      100.0%\n    \n  \n\n\n\n\nSeventy countries (49.3%) have a life expectancy in (70, 80].",
+    "crumbs": [
+      "Counting values (slides)"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus_slides.html#change-the-theme-of-the-table",
+    "href": "value_counts_plus_slides.html#change-the-theme-of-the-table",
+    "title": "adviz",
+    "section": "Change the theme of the table",
+    "text": "Change the theme of the table\n\nadviz.value_counts_plus(\n    colors,\n    background_gradient='magma')\n\n\n\n  Counts of data\n  \n    \n       \n      data\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      lightsteelblue\n      255\n      255\n      2.5%\n      2.5%\n    \n    \n      2\n      lavenderblush\n      254\n      509\n      2.5%\n      5.0%\n    \n    \n      3\n      mediumslateblue\n      249\n      758\n      2.4%\n      7.4%\n    \n    \n      4\n      indigo\n      246\n      1,004\n      2.4%\n      9.8%\n    \n    \n      5\n      lightgreen\n      243\n      1,247\n      2.4%\n      12.2%\n    \n    \n      6\n      nan\n      240\n      1,487\n      2.3%\n      14.5%\n    \n    \n      7\n      plum\n      237\n      1,724\n      2.3%\n      16.8%\n    \n    \n      8\n      burlywood\n      237\n      1,961\n      2.3%\n      19.2%\n    \n    \n      9\n      lightseagreen\n      237\n      2,198\n      2.3%\n      21.5%\n    \n    \n      10\n      deeppink\n      236\n      2,434\n      2.3%\n      23.8%\n    \n    \n      11\n      Others:\n      7,806\n      10,240\n      76.2%\n      100.0%",
+    "crumbs": [
+      "Counting values (slides)"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus_slides.html#get-the-reverse-of-the-theme-by-adding-_r",
+    "href": "value_counts_plus_slides.html#get-the-reverse-of-the-theme-by-adding-_r",
+    "title": "adviz",
+    "section": "Get the reverse of the theme by adding _r",
+    "text": "Get the reverse of the theme by adding _r\n\nadviz.value_counts_plus(\n    colors,\n    background_gradient='magma_r')\n\n\n\n  Counts of data\n  \n    \n       \n      data\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      lightsteelblue\n      255\n      255\n      2.5%\n      2.5%\n    \n    \n      2\n      lavenderblush\n      254\n      509\n      2.5%\n      5.0%\n    \n    \n      3\n      mediumslateblue\n      249\n      758\n      2.4%\n      7.4%\n    \n    \n      4\n      indigo\n      246\n      1,004\n      2.4%\n      9.8%\n    \n    \n      5\n      lightgreen\n      243\n      1,247\n      2.4%\n      12.2%\n    \n    \n      6\n      nan\n      240\n      1,487\n      2.3%\n      14.5%\n    \n    \n      7\n      plum\n      237\n      1,724\n      2.3%\n      16.8%\n    \n    \n      8\n      burlywood\n      237\n      1,961\n      2.3%\n      19.2%\n    \n    \n      9\n      lightseagreen\n      237\n      2,198\n      2.3%\n      21.5%\n    \n    \n      10\n      deeppink\n      236\n      2,434\n      2.3%\n      23.8%\n    \n    \n      11\n      Others:\n      7,806\n      10,240\n      76.2%\n      100.0%",
+    "crumbs": [
+      "Counting values (slides)"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus_slides.html#remove-missing-values-dropna",
+    "href": "value_counts_plus_slides.html#remove-missing-values-dropna",
+    "title": "adviz",
+    "section": "Remove missing values: dropna",
+    "text": "Remove missing values: dropna\n\nadviz.value_counts_plus(\n    colors,\n    dropna=True)\n\n\n\n  Counts of data\n  \n    \n       \n      data\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      lightsteelblue\n      255\n      255\n      2.5%\n      2.5%\n    \n    \n      2\n      lavenderblush\n      254\n      509\n      2.5%\n      5.1%\n    \n    \n      3\n      mediumslateblue\n      249\n      758\n      2.5%\n      7.6%\n    \n    \n      4\n      indigo\n      246\n      1,004\n      2.5%\n      10.0%\n    \n    \n      5\n      lightgreen\n      243\n      1,247\n      2.4%\n      12.5%\n    \n    \n      6\n      plum\n      237\n      1,484\n      2.4%\n      14.8%\n    \n    \n      7\n      burlywood\n      237\n      1,721\n      2.4%\n      17.2%\n    \n    \n      8\n      lightseagreen\n      237\n      1,958\n      2.4%\n      19.6%\n    \n    \n      9\n      red\n      236\n      2,194\n      2.4%\n      21.9%\n    \n    \n      10\n      deeppink\n      236\n      2,430\n      2.4%\n      24.3%\n    \n    \n      11\n      Others:\n      7,570\n      10,000\n      75.7%\n      100.0%",
+    "crumbs": [
+      "Counting values (slides)"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus_slides.html#use-different-symbols-for-thousands-and-decimal",
+    "href": "value_counts_plus_slides.html#use-different-symbols-for-thousands-and-decimal",
+    "title": "adviz",
+    "section": "Use different symbols for thousands and decimal",
+    "text": "Use different symbols for thousands and decimal\n\nadviz.value_counts_plus(\n    colors,\n    background_gradient='summer',\n    thousands='.',\n    decimal=',')\n\n\n\n  Counts of data\n  \n    \n       \n      data\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      lightsteelblue\n      255\n      255\n      2,5%\n      2,5%\n    \n    \n      2\n      lavenderblush\n      254\n      509\n      2,5%\n      5,0%\n    \n    \n      3\n      mediumslateblue\n      249\n      758\n      2,4%\n      7,4%\n    \n    \n      4\n      indigo\n      246\n      1.004\n      2,4%\n      9,8%\n    \n    \n      5\n      lightgreen\n      243\n      1.247\n      2,4%\n      12,2%\n    \n    \n      6\n      nan\n      240\n      1.487\n      2,3%\n      14,5%\n    \n    \n      7\n      plum\n      237\n      1.724\n      2,3%\n      16,8%\n    \n    \n      8\n      burlywood\n      237\n      1.961\n      2,3%\n      19,2%\n    \n    \n      9\n      lightseagreen\n      237\n      2.198\n      2,3%\n      21,5%\n    \n    \n      10\n      deeppink\n      236\n      2.434\n      2,3%\n      23,8%\n    \n    \n      11\n      Others:\n      7.806\n      10.240\n      76,2%\n      100,0%",
+    "crumbs": [
+      "Counting values (slides)"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus_slides.html#rename-the-data-column",
+    "href": "value_counts_plus_slides.html#rename-the-data-column",
+    "title": "adviz",
+    "section": "Rename the data column",
+    "text": "Rename the data column\n\nadviz.value_counts_plus(\n    colors,\n    background_gradient='cool_r',\n    name='colors')\n\n\n\n  Counts of colors\n  \n    \n       \n      colors\n      count\n      cum. count\n      %\n      cum. %\n    \n  \n  \n    \n      1\n      lightsteelblue\n      255\n      255\n      2.5%\n      2.5%\n    \n    \n      2\n      lavenderblush\n      254\n      509\n      2.5%\n      5.0%\n    \n    \n      3\n      mediumslateblue\n      249\n      758\n      2.4%\n      7.4%\n    \n    \n      4\n      indigo\n      246\n      1,004\n      2.4%\n      9.8%\n    \n    \n      5\n      lightgreen\n      243\n      1,247\n      2.4%\n      12.2%\n    \n    \n      6\n      nan\n      240\n      1,487\n      2.3%\n      14.5%\n    \n    \n      7\n      plum\n      237\n      1,724\n      2.3%\n      16.8%\n    \n    \n      8\n      burlywood\n      237\n      1,961\n      2.3%\n      19.2%\n    \n    \n      9\n      lightseagreen\n      237\n      2,198\n      2.3%\n      21.5%\n    \n    \n      10\n      deeppink\n      236\n      2,434\n      2.3%\n      23.8%\n    \n    \n      11\n      Others:\n      7,806\n      10,240\n      76.2%\n      100.0%",
+    "crumbs": [
+      "Counting values (slides)"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus_slides.html#convert-to-raw-html-to_html",
+    "href": "value_counts_plus_slides.html#convert-to-raw-html-to_html",
+    "title": "adviz",
+    "section": "Convert to raw HTML to_html",
+    "text": "Convert to raw HTML to_html\n\nhtml_table = adviz.value_counts_plus(\n    colors,\n    background_gradient='winter_r',\n    thousands='.',\n    decimal=',',\n    name='Colors'\n).to_html()\n\nprint(html_table[:600])\n\n&lt;style type=\"text/css\"&gt;\n#T_9b1a8_row0_col1, #T_9b1a8_row0_col2, #T_9b1a8_row0_col3, #T_9b1a8_row0_col4, #T_9b1a8_row1_col1, #T_9b1a8_row1_col3, #T_9b1a8_row2_col1, #T_9b1a8_row2_col3, #T_9b1a8_row3_col1, #T_9b1a8_row3_col3, #T_9b1a8_row4_col1, #T_9b1a8_row4_col3, #T_9b1a8_row5_col1, #T_9b1a8_row5_col3, #T_9b1a8_row6_col1, #T_9b1a8_row6_col3, #T_9b1a8_row7_col1, #T_9b1a8_row7_col3, #T_9b1a8_row8_col1, #T_9b1a8_row8_col3, #T_9b1a8_row9_col1, #T_9b1a8_row9_col3 {\n  background-color: #00ff80;\n  color: #000000;\n}\n#T_9b1a8_row1_col2, #T_9b1a8_row1_col4 {\n  background-color: #00f982;\n  color: #000000",
+    "crumbs": [
+      "Counting values (slides)"
+    ]
+  },
+  {
+    "objectID": "value_counts_plus_slides.html#get-started-now",
+    "href": "value_counts_plus_slides.html#get-started-now",
+    "title": "adviz",
+    "section": "Get started now:",
+    "text": "Get started now:\n\n\npython3 -m pip install adviz\n\n\nExplore more advertools data visualizations",
+    "crumbs": [
+      "Counting values (slides)"
+    ]
+  },
+  {
+    "objectID": "flag.html",
+    "href": "flag.html",
+    "title": "Flags",
+    "section": "",
+    "text": "source",
+    "crumbs": [
+      "Flag Emoji"
+    ]
+  },
+  {
+    "objectID": "flag.html#get-some-country-flags",
+    "href": "flag.html#get-some-country-flags",
+    "title": "Flags",
+    "section": "Get some country flags",
+    "text": "Get some country flags\n\nflag(\"pt\"), flag(\"prt\")\n\n('🇵🇹', '🇵🇹')\n\n\n\nflag(\"jp\"), flag(\"jpn\"), flag(\"JPN\"), flag(\"JAPAN\"), flag(\"japan\")\n\n('🇯🇵', '🇯🇵', '🇯🇵', '🇯🇵', '🇯🇵')\n\n\n\nflag(\"za\")\n\n'🇿🇦'",
+    "crumbs": [
+      "Flag Emoji"
+    ]
+  },
+  {
+    "objectID": "flag.html#use-in-a-jupyter-notebook",
+    "href": "flag.html#use-in-a-jupyter-notebook",
+    "title": "Flags",
+    "section": "Use in a Jupyter notebook",
+    "text": "Use in a Jupyter notebook\nThe following html and md functions enable HTML and markdown output to contain dynamic values.\nfrom IPython.display import display_html as html, display_markdown as md\nfrom functools import partial\n\nhtml = partial(html, raw=True)\nmd = partial(md, raw=True)",
+    "crumbs": [
+      "Flag Emoji"
+    ]
+  },
+  {
+    "objectID": "flag.html#use-in-a-markdown-string",
+    "href": "flag.html#use-in-a-markdown-string",
+    "title": "Flags",
+    "section": "Use in a markdown string",
+    "text": "Use in a markdown string\n\nmd(f\"# {flag('pr')}\")\n\n🇵🇷",
+    "crumbs": [
+      "Flag Emoji"
+    ]
+  },
+  {
+    "objectID": "flag.html#use-in-an-html-string-for-more-granular-control",
+    "href": "flag.html#use-in-an-html-string-for-more-granular-control",
+    "title": "Flags",
+    "section": "Use in an HTML string for more granular control",
+    "text": "Use in an HTML string for more granular control\n\nhtml(\n    f'&lt;h1 style=\"font-size: 40pt; color: steelblue;\"&gt;This is the flag of Sweden: &lt;span style=\"font-size: 60pt;\"&gt;{flag(\"se\")}&lt;/span&gt;&lt;/h1&gt;'\n)\n\nThis is the flag of Sweden: 🇸🇪",
+    "crumbs": [
+      "Flag Emoji"
+    ]
+  },
+  {
+    "objectID": "flag.html#using-flags-in-plotly-charts",
+    "href": "flag.html#using-flags-in-plotly-charts",
+    "title": "Flags",
+    "section": "Using flags in Plotly charts",
+    "text": "Using flags in Plotly charts\n\npopulation = pd.DataFrame(\n    {\n        \"country\": [\"China\", \"India\", \"United States\", \"Indonesia\", \"Pakistan\"],\n        \"population\": [1439323776, 1380004385, 331002651, 273523615, 220892340],\n        \"code\": [\"cn\", \"in\", \"us\", \"id\", \"pk\"],\n    }\n)\npopulation\n\n\n\n\n\n\n\n\ncountry\npopulation\ncode\n\n\n\n\n0\nChina\n1439323776\ncn\n\n\n1\nIndia\n1380004385\nin\n\n\n2\nUnited States\n331002651\nus\n\n\n3\nIndonesia\n273523615\nid\n\n\n4\nPakistan\n220892340\npk\n\n\n\n\n\n\n\n\nfig = px.bar(\n    population,\n    x=\"country\",\n    y=\"population\",\n    height=500,\n    text=[flag(cc) for cc in population[\"code\"]],\n    template=\"ggplot2\",\n)\nfig.data[0].textfont.size = 35\nfig.data[0].marker.color = \"steelblue\"\nfig\n\n        \n        \n        \n\n\n                            \n                                            \n\n\n\nfig = px.bar(\n    population.sort_values(\"population\"),\n    y=\"country\",\n    x=\"population\",\n    orientation=\"h\",\n    height=500,\n    opacity=0.8,\n    text=[flag(cc) for cc in population.sort_values(\"population\")[\"code\"]],\n    template=\"ggplot2\",\n)\nfig.data[0].textfont.size = 35\nfig.data[0].marker.color = \"teal\"\nfig\n\n                            \n                                            \n\n\n\neurope = gapminder().query(\"year==2007\").query('continent==\"Europe\"')\neurope[\"flag\"] = [flag(cc) for cc in europe[\"iso_alpha\"]]\neurope.head()\n\n\n\n\n\n\n\n\ncountry\ncontinent\nyear\nlifeExp\npop\ngdpPercap\niso_alpha\niso_num\nflag\n\n\n\n\n23\nAlbania\nEurope\n2007\n76.423\n3600523\n5937.029526\nALB\n8\n🇦🇱\n\n\n83\nAustria\nEurope\n2007\n79.829\n8199783\n36126.492700\nAUT\n40\n🇦🇹\n\n\n119\nBelgium\nEurope\n2007\n79.441\n10392226\n33692.605080\nBEL\n56\n🇧🇪\n\n\n155\nBosnia and Herzegovina\nEurope\n2007\n74.852\n4552198\n7446.298803\nBIH\n70\n🇧🇦\n\n\n191\nBulgaria\nEurope\n2007\n73.005\n7322858\n10680.792820\nBGR\n100\n🇧🇬\n\n\n\n\n\n\n\n\nfig = px.scatter(\n    europe,\n    x=\"gdpPercap\",\n    y=\"lifeExp\",\n    height=600,\n    text=\"flag\",\n    hover_data=[\"lifeExp\", \"pop\", \"gdpPercap\"],\n    hover_name=europe[\"flag\"].add(\" \").add(europe[\"country\"]),\n    title=f\"Life expectancy ~ GDP per capita&lt;br&gt;&lt;b&gt;Europe 2007&lt;/b&gt;\",\n    template=\"plotly_white\",\n    log_y=False,\n)\nfig.data[0].textfont.size = 35\nfig.data[0].hoverlabel.bgcolor = \"white\"\nfig.data[0].hoverlabel.font.size = 20\nfig",
+    "crumbs": [
+      "Flag Emoji"
+    ]
+  },
+  {
+    "objectID": "flag.html#cartograms-improved",
+    "href": "flag.html#cartograms-improved",
+    "title": "Flags",
+    "section": "Cartograms improved",
+    "text": "Cartograms improved\nOne misleading aspect of using maps to display data is that the area, shape, and relative position might give the wrong idea about the “size” of the metric for each country.\nOne way of dealing with this is creating “cartograms”, which are maps where the areas of countries are modified to reflect the size of the metric, while keeping the relative position in place.\nThey look very weird and even more misleading (some countries look like a tiny slice and can barely be visible due to the low value being visualized).\nWe can use flags to solve this issue, making diagrammatic cartograms. Flags have some interesting characteristics that can help in this:\n\nThey have the same size, so they won’t be misleading, and they are better than country names (where their lengths can also be misleading).\nThey are images, and therefore immediately recognizeable.\n\nWe will also make sure to display those flags in their respective locations, so it’s easy to find them. Now all we have to do is set text=\"flag\" and set the font size to a multiple of our value that would fit in our chart. This needs a bit of trial and error, because of the variance in data values.\n\n\nCode\npopulation = pd.read_html(\n    \"https://en.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population\"\n)\npop = population[0][[\"Location\", \"Population\"]].copy()\nflags = []\nfor country in pop[\"Location\"]:\n    try:\n        flags.append(flag(country))\n    except Exception:\n        flags.append(\"\")\n        continue\n\npop[\"flag\"] = flags\npop = pop.dropna(subset=[\"flag\"])\n\npopulation[0][population[0][\"Location\"].str.contains(\"Czech\")]\n\nfig = px.scatter_geo(\n    pop,\n    locations=\"Location\",\n    locationmode=\"country names\",\n    text=\"flag\",\n    size=\"Population\",\n    hover_name=\"Location\",\n    title=\"Population\",\n    height=700,\n    opacity=0,\n)\nfig.layout.geo.showframe = False\nfig.layout.geo.lataxis.range = [-53, 76]\nfig.layout.geo.lonaxis.range = [-125, 171.5]\nfig.layout.geo.landcolor = \"white\"\nfig.layout.geo.showcountries = False\nfig.layout.geo.coastlinecolor = \"white\"\nfig.data[0].textfont.size = np.sqrt(pop[\"Population\"]).div(300).add(1).round()\nfig.data[0].marker.color = \"white\"\nfig",
+    "crumbs": [
+      "Flag Emoji"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "adviz",
+    "section": "",
+    "text": "advertools is a package for the search (SEO/SEM) and digital marketing practitioner. It aims to help with various productivity and analysis tools.\nPart of the analysis process is producing specialized charts that tend to come up all the time. So, adviz aims to be a collection of charts that can help advertools users. Many of the charts can be used for many other workflows, and are not marketing-specific. Feel free to use, share, and suggest features for any of them.\nGet startd quickly and see exmaples below:",
+    "crumbs": [
+      "adviz"
+    ]
+  },
+  {
+    "objectID": "index.html#about",
+    "href": "index.html#about",
+    "title": "adviz",
+    "section": "",
+    "text": "advertools is a package for the search (SEO/SEM) and digital marketing practitioner. It aims to help with various productivity and analysis tools.\nPart of the analysis process is producing specialized charts that tend to come up all the time. So, adviz aims to be a collection of charts that can help advertools users. Many of the charts can be used for many other workflows, and are not marketing-specific. Feel free to use, share, and suggest features for any of them.\nGet startd quickly and see exmaples below:",
+    "crumbs": [
+      "adviz"
+    ]
+  },
+  {
+    "objectID": "index.html#install",
+    "href": "index.html#install",
+    "title": "adviz",
+    "section": "Install",
+    "text": "Install\npython3 -m pip install adviz",
+    "crumbs": [
+      "adviz"
+    ]
+  },
+  {
+    "objectID": "index.html#explore-the-available-visualizations",
+    "href": "index.html#explore-the-available-visualizations",
+    "title": "adviz",
+    "section": "Explore the available visualizations",
+    "text": "Explore the available visualizations",
+    "crumbs": [
+      "adviz"
+    ]
+  }
+]

@@ -1,0 +1,3734 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Counting unique elements in a sequence in various ways (absolute and cumulative, count and percentage).">
+
+<title>Counting Values – adviz</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-695f0c965d6c72008aa9772ffdd5ba38.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-N2M6ZCQTX5"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-N2M6ZCQTX5', { 'anonymize_ip': true});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+<link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="Counting Values – adviz">
+<meta property="og:description" content="Counting unique elements in a sequence in various ways (absolute and cumulative, count and percentage).">
+<meta property="og:site_name" content="adviz">
+<meta name="twitter:title" content="Counting Values – adviz">
+<meta name="twitter:description" content="Counting unique elements in a sequence in various ways (absolute and cumulative, count and percentage).">
+<meta name="twitter:creator" content="@eliasdabbas">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-sidebar floating nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">adviz</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./"> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools tools-wide">
+    <a href="https://twitter.com/eliasdabbas" title="EliasDabbas Twitter" class="quarto-navigation-tool px-1" aria-label="EliasDabbas Twitter"><i class="bi bi-twitter"></i></a>
+    <a href="https://linkedin.com/in/eliasdabbas" title="EliasDabbas LinkedIn" class="quarto-navigation-tool px-1" aria-label="EliasDabbas LinkedIn"><i class="bi bi-linkedin"></i></a>
+    <a href="https://github.com/eliasdabbas/adviz" title="adviz Github" class="quarto-navigation-tool px-1" aria-label="adviz Github"><i class="bi bi-github"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./value_counts_plus.html">Counting values</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">adviz</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./value_counts_plus.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Counting values</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./value_counts_plus_slides.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Counting values (slides)</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./status_codes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Status Codes</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./url_structure.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">URL structure</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./url_structure_slides.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">URL structure (slides)</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./racing_chart.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Racing Bar Chart</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./flag.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Flag Emoji</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./flag_slides.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Flag Emoji (slides)</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./style_table.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Styling tables</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./style_table_slides.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Styling tables (slides)</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./serp_heatmap.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">SERP Heatmap</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./value_counts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Counting Values (new)</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ecdf.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Visualizing distributions: ecdf</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Sample charts &amp; data</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data/status_code_chart.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Status code chart</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data/apple_url_list.csv" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">URL list (apple.com)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data/url_structure_tremap_chart.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">apple.com URL treemap</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data/toyota_url_treemap.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">toyota.com URL treemap</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data/gsc_country_month_report.csv" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">GSC by country &amp; month</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data/gsc_query_month_report.csv" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">GSC by query &amp; month</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data/serp_crypto.csv" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">SERP dataset</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#value_counts_plus" id="toc-value_counts_plus" class="nav-link active" data-scroll-target="#value_counts_plus">value_counts_plus</a></li>
+  <li><a href="#counting-a-list-of-random-colors---default" id="toc-counting-a-list-of-random-colors---default" class="nav-link" data-scroll-target="#counting-a-list-of-random-colors---default">Counting a list of random colors - default</a></li>
+  <li><a href="#changing-the-number-of-displayed-rows-with-show_top" id="toc-changing-the-number-of-displayed-rows-with-show_top" class="nav-link" data-scroll-target="#changing-the-number-of-displayed-rows-with-show_top">Changing the number of displayed rows with <code>show_top</code></a></li>
+  <li><a href="#sorting-others" id="toc-sorting-others" class="nav-link" data-scroll-target="#sorting-others">Sorting “Others:”</a></li>
+  <li><a href="#changing-the-name-of-the-data-and-caption-title-with-name" id="toc-changing-the-name-of-the-data-and-caption-title-with-name" class="nav-link" data-scroll-target="#changing-the-name-of-the-data-and-caption-title-with-name">Changing the name of the data and caption title with <code>name</code></a></li>
+  <li><a href="#use-the-function-on-dataframes-to-get-multi-level-counts" id="toc-use-the-function-on-dataframes-to-get-multi-level-counts" class="nav-link" data-scroll-target="#use-the-function-on-dataframes-to-get-multi-level-counts">Use the function on <code>DataFrame</code>s to get multi-level counts</a>
+  <ul class="collapse">
+  <li><a href="#check-counts-of-the-first-two-directories-combinations" id="toc-check-counts-of-the-first-two-directories-combinations" class="nav-link" data-scroll-target="#check-counts-of-the-first-two-directories-combinations">Check counts of the first two directories’ combinations</a></li>
+  <li><a href="#filter-for-a-country-de-and-show-counts-of-combinations-of-dir_2-and-dir_3" id="toc-filter-for-a-country-de-and-show-counts-of-combinations-of-dir_2-and-dir_3" class="nav-link" data-scroll-target="#filter-for-a-country-de-and-show-counts-of-combinations-of-dir_2-and-dir_3">Filter for a country (de) and show counts of combinations of <code>dir_2</code> and <code>dir_3</code></a></li>
+  </ul></li>
+  <li><a href="#change-the-size-of-table-size" id="toc-change-the-size-of-table-size" class="nav-link" data-scroll-target="#change-the-size-of-table-size">Change the size of table: <code>size</code></a></li>
+  <li><a href="#completely-change-the-caption-using-an-html-string-with-set_caption" id="toc-completely-change-the-caption-using-an-html-string-with-set_caption" class="nav-link" data-scroll-target="#completely-change-the-caption-using-an-html-string-with-set_caption">Completely change the caption using an HTML string with <code>set_caption</code></a>
+  <ul class="collapse">
+  <li><a href="#removing-table-styling-if-you-want-a-pure-dataframe" id="toc-removing-table-styling-if-you-want-a-pure-dataframe" class="nav-link" data-scroll-target="#removing-table-styling-if-you-want-a-pure-dataframe">Removing table styling if you want a pure <code>DataFrame</code>:</a></li>
+  </ul></li>
+  <li><a href="#counting-continuous-data" id="toc-counting-continuous-data" class="nav-link" data-scroll-target="#counting-continuous-data">Counting continuous data</a>
+  <ul class="collapse">
+  <li><a href="#changing-the-theme-used-with-theme" id="toc-changing-the-theme-used-with-theme" class="nav-link" data-scroll-target="#changing-the-theme-used-with-theme">Changing the theme used with <code>theme</code></a></li>
+  <li><a href="#convert-the-table-to-raw-html-for-embedding-in-a-blog-or-web-page" id="toc-convert-the-table-to-raw-html-for-embedding-in-a-blog-or-web-page" class="nav-link" data-scroll-target="#convert-the-table-to-raw-html-for-embedding-in-a-blog-or-web-page">Convert the table to raw HTML for embedding in a blog or web page</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/eliasdabbas/adviz/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Counting Values</h1>
+</div>
+
+<div>
+  <div class="description">
+    Counting unique elements in a sequence in various ways (absolute and cumulative, count and percentage).
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<hr>
+<p><a href="https://github.com/eliasdabbas/adviz/blob/main/adviz/value_counts_plus.py#L14" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="value_counts_plus" class="level3">
+<h3 class="anchored" data-anchor-id="value_counts_plus">value_counts_plus</h3>
+<blockquote class="blockquote">
+<pre><code> value_counts_plus (data, dropna=False, show_top=10, sort_others=False,
+                    style=True, size=10, thousands=',', decimal='.',
+                    name='data', background_gradient='cividis')</code></pre>
+</blockquote>
+<p><em>Provide a few ways of showing counts of values of items in <code>series</code>.</em></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 25%">
+<col style="width: 34%">
+<col style="width: 34%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Type</strong></th>
+<th><strong>Default</strong></th>
+<th><strong>Details</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>data</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>dropna</td>
+<td>bool</td>
+<td>False</td>
+<td>Whether or not to drop missing values.</td>
+</tr>
+<tr class="odd">
+<td>show_top</td>
+<td>int</td>
+<td>10</td>
+<td>How many of the top rows to display.</td>
+</tr>
+<tr class="even">
+<td>sort_others</td>
+<td>bool</td>
+<td>False</td>
+<td>Whether or not to place “Others” in the bottom (default) or in its<br>sorted order position.</td>
+</tr>
+<tr class="odd">
+<td>style</td>
+<td>bool</td>
+<td>True</td>
+<td>Whether or not to style values for easier reading. If set to <code>True</code><br>the result would not be a DataFrame, and cannot be further manipulated.<br>Set the value to <code>False</code> to get aDataFrame as the return value.</td>
+</tr>
+<tr class="even">
+<td>size</td>
+<td>int</td>
+<td>10</td>
+<td>The size in points of the font of the table. This results in the whole<br>table being resized.</td>
+</tr>
+<tr class="odd">
+<td>thousands</td>
+<td>str</td>
+<td>,</td>
+<td>The character to use to separate thousands if <code>style=True</code>. Defaults to<br><code>,</code> but you can change to <code>.</code> or space, or any oher character you want.</td>
+</tr>
+<tr class="even">
+<td>decimal</td>
+<td>str</td>
+<td>.</td>
+<td>The character to use to display decimal number if <code>style=True</code>. Defaults to<br><code>.</code> but you can change to <code>,</code>or any oher character you want.</td>
+</tr>
+<tr class="odd">
+<td>name</td>
+<td>str</td>
+<td>data</td>
+<td>The name of the column that you want displayed in the final table. It<br>appears in the caption and defaults to “data”.</td>
+</tr>
+<tr class="even">
+<td>background_gradient</td>
+<td>str</td>
+<td>cividis</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><strong>Returns</strong></td>
+<td><strong>pandas.io.formats.style.Styler</strong></td>
+<td></td>
+<td><strong>A DataFrame showing counts based on the provided arguments</strong></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="counting-a-list-of-random-colors---default" class="level3">
+<h3 class="anchored">Counting a list of random colors - default</h3>
+<div id="cell-4" class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="im">import</span> plotly.express <span class="im">as</span> px</span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="im">import</span> random</span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="im">import</span> matplotlib <span class="im">as</span> mpl</span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="im">import</span> plotly.express <span class="im">as</span> px</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-5" class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a>colors <span class="op">=</span> <span class="bu">list</span>(mpl.colors.cnames.keys())</span>
+<span id="cb3-2"><a href="#cb3-2"></a>colors <span class="op">=</span> random.choices(colors, weights<span class="op">=</span>[<span class="fl">0.9</span>, <span class="fl">0.04</span>, <span class="fl">0.05</span>, <span class="fl">0.09</span>]<span class="op">*</span><span class="dv">37</span>, k<span class="op">=</span><span class="dv">10_000</span>)</span>
+<span id="cb3-3"><a href="#cb3-3"></a>colors <span class="op">+=</span> [np.nan <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">240</span>)]</span>
+<span id="cb3-4"><a href="#cb3-4"></a>colors[:<span class="dv">20</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>['goldenrod',
+ 'darkmagenta',
+ 'cyan',
+ 'olivedrab',
+ 'navajowhite',
+ 'papayawhip',
+ 'salmon',
+ 'mediumslateblue',
+ 'azure',
+ 'plum',
+ 'indigo',
+ 'peru',
+ 'goldenrod',
+ 'red',
+ 'brown',
+ 'lightcoral',
+ 'palegoldenrod',
+ 'dodgerblue',
+ 'dodgerblue',
+ 'cyan']</code></pre>
+</div>
+</div>
+<div id="cell-6" class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a>value_counts_plus(colors)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<style type="text/css">
+#T_0d533_row0_col1, #T_0d533_row0_col2, #T_0d533_row0_col3, #T_0d533_row0_col4, #T_0d533_row1_col1, #T_0d533_row1_col3, #T_0d533_row2_col1, #T_0d533_row2_col3, #T_0d533_row3_col1, #T_0d533_row3_col3, #T_0d533_row4_col1, #T_0d533_row4_col3, #T_0d533_row5_col1, #T_0d533_row5_col3, #T_0d533_row6_col1, #T_0d533_row6_col3, #T_0d533_row7_col1, #T_0d533_row7_col3, #T_0d533_row8_col1, #T_0d533_row8_col3, #T_0d533_row9_col1, #T_0d533_row9_col3 {
+  background-color: #00224e;
+  color: #f1f1f1;
+}
+#T_0d533_row1_col2, #T_0d533_row1_col4 {
+  background-color: #002758;
+  color: #f1f1f1;
+}
+#T_0d533_row2_col2, #T_0d533_row2_col4 {
+  background-color: #002c64;
+  color: #f1f1f1;
+}
+#T_0d533_row3_col2, #T_0d533_row3_col4 {
+  background-color: #00306f;
+  color: #f1f1f1;
+}
+#T_0d533_row4_col2, #T_0d533_row4_col4 {
+  background-color: #083370;
+  color: #f1f1f1;
+}
+#T_0d533_row5_col2, #T_0d533_row5_col4 {
+  background-color: #1a386f;
+  color: #f1f1f1;
+}
+#T_0d533_row6_col2, #T_0d533_row6_col4 {
+  background-color: #243c6e;
+  color: #f1f1f1;
+}
+#T_0d533_row7_col2, #T_0d533_row7_col4 {
+  background-color: #2d416d;
+  color: #f1f1f1;
+}
+#T_0d533_row8_col2, #T_0d533_row8_col4 {
+  background-color: #34456c;
+  color: #f1f1f1;
+}
+#T_0d533_row9_col2, #T_0d533_row9_col4 {
+  background-color: #3c4a6c;
+  color: #f1f1f1;
+}
+#T_0d533_row10_col1, #T_0d533_row10_col2, #T_0d533_row10_col3, #T_0d533_row10_col4 {
+  background-color: #fee838;
+  color: #000000;
+}
+</style>
+<table id="T_0d533" style="font-size:15pt;">
+  <caption><h2 class="anchored" data-anchor-id="counting-a-list-of-random-colors---default">Counts of <b>data</b></h2></caption>
+  <thead>
+    <tr>
+      <th class="blank level0">&nbsp;</th>
+      <th id="T_0d533_level0_col0" class="col_heading level0 col0">data</th>
+      <th id="T_0d533_level0_col1" class="col_heading level0 col1">count</th>
+      <th id="T_0d533_level0_col2" class="col_heading level0 col2">cum. count</th>
+      <th id="T_0d533_level0_col3" class="col_heading level0 col3">%</th>
+      <th id="T_0d533_level0_col4" class="col_heading level0 col4">cum. %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_0d533_level0_row0" class="row_heading level0 row0">1</th>
+      <td id="T_0d533_row0_col0" class="data row0 col0">lightseagreen</td>
+      <td id="T_0d533_row0_col1" class="data row0 col1">258</td>
+      <td id="T_0d533_row0_col2" class="data row0 col2">258</td>
+      <td id="T_0d533_row0_col3" class="data row0 col3">2.5%</td>
+      <td id="T_0d533_row0_col4" class="data row0 col4">2.5%</td>
+    </tr>
+    <tr>
+      <th id="T_0d533_level0_row1" class="row_heading level0 row1">2</th>
+      <td id="T_0d533_row1_col0" class="data row1 col0">burlywood</td>
+      <td id="T_0d533_row1_col1" class="data row1 col1">255</td>
+      <td id="T_0d533_row1_col2" class="data row1 col2">513</td>
+      <td id="T_0d533_row1_col3" class="data row1 col3">2.5%</td>
+      <td id="T_0d533_row1_col4" class="data row1 col4">5.0%</td>
+    </tr>
+    <tr>
+      <th id="T_0d533_level0_row2" class="row_heading level0 row2">3</th>
+      <td id="T_0d533_row2_col0" class="data row2 col0">cyan</td>
+      <td id="T_0d533_row2_col1" class="data row2 col1">252</td>
+      <td id="T_0d533_row2_col2" class="data row2 col2">765</td>
+      <td id="T_0d533_row2_col3" class="data row2 col3">2.5%</td>
+      <td id="T_0d533_row2_col4" class="data row2 col4">7.5%</td>
+    </tr>
+    <tr>
+      <th id="T_0d533_level0_row3" class="row_heading level0 row3">4</th>
+      <td id="T_0d533_row3_col0" class="data row3 col0">slategray</td>
+      <td id="T_0d533_row3_col1" class="data row3 col1">252</td>
+      <td id="T_0d533_row3_col2" class="data row3 col2">1,017</td>
+      <td id="T_0d533_row3_col3" class="data row3 col3">2.5%</td>
+      <td id="T_0d533_row3_col4" class="data row3 col4">9.9%</td>
+    </tr>
+    <tr>
+      <th id="T_0d533_level0_row4" class="row_heading level0 row4">5</th>
+      <td id="T_0d533_row4_col0" class="data row4 col0">lightsteelblue</td>
+      <td id="T_0d533_row4_col1" class="data row4 col1">251</td>
+      <td id="T_0d533_row4_col2" class="data row4 col2">1,268</td>
+      <td id="T_0d533_row4_col3" class="data row4 col3">2.5%</td>
+      <td id="T_0d533_row4_col4" class="data row4 col4">12.4%</td>
+    </tr>
+    <tr>
+      <th id="T_0d533_level0_row5" class="row_heading level0 row5">6</th>
+      <td id="T_0d533_row5_col0" class="data row5 col0">aliceblue</td>
+      <td id="T_0d533_row5_col1" class="data row5 col1">245</td>
+      <td id="T_0d533_row5_col2" class="data row5 col2">1,513</td>
+      <td id="T_0d533_row5_col3" class="data row5 col3">2.4%</td>
+      <td id="T_0d533_row5_col4" class="data row5 col4">14.8%</td>
+    </tr>
+    <tr>
+      <th id="T_0d533_level0_row6" class="row_heading level0 row6">7</th>
+      <td id="T_0d533_row6_col0" class="data row6 col0">steelblue</td>
+      <td id="T_0d533_row6_col1" class="data row6 col1">243</td>
+      <td id="T_0d533_row6_col2" class="data row6 col2">1,756</td>
+      <td id="T_0d533_row6_col3" class="data row6 col3">2.4%</td>
+      <td id="T_0d533_row6_col4" class="data row6 col4">17.1%</td>
+    </tr>
+    <tr>
+      <th id="T_0d533_level0_row7" class="row_heading level0 row7">8</th>
+      <td id="T_0d533_row7_col0" class="data row7 col0">azure</td>
+      <td id="T_0d533_row7_col1" class="data row7 col1">242</td>
+      <td id="T_0d533_row7_col2" class="data row7 col2">1,998</td>
+      <td id="T_0d533_row7_col3" class="data row7 col3">2.4%</td>
+      <td id="T_0d533_row7_col4" class="data row7 col4">19.5%</td>
+    </tr>
+    <tr>
+      <th id="T_0d533_level0_row8" class="row_heading level0 row8">9</th>
+      <td id="T_0d533_row8_col0" class="data row8 col0">sienna</td>
+      <td id="T_0d533_row8_col1" class="data row8 col1">242</td>
+      <td id="T_0d533_row8_col2" class="data row8 col2">2,240</td>
+      <td id="T_0d533_row8_col3" class="data row8 col3">2.4%</td>
+      <td id="T_0d533_row8_col4" class="data row8 col4">21.9%</td>
+    </tr>
+    <tr>
+      <th id="T_0d533_level0_row9" class="row_heading level0 row9">10</th>
+      <td id="T_0d533_row9_col0" class="data row9 col0">indigo</td>
+      <td id="T_0d533_row9_col1" class="data row9 col1">241</td>
+      <td id="T_0d533_row9_col2" class="data row9 col2">2,481</td>
+      <td id="T_0d533_row9_col3" class="data row9 col3">2.4%</td>
+      <td id="T_0d533_row9_col4" class="data row9 col4">24.2%</td>
+    </tr>
+    <tr>
+      <th id="T_0d533_level0_row10" class="row_heading level0 row10">11</th>
+      <td id="T_0d533_row10_col0" class="data row10 col0">Others:</td>
+      <td id="T_0d533_row10_col1" class="data row10 col1">7,759</td>
+      <td id="T_0d533_row10_col2" class="data row10 col2">10,240</td>
+      <td id="T_0d533_row10_col3" class="data row10 col3">75.8%</td>
+      <td id="T_0d533_row10_col4" class="data row10 col4">100.0%</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="changing-the-number-of-displayed-rows-with-show_top" class="level3">
+<h3 class="anchored">Changing the number of displayed rows with <code>show_top</code></h3>
+<div id="cell-8" class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a>value_counts_plus(colors, show_top<span class="op">=</span><span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<style type="text/css">
+#T_d1553_row0_col1, #T_d1553_row0_col3 {
+  background-color: #00234f;
+  color: #f1f1f1;
+}
+#T_d1553_row0_col2, #T_d1553_row0_col4, #T_d1553_row1_col1, #T_d1553_row1_col3, #T_d1553_row2_col1, #T_d1553_row2_col3, #T_d1553_row3_col1, #T_d1553_row3_col3, #T_d1553_row4_col1, #T_d1553_row4_col3, #T_d1553_row5_col1, #T_d1553_row5_col3, #T_d1553_row6_col1, #T_d1553_row6_col3, #T_d1553_row7_col1, #T_d1553_row7_col3, #T_d1553_row8_col1, #T_d1553_row8_col3, #T_d1553_row9_col1, #T_d1553_row9_col3, #T_d1553_row10_col1, #T_d1553_row10_col3, #T_d1553_row11_col1, #T_d1553_row11_col3, #T_d1553_row12_col1, #T_d1553_row12_col3, #T_d1553_row13_col1, #T_d1553_row13_col3, #T_d1553_row14_col1, #T_d1553_row14_col3 {
+  background-color: #00224e;
+  color: #f1f1f1;
+}
+#T_d1553_row1_col2, #T_d1553_row1_col4 {
+  background-color: #002758;
+  color: #f1f1f1;
+}
+#T_d1553_row2_col2, #T_d1553_row2_col4 {
+  background-color: #002c64;
+  color: #f1f1f1;
+}
+#T_d1553_row3_col2, #T_d1553_row3_col4 {
+  background-color: #00306f;
+  color: #f1f1f1;
+}
+#T_d1553_row4_col2, #T_d1553_row4_col4 {
+  background-color: #083370;
+  color: #f1f1f1;
+}
+#T_d1553_row5_col2, #T_d1553_row5_col4 {
+  background-color: #1a386f;
+  color: #f1f1f1;
+}
+#T_d1553_row6_col2, #T_d1553_row6_col4 {
+  background-color: #243c6e;
+  color: #f1f1f1;
+}
+#T_d1553_row7_col2, #T_d1553_row7_col4 {
+  background-color: #2d416d;
+  color: #f1f1f1;
+}
+#T_d1553_row8_col2, #T_d1553_row8_col4 {
+  background-color: #34456c;
+  color: #f1f1f1;
+}
+#T_d1553_row9_col2, #T_d1553_row9_col4 {
+  background-color: #3c4a6c;
+  color: #f1f1f1;
+}
+#T_d1553_row10_col0 {
+  background-color: red;
+}
+#T_d1553_row10_col2, #T_d1553_row10_col4 {
+  background-color: #424e6c;
+  color: #f1f1f1;
+}
+#T_d1553_row11_col2, #T_d1553_row11_col4 {
+  background-color: #48526c;
+  color: #f1f1f1;
+}
+#T_d1553_row12_col2, #T_d1553_row12_col4 {
+  background-color: #4e566c;
+  color: #f1f1f1;
+}
+#T_d1553_row13_col2, #T_d1553_row13_col4 {
+  background-color: #545a6d;
+  color: #f1f1f1;
+}
+#T_d1553_row14_col2, #T_d1553_row14_col4 {
+  background-color: #595e6e;
+  color: #f1f1f1;
+}
+#T_d1553_row15_col1, #T_d1553_row15_col2, #T_d1553_row15_col3, #T_d1553_row15_col4 {
+  background-color: #fee838;
+  color: #000000;
+}
+</style>
+<table id="T_d1553" style="font-size:15pt;">
+  <caption><h2 class="anchored" data-anchor-id="changing-the-number-of-displayed-rows-with-show_top">Counts of <b>data</b></h2></caption>
+  <thead>
+    <tr>
+      <th class="blank level0">&nbsp;</th>
+      <th id="T_d1553_level0_col0" class="col_heading level0 col0">data</th>
+      <th id="T_d1553_level0_col1" class="col_heading level0 col1">count</th>
+      <th id="T_d1553_level0_col2" class="col_heading level0 col2">cum. count</th>
+      <th id="T_d1553_level0_col3" class="col_heading level0 col3">%</th>
+      <th id="T_d1553_level0_col4" class="col_heading level0 col4">cum. %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_d1553_level0_row0" class="row_heading level0 row0">1</th>
+      <td id="T_d1553_row0_col0" class="data row0 col0">lightseagreen</td>
+      <td id="T_d1553_row0_col1" class="data row0 col1">258</td>
+      <td id="T_d1553_row0_col2" class="data row0 col2">258</td>
+      <td id="T_d1553_row0_col3" class="data row0 col3">2.5%</td>
+      <td id="T_d1553_row0_col4" class="data row0 col4">2.5%</td>
+    </tr>
+    <tr>
+      <th id="T_d1553_level0_row1" class="row_heading level0 row1">2</th>
+      <td id="T_d1553_row1_col0" class="data row1 col0">burlywood</td>
+      <td id="T_d1553_row1_col1" class="data row1 col1">255</td>
+      <td id="T_d1553_row1_col2" class="data row1 col2">513</td>
+      <td id="T_d1553_row1_col3" class="data row1 col3">2.5%</td>
+      <td id="T_d1553_row1_col4" class="data row1 col4">5.0%</td>
+    </tr>
+    <tr>
+      <th id="T_d1553_level0_row2" class="row_heading level0 row2">3</th>
+      <td id="T_d1553_row2_col0" class="data row2 col0">cyan</td>
+      <td id="T_d1553_row2_col1" class="data row2 col1">252</td>
+      <td id="T_d1553_row2_col2" class="data row2 col2">765</td>
+      <td id="T_d1553_row2_col3" class="data row2 col3">2.5%</td>
+      <td id="T_d1553_row2_col4" class="data row2 col4">7.5%</td>
+    </tr>
+    <tr>
+      <th id="T_d1553_level0_row3" class="row_heading level0 row3">4</th>
+      <td id="T_d1553_row3_col0" class="data row3 col0">slategray</td>
+      <td id="T_d1553_row3_col1" class="data row3 col1">252</td>
+      <td id="T_d1553_row3_col2" class="data row3 col2">1,017</td>
+      <td id="T_d1553_row3_col3" class="data row3 col3">2.5%</td>
+      <td id="T_d1553_row3_col4" class="data row3 col4">9.9%</td>
+    </tr>
+    <tr>
+      <th id="T_d1553_level0_row4" class="row_heading level0 row4">5</th>
+      <td id="T_d1553_row4_col0" class="data row4 col0">lightsteelblue</td>
+      <td id="T_d1553_row4_col1" class="data row4 col1">251</td>
+      <td id="T_d1553_row4_col2" class="data row4 col2">1,268</td>
+      <td id="T_d1553_row4_col3" class="data row4 col3">2.5%</td>
+      <td id="T_d1553_row4_col4" class="data row4 col4">12.4%</td>
+    </tr>
+    <tr>
+      <th id="T_d1553_level0_row5" class="row_heading level0 row5">6</th>
+      <td id="T_d1553_row5_col0" class="data row5 col0">aliceblue</td>
+      <td id="T_d1553_row5_col1" class="data row5 col1">245</td>
+      <td id="T_d1553_row5_col2" class="data row5 col2">1,513</td>
+      <td id="T_d1553_row5_col3" class="data row5 col3">2.4%</td>
+      <td id="T_d1553_row5_col4" class="data row5 col4">14.8%</td>
+    </tr>
+    <tr>
+      <th id="T_d1553_level0_row6" class="row_heading level0 row6">7</th>
+      <td id="T_d1553_row6_col0" class="data row6 col0">steelblue</td>
+      <td id="T_d1553_row6_col1" class="data row6 col1">243</td>
+      <td id="T_d1553_row6_col2" class="data row6 col2">1,756</td>
+      <td id="T_d1553_row6_col3" class="data row6 col3">2.4%</td>
+      <td id="T_d1553_row6_col4" class="data row6 col4">17.1%</td>
+    </tr>
+    <tr>
+      <th id="T_d1553_level0_row7" class="row_heading level0 row7">8</th>
+      <td id="T_d1553_row7_col0" class="data row7 col0">azure</td>
+      <td id="T_d1553_row7_col1" class="data row7 col1">242</td>
+      <td id="T_d1553_row7_col2" class="data row7 col2">1,998</td>
+      <td id="T_d1553_row7_col3" class="data row7 col3">2.4%</td>
+      <td id="T_d1553_row7_col4" class="data row7 col4">19.5%</td>
+    </tr>
+    <tr>
+      <th id="T_d1553_level0_row8" class="row_heading level0 row8">9</th>
+      <td id="T_d1553_row8_col0" class="data row8 col0">sienna</td>
+      <td id="T_d1553_row8_col1" class="data row8 col1">242</td>
+      <td id="T_d1553_row8_col2" class="data row8 col2">2,240</td>
+      <td id="T_d1553_row8_col3" class="data row8 col3">2.4%</td>
+      <td id="T_d1553_row8_col4" class="data row8 col4">21.9%</td>
+    </tr>
+    <tr>
+      <th id="T_d1553_level0_row9" class="row_heading level0 row9">10</th>
+      <td id="T_d1553_row9_col0" class="data row9 col0">indigo</td>
+      <td id="T_d1553_row9_col1" class="data row9 col1">241</td>
+      <td id="T_d1553_row9_col2" class="data row9 col2">2,481</td>
+      <td id="T_d1553_row9_col3" class="data row9 col3">2.4%</td>
+      <td id="T_d1553_row9_col4" class="data row9 col4">24.2%</td>
+    </tr>
+    <tr>
+      <th id="T_d1553_level0_row10" class="row_heading level0 row10">11</th>
+      <td id="T_d1553_row10_col0" class="data row10 col0">nan</td>
+      <td id="T_d1553_row10_col1" class="data row10 col1">240</td>
+      <td id="T_d1553_row10_col2" class="data row10 col2">2,721</td>
+      <td id="T_d1553_row10_col3" class="data row10 col3">2.3%</td>
+      <td id="T_d1553_row10_col4" class="data row10 col4">26.6%</td>
+    </tr>
+    <tr>
+      <th id="T_d1553_level0_row11" class="row_heading level0 row11">12</th>
+      <td id="T_d1553_row11_col0" class="data row11 col0">goldenrod</td>
+      <td id="T_d1553_row11_col1" class="data row11 col1">237</td>
+      <td id="T_d1553_row11_col2" class="data row11 col2">2,958</td>
+      <td id="T_d1553_row11_col3" class="data row11 col3">2.3%</td>
+      <td id="T_d1553_row11_col4" class="data row11 col4">28.9%</td>
+    </tr>
+    <tr>
+      <th id="T_d1553_level0_row12" class="row_heading level0 row12">13</th>
+      <td id="T_d1553_row12_col0" class="data row12 col0">dodgerblue</td>
+      <td id="T_d1553_row12_col1" class="data row12 col1">232</td>
+      <td id="T_d1553_row12_col2" class="data row12 col2">3,190</td>
+      <td id="T_d1553_row12_col3" class="data row12 col3">2.3%</td>
+      <td id="T_d1553_row12_col4" class="data row12 col4">31.2%</td>
+    </tr>
+    <tr>
+      <th id="T_d1553_level0_row13" class="row_heading level0 row13">14</th>
+      <td id="T_d1553_row13_col0" class="data row13 col0">mediumblue</td>
+      <td id="T_d1553_row13_col1" class="data row13 col1">231</td>
+      <td id="T_d1553_row13_col2" class="data row13 col2">3,421</td>
+      <td id="T_d1553_row13_col3" class="data row13 col3">2.3%</td>
+      <td id="T_d1553_row13_col4" class="data row13 col4">33.4%</td>
+    </tr>
+    <tr>
+      <th id="T_d1553_level0_row14" class="row_heading level0 row14">15</th>
+      <td id="T_d1553_row14_col0" class="data row14 col0">lightgreen</td>
+      <td id="T_d1553_row14_col1" class="data row14 col1">231</td>
+      <td id="T_d1553_row14_col2" class="data row14 col2">3,652</td>
+      <td id="T_d1553_row14_col3" class="data row14 col3">2.3%</td>
+      <td id="T_d1553_row14_col4" class="data row14 col4">35.7%</td>
+    </tr>
+    <tr>
+      <th id="T_d1553_level0_row15" class="row_heading level0 row15">16</th>
+      <td id="T_d1553_row15_col0" class="data row15 col0">Others:</td>
+      <td id="T_d1553_row15_col1" class="data row15 col1">6,588</td>
+      <td id="T_d1553_row15_col2" class="data row15 col2">10,240</td>
+      <td id="T_d1553_row15_col3" class="data row15 col3">64.3%</td>
+      <td id="T_d1553_row15_col4" class="data row15 col4">100.0%</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="sorting-others" class="level3">
+<h3 class="anchored">Sorting “Others:”</h3>
+<div id="cell-10" class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a>value_counts_plus(colors, sort_others<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<style type="text/css">
+#T_f65cb_row0_col1, #T_f65cb_row0_col3, #T_f65cb_row10_col2, #T_f65cb_row10_col4 {
+  background-color: #fee838;
+  color: #000000;
+}
+#T_f65cb_row0_col2, #T_f65cb_row0_col4, #T_f65cb_row1_col1, #T_f65cb_row1_col3, #T_f65cb_row2_col1, #T_f65cb_row2_col3, #T_f65cb_row3_col1, #T_f65cb_row3_col3, #T_f65cb_row4_col1, #T_f65cb_row4_col3, #T_f65cb_row5_col1, #T_f65cb_row5_col3, #T_f65cb_row6_col1, #T_f65cb_row6_col3, #T_f65cb_row7_col1, #T_f65cb_row7_col3, #T_f65cb_row8_col1, #T_f65cb_row8_col3, #T_f65cb_row9_col1, #T_f65cb_row9_col3, #T_f65cb_row10_col1, #T_f65cb_row10_col3 {
+  background-color: #00224e;
+  color: #f1f1f1;
+}
+#T_f65cb_row1_col2, #T_f65cb_row1_col4 {
+  background-color: #0c3470;
+  color: #f1f1f1;
+}
+#T_f65cb_row2_col2, #T_f65cb_row2_col4 {
+  background-color: #36466c;
+  color: #f1f1f1;
+}
+#T_f65cb_row3_col2, #T_f65cb_row3_col4 {
+  background-color: #51586d;
+  color: #f1f1f1;
+}
+#T_f65cb_row4_col2, #T_f65cb_row4_col4 {
+  background-color: #686a71;
+  color: #f1f1f1;
+}
+#T_f65cb_row5_col2, #T_f65cb_row5_col4 {
+  background-color: #7e7d78;
+  color: #f1f1f1;
+}
+#T_f65cb_row6_col2, #T_f65cb_row6_col4 {
+  background-color: #979177;
+  color: #f1f1f1;
+}
+#T_f65cb_row7_col2, #T_f65cb_row7_col4 {
+  background-color: #b0a571;
+  color: #f1f1f1;
+}
+#T_f65cb_row8_col2, #T_f65cb_row8_col4 {
+  background-color: #cbb965;
+  color: #000000;
+}
+#T_f65cb_row9_col2, #T_f65cb_row9_col4 {
+  background-color: #e6d051;
+  color: #000000;
+}
+</style>
+<table id="T_f65cb" style="font-size:15pt;">
+  <caption><h2 class="anchored" data-anchor-id="sorting-others">Counts of <b>data</b></h2></caption>
+  <thead>
+    <tr>
+      <th class="blank level0">&nbsp;</th>
+      <th id="T_f65cb_level0_col0" class="col_heading level0 col0">data</th>
+      <th id="T_f65cb_level0_col1" class="col_heading level0 col1">count</th>
+      <th id="T_f65cb_level0_col2" class="col_heading level0 col2">cum. count</th>
+      <th id="T_f65cb_level0_col3" class="col_heading level0 col3">%</th>
+      <th id="T_f65cb_level0_col4" class="col_heading level0 col4">cum. %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_f65cb_level0_row0" class="row_heading level0 row0">1</th>
+      <td id="T_f65cb_row0_col0" class="data row0 col0">Others:</td>
+      <td id="T_f65cb_row0_col1" class="data row0 col1">7,759</td>
+      <td id="T_f65cb_row0_col2" class="data row0 col2">7,759</td>
+      <td id="T_f65cb_row0_col3" class="data row0 col3">75.8%</td>
+      <td id="T_f65cb_row0_col4" class="data row0 col4">75.8%</td>
+    </tr>
+    <tr>
+      <th id="T_f65cb_level0_row1" class="row_heading level0 row1">2</th>
+      <td id="T_f65cb_row1_col0" class="data row1 col0">lightseagreen</td>
+      <td id="T_f65cb_row1_col1" class="data row1 col1">258</td>
+      <td id="T_f65cb_row1_col2" class="data row1 col2">8,017</td>
+      <td id="T_f65cb_row1_col3" class="data row1 col3">2.5%</td>
+      <td id="T_f65cb_row1_col4" class="data row1 col4">78.3%</td>
+    </tr>
+    <tr>
+      <th id="T_f65cb_level0_row2" class="row_heading level0 row2">3</th>
+      <td id="T_f65cb_row2_col0" class="data row2 col0">burlywood</td>
+      <td id="T_f65cb_row2_col1" class="data row2 col1">255</td>
+      <td id="T_f65cb_row2_col2" class="data row2 col2">8,272</td>
+      <td id="T_f65cb_row2_col3" class="data row2 col3">2.5%</td>
+      <td id="T_f65cb_row2_col4" class="data row2 col4">80.8%</td>
+    </tr>
+    <tr>
+      <th id="T_f65cb_level0_row3" class="row_heading level0 row3">4</th>
+      <td id="T_f65cb_row3_col0" class="data row3 col0">cyan</td>
+      <td id="T_f65cb_row3_col1" class="data row3 col1">252</td>
+      <td id="T_f65cb_row3_col2" class="data row3 col2">8,524</td>
+      <td id="T_f65cb_row3_col3" class="data row3 col3">2.5%</td>
+      <td id="T_f65cb_row3_col4" class="data row3 col4">83.2%</td>
+    </tr>
+    <tr>
+      <th id="T_f65cb_level0_row4" class="row_heading level0 row4">5</th>
+      <td id="T_f65cb_row4_col0" class="data row4 col0">slategray</td>
+      <td id="T_f65cb_row4_col1" class="data row4 col1">252</td>
+      <td id="T_f65cb_row4_col2" class="data row4 col2">8,776</td>
+      <td id="T_f65cb_row4_col3" class="data row4 col3">2.5%</td>
+      <td id="T_f65cb_row4_col4" class="data row4 col4">85.7%</td>
+    </tr>
+    <tr>
+      <th id="T_f65cb_level0_row5" class="row_heading level0 row5">6</th>
+      <td id="T_f65cb_row5_col0" class="data row5 col0">lightsteelblue</td>
+      <td id="T_f65cb_row5_col1" class="data row5 col1">251</td>
+      <td id="T_f65cb_row5_col2" class="data row5 col2">9,027</td>
+      <td id="T_f65cb_row5_col3" class="data row5 col3">2.5%</td>
+      <td id="T_f65cb_row5_col4" class="data row5 col4">88.2%</td>
+    </tr>
+    <tr>
+      <th id="T_f65cb_level0_row6" class="row_heading level0 row6">7</th>
+      <td id="T_f65cb_row6_col0" class="data row6 col0">aliceblue</td>
+      <td id="T_f65cb_row6_col1" class="data row6 col1">245</td>
+      <td id="T_f65cb_row6_col2" class="data row6 col2">9,272</td>
+      <td id="T_f65cb_row6_col3" class="data row6 col3">2.4%</td>
+      <td id="T_f65cb_row6_col4" class="data row6 col4">90.5%</td>
+    </tr>
+    <tr>
+      <th id="T_f65cb_level0_row7" class="row_heading level0 row7">8</th>
+      <td id="T_f65cb_row7_col0" class="data row7 col0">steelblue</td>
+      <td id="T_f65cb_row7_col1" class="data row7 col1">243</td>
+      <td id="T_f65cb_row7_col2" class="data row7 col2">9,515</td>
+      <td id="T_f65cb_row7_col3" class="data row7 col3">2.4%</td>
+      <td id="T_f65cb_row7_col4" class="data row7 col4">92.9%</td>
+    </tr>
+    <tr>
+      <th id="T_f65cb_level0_row8" class="row_heading level0 row8">9</th>
+      <td id="T_f65cb_row8_col0" class="data row8 col0">azure</td>
+      <td id="T_f65cb_row8_col1" class="data row8 col1">242</td>
+      <td id="T_f65cb_row8_col2" class="data row8 col2">9,757</td>
+      <td id="T_f65cb_row8_col3" class="data row8 col3">2.4%</td>
+      <td id="T_f65cb_row8_col4" class="data row8 col4">95.3%</td>
+    </tr>
+    <tr>
+      <th id="T_f65cb_level0_row9" class="row_heading level0 row9">10</th>
+      <td id="T_f65cb_row9_col0" class="data row9 col0">sienna</td>
+      <td id="T_f65cb_row9_col1" class="data row9 col1">242</td>
+      <td id="T_f65cb_row9_col2" class="data row9 col2">9,999</td>
+      <td id="T_f65cb_row9_col3" class="data row9 col3">2.4%</td>
+      <td id="T_f65cb_row9_col4" class="data row9 col4">97.6%</td>
+    </tr>
+    <tr>
+      <th id="T_f65cb_level0_row10" class="row_heading level0 row10">11</th>
+      <td id="T_f65cb_row10_col0" class="data row10 col0">indigo</td>
+      <td id="T_f65cb_row10_col1" class="data row10 col1">241</td>
+      <td id="T_f65cb_row10_col2" class="data row10 col2">10,240</td>
+      <td id="T_f65cb_row10_col3" class="data row10 col3">2.4%</td>
+      <td id="T_f65cb_row10_col4" class="data row10 col4">100.0%</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="changing-the-name-of-the-data-and-caption-title-with-name" class="level2">
+<h2 class="anchored" data-anchor-id="changing-the-name-of-the-data-and-caption-title-with-name">Changing the name of the data and caption title with <code>name</code></h2>
+<div id="cell-12" class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a>value_counts_plus(</span>
+<span id="cb8-2"><a href="#cb8-2"></a>    colors,</span>
+<span id="cb8-3"><a href="#cb8-3"></a>    name<span class="op">=</span><span class="st">'Status codes'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<style type="text/css">
+#T_aa877_row0_col1, #T_aa877_row0_col2, #T_aa877_row0_col3, #T_aa877_row0_col4, #T_aa877_row1_col1, #T_aa877_row1_col3, #T_aa877_row2_col1, #T_aa877_row2_col3, #T_aa877_row3_col1, #T_aa877_row3_col3, #T_aa877_row4_col1, #T_aa877_row4_col3, #T_aa877_row5_col1, #T_aa877_row5_col3, #T_aa877_row6_col1, #T_aa877_row6_col3, #T_aa877_row7_col1, #T_aa877_row7_col3, #T_aa877_row8_col1, #T_aa877_row8_col3, #T_aa877_row9_col1, #T_aa877_row9_col3 {
+  background-color: #00224e;
+  color: #f1f1f1;
+}
+#T_aa877_row1_col2, #T_aa877_row1_col4 {
+  background-color: #002758;
+  color: #f1f1f1;
+}
+#T_aa877_row2_col2, #T_aa877_row2_col4 {
+  background-color: #002c64;
+  color: #f1f1f1;
+}
+#T_aa877_row3_col2, #T_aa877_row3_col4 {
+  background-color: #00306f;
+  color: #f1f1f1;
+}
+#T_aa877_row4_col2, #T_aa877_row4_col4 {
+  background-color: #083370;
+  color: #f1f1f1;
+}
+#T_aa877_row5_col2, #T_aa877_row5_col4 {
+  background-color: #1a386f;
+  color: #f1f1f1;
+}
+#T_aa877_row6_col2, #T_aa877_row6_col4 {
+  background-color: #243c6e;
+  color: #f1f1f1;
+}
+#T_aa877_row7_col2, #T_aa877_row7_col4 {
+  background-color: #2d416d;
+  color: #f1f1f1;
+}
+#T_aa877_row8_col2, #T_aa877_row8_col4 {
+  background-color: #34456c;
+  color: #f1f1f1;
+}
+#T_aa877_row9_col2, #T_aa877_row9_col4 {
+  background-color: #3c4a6c;
+  color: #f1f1f1;
+}
+#T_aa877_row10_col1, #T_aa877_row10_col2, #T_aa877_row10_col3, #T_aa877_row10_col4 {
+  background-color: #fee838;
+  color: #000000;
+}
+</style>
+<table id="T_aa877" style="font-size:15pt;">
+  <caption><h2 class="anchored">Counts of <b>Status codes</b></h2></caption>
+  <thead>
+    <tr>
+      <th class="blank level0">&nbsp;</th>
+      <th id="T_aa877_level0_col0" class="col_heading level0 col0">Status codes</th>
+      <th id="T_aa877_level0_col1" class="col_heading level0 col1">count</th>
+      <th id="T_aa877_level0_col2" class="col_heading level0 col2">cum. count</th>
+      <th id="T_aa877_level0_col3" class="col_heading level0 col3">%</th>
+      <th id="T_aa877_level0_col4" class="col_heading level0 col4">cum. %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_aa877_level0_row0" class="row_heading level0 row0">1</th>
+      <td id="T_aa877_row0_col0" class="data row0 col0">lightseagreen</td>
+      <td id="T_aa877_row0_col1" class="data row0 col1">258</td>
+      <td id="T_aa877_row0_col2" class="data row0 col2">258</td>
+      <td id="T_aa877_row0_col3" class="data row0 col3">2.5%</td>
+      <td id="T_aa877_row0_col4" class="data row0 col4">2.5%</td>
+    </tr>
+    <tr>
+      <th id="T_aa877_level0_row1" class="row_heading level0 row1">2</th>
+      <td id="T_aa877_row1_col0" class="data row1 col0">burlywood</td>
+      <td id="T_aa877_row1_col1" class="data row1 col1">255</td>
+      <td id="T_aa877_row1_col2" class="data row1 col2">513</td>
+      <td id="T_aa877_row1_col3" class="data row1 col3">2.5%</td>
+      <td id="T_aa877_row1_col4" class="data row1 col4">5.0%</td>
+    </tr>
+    <tr>
+      <th id="T_aa877_level0_row2" class="row_heading level0 row2">3</th>
+      <td id="T_aa877_row2_col0" class="data row2 col0">cyan</td>
+      <td id="T_aa877_row2_col1" class="data row2 col1">252</td>
+      <td id="T_aa877_row2_col2" class="data row2 col2">765</td>
+      <td id="T_aa877_row2_col3" class="data row2 col3">2.5%</td>
+      <td id="T_aa877_row2_col4" class="data row2 col4">7.5%</td>
+    </tr>
+    <tr>
+      <th id="T_aa877_level0_row3" class="row_heading level0 row3">4</th>
+      <td id="T_aa877_row3_col0" class="data row3 col0">slategray</td>
+      <td id="T_aa877_row3_col1" class="data row3 col1">252</td>
+      <td id="T_aa877_row3_col2" class="data row3 col2">1,017</td>
+      <td id="T_aa877_row3_col3" class="data row3 col3">2.5%</td>
+      <td id="T_aa877_row3_col4" class="data row3 col4">9.9%</td>
+    </tr>
+    <tr>
+      <th id="T_aa877_level0_row4" class="row_heading level0 row4">5</th>
+      <td id="T_aa877_row4_col0" class="data row4 col0">lightsteelblue</td>
+      <td id="T_aa877_row4_col1" class="data row4 col1">251</td>
+      <td id="T_aa877_row4_col2" class="data row4 col2">1,268</td>
+      <td id="T_aa877_row4_col3" class="data row4 col3">2.5%</td>
+      <td id="T_aa877_row4_col4" class="data row4 col4">12.4%</td>
+    </tr>
+    <tr>
+      <th id="T_aa877_level0_row5" class="row_heading level0 row5">6</th>
+      <td id="T_aa877_row5_col0" class="data row5 col0">aliceblue</td>
+      <td id="T_aa877_row5_col1" class="data row5 col1">245</td>
+      <td id="T_aa877_row5_col2" class="data row5 col2">1,513</td>
+      <td id="T_aa877_row5_col3" class="data row5 col3">2.4%</td>
+      <td id="T_aa877_row5_col4" class="data row5 col4">14.8%</td>
+    </tr>
+    <tr>
+      <th id="T_aa877_level0_row6" class="row_heading level0 row6">7</th>
+      <td id="T_aa877_row6_col0" class="data row6 col0">steelblue</td>
+      <td id="T_aa877_row6_col1" class="data row6 col1">243</td>
+      <td id="T_aa877_row6_col2" class="data row6 col2">1,756</td>
+      <td id="T_aa877_row6_col3" class="data row6 col3">2.4%</td>
+      <td id="T_aa877_row6_col4" class="data row6 col4">17.1%</td>
+    </tr>
+    <tr>
+      <th id="T_aa877_level0_row7" class="row_heading level0 row7">8</th>
+      <td id="T_aa877_row7_col0" class="data row7 col0">azure</td>
+      <td id="T_aa877_row7_col1" class="data row7 col1">242</td>
+      <td id="T_aa877_row7_col2" class="data row7 col2">1,998</td>
+      <td id="T_aa877_row7_col3" class="data row7 col3">2.4%</td>
+      <td id="T_aa877_row7_col4" class="data row7 col4">19.5%</td>
+    </tr>
+    <tr>
+      <th id="T_aa877_level0_row8" class="row_heading level0 row8">9</th>
+      <td id="T_aa877_row8_col0" class="data row8 col0">sienna</td>
+      <td id="T_aa877_row8_col1" class="data row8 col1">242</td>
+      <td id="T_aa877_row8_col2" class="data row8 col2">2,240</td>
+      <td id="T_aa877_row8_col3" class="data row8 col3">2.4%</td>
+      <td id="T_aa877_row8_col4" class="data row8 col4">21.9%</td>
+    </tr>
+    <tr>
+      <th id="T_aa877_level0_row9" class="row_heading level0 row9">10</th>
+      <td id="T_aa877_row9_col0" class="data row9 col0">indigo</td>
+      <td id="T_aa877_row9_col1" class="data row9 col1">241</td>
+      <td id="T_aa877_row9_col2" class="data row9 col2">2,481</td>
+      <td id="T_aa877_row9_col3" class="data row9 col3">2.4%</td>
+      <td id="T_aa877_row9_col4" class="data row9 col4">24.2%</td>
+    </tr>
+    <tr>
+      <th id="T_aa877_level0_row10" class="row_heading level0 row10">11</th>
+      <td id="T_aa877_row10_col0" class="data row10 col0">Others:</td>
+      <td id="T_aa877_row10_col1" class="data row10 col1">7,759</td>
+      <td id="T_aa877_row10_col2" class="data row10 col2">10,240</td>
+      <td id="T_aa877_row10_col3" class="data row10 col3">75.8%</td>
+      <td id="T_aa877_row10_col4" class="data row10 col4">100.0%</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="use-the-function-on-dataframes-to-get-multi-level-counts" class="level2">
+<h2 class="anchored" data-anchor-id="use-the-function-on-dataframes-to-get-multi-level-counts">Use the function on <code>DataFrame</code>s to get multi-level counts</h2>
+<section id="explore-the-url-structure-of-apple.com-300k-urls" class="level4">
+<h4 class="anchored">Explore the URL structure of apple.com (~300k URLs):</h4>
+<div id="cell-14" class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a>urldf <span class="op">=</span> adv.url_to_df(pd.read_csv(<span class="st">'data/apple_url_list.csv'</span>)[<span class="st">'url'</span>])</span>
+<span id="cb9-2"><a href="#cb9-2"></a>urldf.<span class="bu">filter</span>(regex<span class="op">=</span><span class="st">'netloc|dir_</span><span class="er">\</span><span class="st">d+'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+
+<table class="dataframe table table-sm table-striped small">
+  <thead>
+    <tr>
+      <th></th>
+      <th>netloc</th>
+      <th>dir_1</th>
+      <th>dir_2</th>
+      <th>dir_3</th>
+      <th>dir_4</th>
+      <th>dir_5</th>
+      <th>dir_6</th>
+      <th>dir_7</th>
+      <th>dir_8</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>www.apple.com</td>
+      <td>ae</td>
+      <td>shop</td>
+      <td>accessories</td>
+      <td>all</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>www.apple.com</td>
+      <td>ae</td>
+      <td>shop</td>
+      <td>accessories</td>
+      <td>all</td>
+      <td>accessibility</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>www.apple.com</td>
+      <td>ae</td>
+      <td>shop</td>
+      <td>accessories</td>
+      <td>all</td>
+      <td>airtag</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>www.apple.com</td>
+      <td>ae</td>
+      <td>shop</td>
+      <td>accessories</td>
+      <td>all</td>
+      <td>beats</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>www.apple.com</td>
+      <td>ae</td>
+      <td>shop</td>
+      <td>accessories</td>
+      <td>all</td>
+      <td>beats-featured</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>296005</th>
+      <td>www.apple.com</td>
+      <td>today</td>
+      <td>event</td>
+      <td>skills-getting-started-with-iphone</td>
+      <td>7015126954609578141</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>296006</th>
+      <td>www.apple.com</td>
+      <td>today</td>
+      <td>event</td>
+      <td>skills-getting-started-with-iphone</td>
+      <td>7015489343309862057</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>296007</th>
+      <td>www.apple.com</td>
+      <td>today</td>
+      <td>event</td>
+      <td>skills-getting-started-with-iphone</td>
+      <td>7016938895023916237</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>296008</th>
+      <td>www.apple.com</td>
+      <td>today</td>
+      <td>event</td>
+      <td>skills-getting-started-with-iphone</td>
+      <td>7017663669723312297</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>296009</th>
+      <td>www.apple.com</td>
+      <td>today</td>
+      <td>event</td>
+      <td>skills-getting-started-with-ipad</td>
+      <td>7018026058515849077</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+<p>296010 rows × 9 columns</p>
+</div>
+</div>
+</div>
+<div id="cell-15" class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1"></a>value_counts_plus(urldf[[<span class="st">'netloc'</span>]], name<span class="op">=</span><span class="st">'apple.com URL directories'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<style type="text/css">
+#T_464b0_row0_col1, #T_464b0_row0_col3, #T_464b0_row1_col2, #T_464b0_row1_col4 {
+  background-color: #fee838;
+  color: #000000;
+}
+#T_464b0_row0_col2, #T_464b0_row0_col4, #T_464b0_row1_col1, #T_464b0_row1_col3 {
+  background-color: #00224e;
+  color: #f1f1f1;
+}
+</style>
+<table id="T_464b0" style="font-size:15pt;">
+  <caption><h2 class="anchored" data-anchor-id="explore-the-url-structure-of-apple.com-300k-urls">Counts of <b>apple.com URL directories</b></h2></caption>
+  <thead>
+    <tr>
+      <th class="blank level0">&nbsp;</th>
+      <th id="T_464b0_level0_col0" class="col_heading level0 col0">netloc</th>
+      <th id="T_464b0_level0_col1" class="col_heading level0 col1">count</th>
+      <th id="T_464b0_level0_col2" class="col_heading level0 col2">cum. count</th>
+      <th id="T_464b0_level0_col3" class="col_heading level0 col3">%</th>
+      <th id="T_464b0_level0_col4" class="col_heading level0 col4">cum. %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_464b0_level0_row0" class="row_heading level0 row0">1</th>
+      <td id="T_464b0_row0_col0" class="data row0 col0">www.apple.com</td>
+      <td id="T_464b0_row0_col1" class="data row0 col1">289,093</td>
+      <td id="T_464b0_row0_col2" class="data row0 col2">289,093</td>
+      <td id="T_464b0_row0_col3" class="data row0 col3">97.7%</td>
+      <td id="T_464b0_row0_col4" class="data row0 col4">97.7%</td>
+    </tr>
+    <tr>
+      <th id="T_464b0_level0_row1" class="row_heading level0 row1">2</th>
+      <td id="T_464b0_row1_col0" class="data row1 col0">www.apple.com.cn</td>
+      <td id="T_464b0_row1_col1" class="data row1 col1">6,917</td>
+      <td id="T_464b0_row1_col2" class="data row1 col2">296,010</td>
+      <td id="T_464b0_row1_col3" class="data row1 col3">2.3%</td>
+      <td id="T_464b0_row1_col4" class="data row1 col4">100.0%</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+<div id="cell-16" class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1"></a>value_counts_plus(urldf[[<span class="st">'netloc'</span>, <span class="st">'dir_1'</span>]], name<span class="op">=</span><span class="st">'apple.com URL directories &lt;code&gt;domain/dir_1'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<style type="text/css">
+#T_e908c_row0_col2, #T_e908c_row0_col4, #T_e908c_row1_col3, #T_e908c_row1_col5 {
+  background-color: #002859;
+  color: #f1f1f1;
+}
+#T_e908c_row0_col3, #T_e908c_row0_col5, #T_e908c_row3_col2, #T_e908c_row3_col4, #T_e908c_row4_col2, #T_e908c_row4_col4, #T_e908c_row5_col2, #T_e908c_row5_col4, #T_e908c_row6_col2, #T_e908c_row6_col4, #T_e908c_row7_col2, #T_e908c_row7_col4, #T_e908c_row8_col2, #T_e908c_row8_col4, #T_e908c_row9_col2, #T_e908c_row9_col4 {
+  background-color: #00224e;
+  color: #f1f1f1;
+}
+#T_e908c_row1_col2, #T_e908c_row1_col4, #T_e908c_row2_col2, #T_e908c_row2_col4 {
+  background-color: #00234f;
+  color: #f1f1f1;
+}
+#T_e908c_row2_col3, #T_e908c_row2_col5 {
+  background-color: #002d68;
+  color: #f1f1f1;
+}
+#T_e908c_row3_col3, #T_e908c_row3_col5 {
+  background-color: #003171;
+  color: #f1f1f1;
+}
+#T_e908c_row4_col3, #T_e908c_row4_col5 {
+  background-color: #143670;
+  color: #f1f1f1;
+}
+#T_e908c_row5_col3, #T_e908c_row5_col5 {
+  background-color: #203a6f;
+  color: #f1f1f1;
+}
+#T_e908c_row6_col3, #T_e908c_row6_col5 {
+  background-color: #2a3f6d;
+  color: #f1f1f1;
+}
+#T_e908c_row7_col3, #T_e908c_row7_col5 {
+  background-color: #33446d;
+  color: #f1f1f1;
+}
+#T_e908c_row8_col3, #T_e908c_row8_col5 {
+  background-color: #3a486c;
+  color: #f1f1f1;
+}
+#T_e908c_row9_col3, #T_e908c_row9_col5 {
+  background-color: #414d6c;
+  color: #f1f1f1;
+}
+#T_e908c_row10_col2, #T_e908c_row10_col3, #T_e908c_row10_col4, #T_e908c_row10_col5 {
+  background-color: #fee838;
+  color: #000000;
+}
+</style>
+<table id="T_e908c" style="font-size:15pt;">
+  <caption><h2 class="anchored">Counts of <b>apple.com URL directories <code>domain/dir_1</code></b></h2></caption>
+  <thead>
+    <tr>
+      <th class="blank level0">&nbsp;</th>
+      <th id="T_e908c_level0_col0" class="col_heading level0 col0">netloc</th>
+      <th id="T_e908c_level0_col1" class="col_heading level0 col1">dir_1</th>
+      <th id="T_e908c_level0_col2" class="col_heading level0 col2">count</th>
+      <th id="T_e908c_level0_col3" class="col_heading level0 col3">cum. count</th>
+      <th id="T_e908c_level0_col4" class="col_heading level0 col4">%</th>
+      <th id="T_e908c_level0_col5" class="col_heading level0 col5">cum. %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_e908c_level0_row0" class="row_heading level0 row0">1</th>
+      <td id="T_e908c_row0_col0" class="data row0 col0">www.apple.com</td>
+      <td id="T_e908c_row0_col1" class="data row0 col1">today</td>
+      <td id="T_e908c_row0_col2" class="data row0 col2">13,229</td>
+      <td id="T_e908c_row0_col3" class="data row0 col3">13,229</td>
+      <td id="T_e908c_row0_col4" class="data row0 col4">4.5%</td>
+      <td id="T_e908c_row0_col5" class="data row0 col5">4.5%</td>
+    </tr>
+    <tr>
+      <th id="T_e908c_level0_row1" class="row_heading level0 row1">2</th>
+      <td id="T_e908c_row1_col0" class="data row1 col0">www.apple.com</td>
+      <td id="T_e908c_row1_col1" class="data row1 col1">ca</td>
+      <td id="T_e908c_row1_col2" class="data row1 col2">8,432</td>
+      <td id="T_e908c_row1_col3" class="data row1 col3">21,661</td>
+      <td id="T_e908c_row1_col4" class="data row1 col4">2.8%</td>
+      <td id="T_e908c_row1_col5" class="data row1 col5">7.3%</td>
+    </tr>
+    <tr>
+      <th id="T_e908c_level0_row2" class="row_heading level0 row2">3</th>
+      <td id="T_e908c_row2_col0" class="data row2 col0">www.apple.com</td>
+      <td id="T_e908c_row2_col1" class="data row2 col1">shop</td>
+      <td id="T_e908c_row2_col2" class="data row2 col2">8,424</td>
+      <td id="T_e908c_row2_col3" class="data row2 col3">30,085</td>
+      <td id="T_e908c_row2_col4" class="data row2 col4">2.8%</td>
+      <td id="T_e908c_row2_col5" class="data row2 col5">10.2%</td>
+    </tr>
+    <tr>
+      <th id="T_e908c_level0_row3" class="row_heading level0 row3">4</th>
+      <td id="T_e908c_row3_col0" class="data row3 col0">www.apple.com</td>
+      <td id="T_e908c_row3_col1" class="data row3 col1">de</td>
+      <td id="T_e908c_row3_col2" class="data row3 col2">7,677</td>
+      <td id="T_e908c_row3_col3" class="data row3 col3">37,762</td>
+      <td id="T_e908c_row3_col4" class="data row3 col4">2.6%</td>
+      <td id="T_e908c_row3_col5" class="data row3 col5">12.8%</td>
+    </tr>
+    <tr>
+      <th id="T_e908c_level0_row4" class="row_heading level0 row4">5</th>
+      <td id="T_e908c_row4_col0" class="data row4 col0">www.apple.com</td>
+      <td id="T_e908c_row4_col1" class="data row4 col1">uk</td>
+      <td id="T_e908c_row4_col2" class="data row4 col2">7,589</td>
+      <td id="T_e908c_row4_col3" class="data row4 col3">45,351</td>
+      <td id="T_e908c_row4_col4" class="data row4 col4">2.6%</td>
+      <td id="T_e908c_row4_col5" class="data row4 col5">15.3%</td>
+    </tr>
+    <tr>
+      <th id="T_e908c_level0_row5" class="row_heading level0 row5">6</th>
+      <td id="T_e908c_row5_col0" class="data row5 col0">www.apple.com</td>
+      <td id="T_e908c_row5_col1" class="data row5 col1">xf</td>
+      <td id="T_e908c_row5_col2" class="data row5 col2">7,540</td>
+      <td id="T_e908c_row5_col3" class="data row5 col3">52,891</td>
+      <td id="T_e908c_row5_col4" class="data row5 col4">2.5%</td>
+      <td id="T_e908c_row5_col5" class="data row5 col5">17.9%</td>
+    </tr>
+    <tr>
+      <th id="T_e908c_level0_row6" class="row_heading level0 row6">7</th>
+      <td id="T_e908c_row6_col0" class="data row6 col0">www.apple.com</td>
+      <td id="T_e908c_row6_col1" class="data row6 col1">au</td>
+      <td id="T_e908c_row6_col2" class="data row6 col2">7,410</td>
+      <td id="T_e908c_row6_col3" class="data row6 col3">60,301</td>
+      <td id="T_e908c_row6_col4" class="data row6 col4">2.5%</td>
+      <td id="T_e908c_row6_col5" class="data row6 col5">20.4%</td>
+    </tr>
+    <tr>
+      <th id="T_e908c_level0_row7" class="row_heading level0 row7">8</th>
+      <td id="T_e908c_row7_col0" class="data row7 col0">www.apple.com</td>
+      <td id="T_e908c_row7_col1" class="data row7 col1">hk</td>
+      <td id="T_e908c_row7_col2" class="data row7 col2">7,378</td>
+      <td id="T_e908c_row7_col3" class="data row7 col3">67,679</td>
+      <td id="T_e908c_row7_col4" class="data row7 col4">2.5%</td>
+      <td id="T_e908c_row7_col5" class="data row7 col5">22.9%</td>
+    </tr>
+    <tr>
+      <th id="T_e908c_level0_row8" class="row_heading level0 row8">9</th>
+      <td id="T_e908c_row8_col0" class="data row8 col0">www.apple.com</td>
+      <td id="T_e908c_row8_col1" class="data row8 col1">it</td>
+      <td id="T_e908c_row8_col2" class="data row8 col2">7,355</td>
+      <td id="T_e908c_row8_col3" class="data row8 col3">75,034</td>
+      <td id="T_e908c_row8_col4" class="data row8 col4">2.5%</td>
+      <td id="T_e908c_row8_col5" class="data row8 col5">25.3%</td>
+    </tr>
+    <tr>
+      <th id="T_e908c_level0_row9" class="row_heading level0 row9">10</th>
+      <td id="T_e908c_row9_col0" class="data row9 col0">www.apple.com</td>
+      <td id="T_e908c_row9_col1" class="data row9 col1">es</td>
+      <td id="T_e908c_row9_col2" class="data row9 col2">7,257</td>
+      <td id="T_e908c_row9_col3" class="data row9 col3">82,291</td>
+      <td id="T_e908c_row9_col4" class="data row9 col4">2.5%</td>
+      <td id="T_e908c_row9_col5" class="data row9 col5">27.8%</td>
+    </tr>
+    <tr>
+      <th id="T_e908c_level0_row10" class="row_heading level0 row10">11</th>
+      <td id="T_e908c_row10_col0" class="data row10 col0">Others:</td>
+      <td id="T_e908c_row10_col1" class="data row10 col1"></td>
+      <td id="T_e908c_row10_col2" class="data row10 col2">213,719</td>
+      <td id="T_e908c_row10_col3" class="data row10 col3">296,010</td>
+      <td id="T_e908c_row10_col4" class="data row10 col4">72.2%</td>
+      <td id="T_e908c_row10_col5" class="data row10 col5">100.0%</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="check-counts-of-the-first-two-directories-combinations" class="level3">
+<h3 class="anchored">Check counts of the first two directories’ combinations</h3>
+<div id="cell-18" class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1"></a>value_counts_plus(urldf[[<span class="st">'dir_1'</span>, <span class="st">'dir_2'</span>]], name<span class="op">=</span><span class="st">'apple.com URL directories&lt;code&gt;dir_1/dir_2&lt;/code&gt;'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<style type="text/css">
+#T_6ec44_row0_col2, #T_6ec44_row0_col4, #T_6ec44_row1_col3, #T_6ec44_row1_col5 {
+  background-color: #002758;
+  color: #f1f1f1;
+}
+#T_6ec44_row0_col3, #T_6ec44_row0_col5, #T_6ec44_row1_col2, #T_6ec44_row1_col4, #T_6ec44_row2_col2, #T_6ec44_row2_col4, #T_6ec44_row3_col2, #T_6ec44_row3_col4, #T_6ec44_row4_col2, #T_6ec44_row4_col4, #T_6ec44_row5_col2, #T_6ec44_row5_col4, #T_6ec44_row6_col2, #T_6ec44_row6_col4, #T_6ec44_row7_col2, #T_6ec44_row7_col4, #T_6ec44_row8_col2, #T_6ec44_row8_col4, #T_6ec44_row9_col2, #T_6ec44_row9_col4 {
+  background-color: #00224e;
+  color: #f1f1f1;
+}
+#T_6ec44_row2_col3, #T_6ec44_row2_col5 {
+  background-color: #002c64;
+  color: #f1f1f1;
+}
+#T_6ec44_row3_col3, #T_6ec44_row3_col5 {
+  background-color: #003070;
+  color: #f1f1f1;
+}
+#T_6ec44_row4_col3, #T_6ec44_row4_col5 {
+  background-color: #0c3470;
+  color: #f1f1f1;
+}
+#T_6ec44_row5_col3, #T_6ec44_row5_col5 {
+  background-color: #1a386f;
+  color: #f1f1f1;
+}
+#T_6ec44_row6_col3, #T_6ec44_row6_col5 {
+  background-color: #243c6e;
+  color: #f1f1f1;
+}
+#T_6ec44_row7_col3, #T_6ec44_row7_col5 {
+  background-color: #2d416d;
+  color: #f1f1f1;
+}
+#T_6ec44_row8_col3, #T_6ec44_row8_col5 {
+  background-color: #35456c;
+  color: #f1f1f1;
+}
+#T_6ec44_row9_col3, #T_6ec44_row9_col5 {
+  background-color: #3c4a6c;
+  color: #f1f1f1;
+}
+#T_6ec44_row10_col2, #T_6ec44_row10_col3, #T_6ec44_row10_col4, #T_6ec44_row10_col5 {
+  background-color: #fee838;
+  color: #000000;
+}
+</style>
+<table id="T_6ec44" style="font-size:15pt;">
+  <caption><h2 class="anchored" data-anchor-id="check-counts-of-the-first-two-directories-combinations">Counts of <b>apple.com URL directories<code>dir_1/dir_2</code></b></h2></caption>
+  <thead>
+    <tr>
+      <th class="blank level0">&nbsp;</th>
+      <th id="T_6ec44_level0_col0" class="col_heading level0 col0">dir_1</th>
+      <th id="T_6ec44_level0_col1" class="col_heading level0 col1">dir_2</th>
+      <th id="T_6ec44_level0_col2" class="col_heading level0 col2">count</th>
+      <th id="T_6ec44_level0_col3" class="col_heading level0 col3">cum. count</th>
+      <th id="T_6ec44_level0_col4" class="col_heading level0 col4">%</th>
+      <th id="T_6ec44_level0_col5" class="col_heading level0 col5">cum. %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_6ec44_level0_row0" class="row_heading level0 row0">1</th>
+      <td id="T_6ec44_row0_col0" class="data row0 col0">today</td>
+      <td id="T_6ec44_row0_col1" class="data row0 col1">event</td>
+      <td id="T_6ec44_row0_col2" class="data row0 col2">12,118</td>
+      <td id="T_6ec44_row0_col3" class="data row0 col3">12,118</td>
+      <td id="T_6ec44_row0_col4" class="data row0 col4">4.1%</td>
+      <td id="T_6ec44_row0_col5" class="data row0 col5">4.1%</td>
+    </tr>
+    <tr>
+      <th id="T_6ec44_level0_row1" class="row_heading level0 row1">2</th>
+      <td id="T_6ec44_row1_col0" class="data row1 col0">xf</td>
+      <td id="T_6ec44_row1_col1" class="data row1 col1">shop</td>
+      <td id="T_6ec44_row1_col2" class="data row1 col2">7,539</td>
+      <td id="T_6ec44_row1_col3" class="data row1 col3">19,657</td>
+      <td id="T_6ec44_row1_col4" class="data row1 col4">2.5%</td>
+      <td id="T_6ec44_row1_col5" class="data row1 col5">6.6%</td>
+    </tr>
+    <tr>
+      <th id="T_6ec44_level0_row2" class="row_heading level0 row2">3</th>
+      <td id="T_6ec44_row2_col0" class="data row2 col0">ca</td>
+      <td id="T_6ec44_row2_col1" class="data row2 col1">shop</td>
+      <td id="T_6ec44_row2_col2" class="data row2 col2">7,450</td>
+      <td id="T_6ec44_row2_col3" class="data row2 col3">27,107</td>
+      <td id="T_6ec44_row2_col4" class="data row2 col4">2.5%</td>
+      <td id="T_6ec44_row2_col5" class="data row2 col5">9.2%</td>
+    </tr>
+    <tr>
+      <th id="T_6ec44_level0_row3" class="row_heading level0 row3">4</th>
+      <td id="T_6ec44_row3_col0" class="data row3 col0">de</td>
+      <td id="T_6ec44_row3_col1" class="data row3 col1">shop</td>
+      <td id="T_6ec44_row3_col2" class="data row3 col2">7,201</td>
+      <td id="T_6ec44_row3_col3" class="data row3 col3">34,308</td>
+      <td id="T_6ec44_row3_col4" class="data row3 col4">2.4%</td>
+      <td id="T_6ec44_row3_col5" class="data row3 col5">11.6%</td>
+    </tr>
+    <tr>
+      <th id="T_6ec44_level0_row4" class="row_heading level0 row4">5</th>
+      <td id="T_6ec44_row4_col0" class="data row4 col0">uk</td>
+      <td id="T_6ec44_row4_col1" class="data row4 col1">shop</td>
+      <td id="T_6ec44_row4_col2" class="data row4 col2">7,080</td>
+      <td id="T_6ec44_row4_col3" class="data row4 col3">41,388</td>
+      <td id="T_6ec44_row4_col4" class="data row4 col4">2.4%</td>
+      <td id="T_6ec44_row4_col5" class="data row4 col5">14.0%</td>
+    </tr>
+    <tr>
+      <th id="T_6ec44_level0_row5" class="row_heading level0 row5">6</th>
+      <td id="T_6ec44_row5_col0" class="data row5 col0">au</td>
+      <td id="T_6ec44_row5_col1" class="data row5 col1">shop</td>
+      <td id="T_6ec44_row5_col2" class="data row5 col2">6,915</td>
+      <td id="T_6ec44_row5_col3" class="data row5 col3">48,303</td>
+      <td id="T_6ec44_row5_col4" class="data row5 col4">2.3%</td>
+      <td id="T_6ec44_row5_col5" class="data row5 col5">16.3%</td>
+    </tr>
+    <tr>
+      <th id="T_6ec44_level0_row6" class="row_heading level0 row6">7</th>
+      <td id="T_6ec44_row6_col0" class="data row6 col0">it</td>
+      <td id="T_6ec44_row6_col1" class="data row6 col1">shop</td>
+      <td id="T_6ec44_row6_col2" class="data row6 col2">6,875</td>
+      <td id="T_6ec44_row6_col3" class="data row6 col3">55,178</td>
+      <td id="T_6ec44_row6_col4" class="data row6 col4">2.3%</td>
+      <td id="T_6ec44_row6_col5" class="data row6 col5">18.6%</td>
+    </tr>
+    <tr>
+      <th id="T_6ec44_level0_row7" class="row_heading level0 row7">8</th>
+      <td id="T_6ec44_row7_col0" class="data row7 col0">es</td>
+      <td id="T_6ec44_row7_col1" class="data row7 col1">shop</td>
+      <td id="T_6ec44_row7_col2" class="data row7 col2">6,789</td>
+      <td id="T_6ec44_row7_col3" class="data row7 col3">61,967</td>
+      <td id="T_6ec44_row7_col4" class="data row7 col4">2.3%</td>
+      <td id="T_6ec44_row7_col5" class="data row7 col5">20.9%</td>
+    </tr>
+    <tr>
+      <th id="T_6ec44_level0_row8" class="row_heading level0 row8">9</th>
+      <td id="T_6ec44_row8_col0" class="data row8 col0">fr</td>
+      <td id="T_6ec44_row8_col1" class="data row8 col1">shop</td>
+      <td id="T_6ec44_row8_col2" class="data row8 col2">6,716</td>
+      <td id="T_6ec44_row8_col3" class="data row8 col3">68,683</td>
+      <td id="T_6ec44_row8_col4" class="data row8 col4">2.3%</td>
+      <td id="T_6ec44_row8_col5" class="data row8 col5">23.2%</td>
+    </tr>
+    <tr>
+      <th id="T_6ec44_level0_row9" class="row_heading level0 row9">10</th>
+      <td id="T_6ec44_row9_col0" class="data row9 col0">sg</td>
+      <td id="T_6ec44_row9_col1" class="data row9 col1">shop</td>
+      <td id="T_6ec44_row9_col2" class="data row9 col2">6,714</td>
+      <td id="T_6ec44_row9_col3" class="data row9 col3">75,397</td>
+      <td id="T_6ec44_row9_col4" class="data row9 col4">2.3%</td>
+      <td id="T_6ec44_row9_col5" class="data row9 col5">25.5%</td>
+    </tr>
+    <tr>
+      <th id="T_6ec44_level0_row10" class="row_heading level0 row10">11</th>
+      <td id="T_6ec44_row10_col0" class="data row10 col0">Others:</td>
+      <td id="T_6ec44_row10_col1" class="data row10 col1"></td>
+      <td id="T_6ec44_row10_col2" class="data row10 col2">220,613</td>
+      <td id="T_6ec44_row10_col3" class="data row10 col3">296,010</td>
+      <td id="T_6ec44_row10_col4" class="data row10 col4">74.5%</td>
+      <td id="T_6ec44_row10_col5" class="data row10 col5">100.0%</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="filter-for-a-country-de-and-show-counts-of-combinations-of-dir_2-and-dir_3" class="level3">
+<h3 class="anchored">Filter for a country (de) and show counts of combinations of <code>dir_2</code> and <code>dir_3</code></h3>
+<div id="cell-20" class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1"></a>value_counts_plus(urldf[urldf[<span class="st">'dir_1'</span>].eq(<span class="st">'de'</span>)][[<span class="st">'dir_2'</span>, <span class="st">'dir_3'</span>]], name<span class="op">=</span><span class="st">'apple.com/de URL directories'</span>, show_top<span class="op">=</span><span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<style type="text/css">
+#T_7fa99_row0_col2, #T_7fa99_row0_col4, #T_7fa99_row20_col3, #T_7fa99_row20_col5 {
+  background-color: #fee838;
+  color: #000000;
+}
+#T_7fa99_row0_col3, #T_7fa99_row0_col5, #T_7fa99_row16_col2, #T_7fa99_row16_col4, #T_7fa99_row17_col2, #T_7fa99_row17_col4, #T_7fa99_row18_col2, #T_7fa99_row18_col4, #T_7fa99_row19_col2, #T_7fa99_row19_col4 {
+  background-color: #00224e;
+  color: #f1f1f1;
+}
+#T_7fa99_row1_col2, #T_7fa99_row1_col4 {
+  background-color: #f3db42;
+  color: #000000;
+}
+#T_7fa99_row1_col3, #T_7fa99_row1_col5 {
+  background-color: #555c6d;
+  color: #f1f1f1;
+}
+#T_7fa99_row2_col2, #T_7fa99_row2_col4 {
+  background-color: #6f7073;
+  color: #f1f1f1;
+}
+#T_7fa99_row2_col3, #T_7fa99_row2_col5 {
+  background-color: #777777;
+  color: #f1f1f1;
+}
+#T_7fa99_row3_col2, #T_7fa99_row3_col4, #T_7fa99_row4_col2, #T_7fa99_row4_col4 {
+  background-color: #3e4b6c;
+  color: #f1f1f1;
+}
+#T_7fa99_row3_col3, #T_7fa99_row3_col5 {
+  background-color: #8b8778;
+  color: #f1f1f1;
+}
+#T_7fa99_row4_col3, #T_7fa99_row4_col5 {
+  background-color: #9e9676;
+  color: #f1f1f1;
+}
+#T_7fa99_row5_col2, #T_7fa99_row5_col4 {
+  background-color: #39486c;
+  color: #f1f1f1;
+}
+#T_7fa99_row5_col3, #T_7fa99_row5_col5 {
+  background-color: #b1a570;
+  color: #f1f1f1;
+}
+#T_7fa99_row6_col2, #T_7fa99_row6_col4 {
+  background-color: #38476c;
+  color: #f1f1f1;
+}
+#T_7fa99_row6_col3, #T_7fa99_row6_col5 {
+  background-color: #c5b568;
+  color: #000000;
+}
+#T_7fa99_row7_col2, #T_7fa99_row7_col4 {
+  background-color: #243c6e;
+  color: #f1f1f1;
+}
+#T_7fa99_row7_col3, #T_7fa99_row7_col5 {
+  background-color: #d3c05f;
+  color: #000000;
+}
+#T_7fa99_row8_col2, #T_7fa99_row8_col4 {
+  background-color: #002e6a;
+  color: #f1f1f1;
+}
+#T_7fa99_row8_col3, #T_7fa99_row8_col5 {
+  background-color: #dac65b;
+  color: #000000;
+}
+#T_7fa99_row9_col2, #T_7fa99_row9_col4, #T_7fa99_row10_col2, #T_7fa99_row10_col4 {
+  background-color: #002b62;
+  color: #f1f1f1;
+}
+#T_7fa99_row9_col3, #T_7fa99_row9_col5 {
+  background-color: #dfca57;
+  color: #000000;
+}
+#T_7fa99_row10_col3, #T_7fa99_row10_col5 {
+  background-color: #e5cf52;
+  color: #000000;
+}
+#T_7fa99_row11_col2, #T_7fa99_row11_col4 {
+  background-color: #002a5f;
+  color: #f1f1f1;
+}
+#T_7fa99_row11_col3, #T_7fa99_row11_col5 {
+  background-color: #e9d34e;
+  color: #000000;
+}
+#T_7fa99_row12_col2, #T_7fa99_row12_col4 {
+  background-color: #002758;
+  color: #f1f1f1;
+}
+#T_7fa99_row12_col3, #T_7fa99_row12_col5 {
+  background-color: #ebd44b;
+  color: #000000;
+}
+#T_7fa99_row13_col2, #T_7fa99_row13_col4, #T_7fa99_row14_col2, #T_7fa99_row14_col4 {
+  background-color: #002451;
+  color: #f1f1f1;
+}
+#T_7fa99_row13_col3, #T_7fa99_row13_col5 {
+  background-color: #eed649;
+  color: #000000;
+}
+#T_7fa99_row14_col3, #T_7fa99_row14_col5, #T_7fa99_row15_col3, #T_7fa99_row15_col5 {
+  background-color: #efd748;
+  color: #000000;
+}
+#T_7fa99_row15_col2, #T_7fa99_row15_col4 {
+  background-color: #00234f;
+  color: #f1f1f1;
+}
+#T_7fa99_row16_col3, #T_7fa99_row16_col5, #T_7fa99_row17_col3, #T_7fa99_row17_col5 {
+  background-color: #f0d846;
+  color: #000000;
+}
+#T_7fa99_row18_col3, #T_7fa99_row18_col5, #T_7fa99_row19_col3, #T_7fa99_row19_col5 {
+  background-color: #f1d945;
+  color: #000000;
+}
+#T_7fa99_row20_col2, #T_7fa99_row20_col4 {
+  background-color: #293f6e;
+  color: #f1f1f1;
+}
+</style>
+<table id="T_7fa99" style="font-size:15pt;">
+  <caption><h2 class="anchored" data-anchor-id="filter-for-a-country-de-and-show-counts-of-combinations-of-dir_2-and-dir_3">Counts of <b>apple.com/de URL directories</b></h2></caption>
+  <thead>
+    <tr>
+      <th class="blank level0">&nbsp;</th>
+      <th id="T_7fa99_level0_col0" class="col_heading level0 col0">dir_2</th>
+      <th id="T_7fa99_level0_col1" class="col_heading level0 col1">dir_3</th>
+      <th id="T_7fa99_level0_col2" class="col_heading level0 col2">count</th>
+      <th id="T_7fa99_level0_col3" class="col_heading level0 col3">cum. count</th>
+      <th id="T_7fa99_level0_col4" class="col_heading level0 col4">%</th>
+      <th id="T_7fa99_level0_col5" class="col_heading level0 col5">cum. %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_7fa99_level0_row0" class="row_heading level0 row0">1</th>
+      <td id="T_7fa99_row0_col0" class="data row0 col0">shop</td>
+      <td id="T_7fa99_row0_col1" class="data row0 col1">accessories</td>
+      <td id="T_7fa99_row0_col2" class="data row0 col2">1,964</td>
+      <td id="T_7fa99_row0_col3" class="data row0 col3">1,964</td>
+      <td id="T_7fa99_row0_col4" class="data row0 col4">25.6%</td>
+      <td id="T_7fa99_row0_col5" class="data row0 col5">25.6%</td>
+    </tr>
+    <tr>
+      <th id="T_7fa99_level0_row1" class="row_heading level0 row1">2</th>
+      <td id="T_7fa99_row1_col0" class="data row1 col0">shop</td>
+      <td id="T_7fa99_row1_col1" class="data row1 col1">product</td>
+      <td id="T_7fa99_row1_col2" class="data row1 col2">1,866</td>
+      <td id="T_7fa99_row1_col3" class="data row1 col3">3,830</td>
+      <td id="T_7fa99_row1_col4" class="data row1 col4">24.3%</td>
+      <td id="T_7fa99_row1_col5" class="data row1 col5">49.9%</td>
+    </tr>
+    <tr>
+      <th id="T_7fa99_level0_row2" class="row_heading level0 row2">3</th>
+      <td id="T_7fa99_row2_col0" class="data row2 col0">shop</td>
+      <td id="T_7fa99_row2_col1" class="data row2 col1">buy-watch</td>
+      <td id="T_7fa99_row2_col2" class="data row2 col2">865</td>
+      <td id="T_7fa99_row2_col3" class="data row2 col3">4,695</td>
+      <td id="T_7fa99_row2_col4" class="data row2 col4">11.3%</td>
+      <td id="T_7fa99_row2_col5" class="data row2 col5">61.2%</td>
+    </tr>
+    <tr>
+      <th id="T_7fa99_level0_row3" class="row_heading level0 row3">4</th>
+      <td id="T_7fa99_row3_col0" class="data row3 col0">shop</td>
+      <td id="T_7fa99_row3_col1" class="data row3 col1">refurbished</td>
+      <td id="T_7fa99_row3_col2" class="data row3 col2">464</td>
+      <td id="T_7fa99_row3_col3" class="data row3 col3">5,159</td>
+      <td id="T_7fa99_row3_col4" class="data row3 col4">6.0%</td>
+      <td id="T_7fa99_row3_col5" class="data row3 col5">67.2%</td>
+    </tr>
+    <tr>
+      <th id="T_7fa99_level0_row4" class="row_heading level0 row4">5</th>
+      <td id="T_7fa99_row4_col0" class="data row4 col0">shop</td>
+      <td id="T_7fa99_row4_col1" class="data row4 col1">mac</td>
+      <td id="T_7fa99_row4_col2" class="data row4 col2">461</td>
+      <td id="T_7fa99_row4_col3" class="data row4 col3">5,620</td>
+      <td id="T_7fa99_row4_col4" class="data row4 col4">6.0%</td>
+      <td id="T_7fa99_row4_col5" class="data row4 col5">73.2%</td>
+    </tr>
+    <tr>
+      <th id="T_7fa99_level0_row5" class="row_heading level0 row5">6</th>
+      <td id="T_7fa99_row5_col0" class="data row5 col0">shop</td>
+      <td id="T_7fa99_row5_col1" class="data row5 col1">ipad</td>
+      <td id="T_7fa99_row5_col2" class="data row5 col2">424</td>
+      <td id="T_7fa99_row5_col3" class="data row5 col3">6,044</td>
+      <td id="T_7fa99_row5_col4" class="data row5 col4">5.5%</td>
+      <td id="T_7fa99_row5_col5" class="data row5 col5">78.7%</td>
+    </tr>
+    <tr>
+      <th id="T_7fa99_level0_row6" class="row_heading level0 row6">7</th>
+      <td id="T_7fa99_row6_col0" class="data row6 col0">shop</td>
+      <td id="T_7fa99_row6_col1" class="data row6 col1">iphone</td>
+      <td id="T_7fa99_row6_col2" class="data row6 col2">419</td>
+      <td id="T_7fa99_row6_col3" class="data row6 col3">6,463</td>
+      <td id="T_7fa99_row6_col4" class="data row6 col4">5.5%</td>
+      <td id="T_7fa99_row6_col5" class="data row6 col5">84.2%</td>
+    </tr>
+    <tr>
+      <th id="T_7fa99_level0_row7" class="row_heading level0 row7">8</th>
+      <td id="T_7fa99_row7_col0" class="data row7 col0">shop</td>
+      <td id="T_7fa99_row7_col1" class="data row7 col1">watch</td>
+      <td id="T_7fa99_row7_col2" class="data row7 col2">299</td>
+      <td id="T_7fa99_row7_col3" class="data row7 col3">6,762</td>
+      <td id="T_7fa99_row7_col4" class="data row7 col4">3.9%</td>
+      <td id="T_7fa99_row7_col5" class="data row7 col5">88.1%</td>
+    </tr>
+    <tr>
+      <th id="T_7fa99_level0_row8" class="row_heading level0 row8">9</th>
+      <td id="T_7fa99_row8_col0" class="data row8 col0">shop</td>
+      <td id="T_7fa99_row8_col1" class="data row8 col1">buy-iphone</td>
+      <td id="T_7fa99_row8_col2" class="data row8 col2">131</td>
+      <td id="T_7fa99_row8_col3" class="data row8 col3">6,893</td>
+      <td id="T_7fa99_row8_col4" class="data row8 col4">1.7%</td>
+      <td id="T_7fa99_row8_col5" class="data row8 col5">89.8%</td>
+    </tr>
+    <tr>
+      <th id="T_7fa99_level0_row9" class="row_heading level0 row9">10</th>
+      <td id="T_7fa99_row9_col0" class="data row9 col0">tv-pr</td>
+      <td id="T_7fa99_row9_col1" class="data row9 col1">originals</td>
+      <td id="T_7fa99_row9_col2" class="data row9 col2">106</td>
+      <td id="T_7fa99_row9_col3" class="data row9 col3">6,999</td>
+      <td id="T_7fa99_row9_col4" class="data row9 col4">1.4%</td>
+      <td id="T_7fa99_row9_col5" class="data row9 col5">91.2%</td>
+    </tr>
+    <tr>
+      <th id="T_7fa99_level0_row10" class="row_heading level0 row10">11</th>
+      <td id="T_7fa99_row10_col0" class="data row10 col0">shop</td>
+      <td id="T_7fa99_row10_col1" class="data row10 col1">buy-ipad</td>
+      <td id="T_7fa99_row10_col2" class="data row10 col2">106</td>
+      <td id="T_7fa99_row10_col3" class="data row10 col3">7,105</td>
+      <td id="T_7fa99_row10_col4" class="data row10 col4">1.4%</td>
+      <td id="T_7fa99_row10_col5" class="data row10 col5">92.5%</td>
+    </tr>
+    <tr>
+      <th id="T_7fa99_level0_row11" class="row_heading level0 row11">12</th>
+      <td id="T_7fa99_row11_col0" class="data row11 col0">shop</td>
+      <td id="T_7fa99_row11_col1" class="data row11 col1">buy-mac</td>
+      <td id="T_7fa99_row11_col2" class="data row11 col2">91</td>
+      <td id="T_7fa99_row11_col3" class="data row11 col3">7,196</td>
+      <td id="T_7fa99_row11_col4" class="data row11 col4">1.2%</td>
+      <td id="T_7fa99_row11_col5" class="data row11 col5">93.7%</td>
+    </tr>
+    <tr>
+      <th id="T_7fa99_level0_row12" class="row_heading level0 row12">13</th>
+      <td id="T_7fa99_row12_col0" class="data row12 col0">shop</td>
+      <td id="T_7fa99_row12_col1" class="data row12 col1">smart-home</td>
+      <td id="T_7fa99_row12_col2" class="data row12 col2">56</td>
+      <td id="T_7fa99_row12_col3" class="data row12 col3">7,252</td>
+      <td id="T_7fa99_row12_col4" class="data row12 col4">0.7%</td>
+      <td id="T_7fa99_row12_col5" class="data row12 col5">94.5%</td>
+    </tr>
+    <tr>
+      <th id="T_7fa99_level0_row13" class="row_heading level0 row13">14</th>
+      <td id="T_7fa99_row13_col0" class="data row13 col0">business</td>
+      <td id="T_7fa99_row13_col1" class="data row13 col1">success-stories</td>
+      <td id="T_7fa99_row13_col2" class="data row13 col2">26</td>
+      <td id="T_7fa99_row13_col3" class="data row13 col3">7,278</td>
+      <td id="T_7fa99_row13_col4" class="data row13 col4">0.3%</td>
+      <td id="T_7fa99_row13_col5" class="data row13 col5">94.8%</td>
+    </tr>
+    <tr>
+      <th id="T_7fa99_level0_row14" class="row_heading level0 row14">15</th>
+      <td id="T_7fa99_row14_col0" class="data row14 col0">legal</td>
+      <td id="T_7fa99_row14_col1" class="data row14 col1">sales-support</td>
+      <td id="T_7fa99_row14_col2" class="data row14 col2">23</td>
+      <td id="T_7fa99_row14_col3" class="data row14 col3">7,301</td>
+      <td id="T_7fa99_row14_col4" class="data row14 col4">0.3%</td>
+      <td id="T_7fa99_row14_col5" class="data row14 col5">95.1%</td>
+    </tr>
+    <tr>
+      <th id="T_7fa99_level0_row15" class="row_heading level0 row15">16</th>
+      <td id="T_7fa99_row15_col0" class="data row15 col0">shop</td>
+      <td id="T_7fa99_row15_col1" class="data row15 col1">help</td>
+      <td id="T_7fa99_row15_col2" class="data row15 col2">16</td>
+      <td id="T_7fa99_row15_col3" class="data row15 col3">7,317</td>
+      <td id="T_7fa99_row15_col4" class="data row15 col4">0.2%</td>
+      <td id="T_7fa99_row15_col5" class="data row15 col5">95.3%</td>
+    </tr>
+    <tr>
+      <th id="T_7fa99_level0_row16" class="row_heading level0 row16">17</th>
+      <td id="T_7fa99_row16_col0" class="data row16 col0">legal</td>
+      <td id="T_7fa99_row16_col1" class="data row16 col1">internet-services</td>
+      <td id="T_7fa99_row16_col2" class="data row16 col2">10</td>
+      <td id="T_7fa99_row16_col3" class="data row16 col3">7,327</td>
+      <td id="T_7fa99_row16_col4" class="data row16 col4">0.1%</td>
+      <td id="T_7fa99_row16_col5" class="data row16 col5">95.4%</td>
+    </tr>
+    <tr>
+      <th id="T_7fa99_level0_row17" class="row_heading level0 row17">18</th>
+      <td id="T_7fa99_row17_col0" class="data row17 col0">legal</td>
+      <td id="T_7fa99_row17_col1" class="data row17 col1">intellectual-property</td>
+      <td id="T_7fa99_row17_col2" class="data row17 col2">10</td>
+      <td id="T_7fa99_row17_col3" class="data row17 col3">7,337</td>
+      <td id="T_7fa99_row17_col4" class="data row17 col4">0.1%</td>
+      <td id="T_7fa99_row17_col5" class="data row17 col5">95.6%</td>
+    </tr>
+    <tr>
+      <th id="T_7fa99_level0_row18" class="row_heading level0 row18">19</th>
+      <td id="T_7fa99_row18_col0" class="data row18 col0">support</td>
+      <td id="T_7fa99_row18_col1" class="data row18 col1">products</td>
+      <td id="T_7fa99_row18_col2" class="data row18 col2">9</td>
+      <td id="T_7fa99_row18_col3" class="data row18 col3">7,346</td>
+      <td id="T_7fa99_row18_col4" class="data row18 col4">0.1%</td>
+      <td id="T_7fa99_row18_col5" class="data row18 col5">95.7%</td>
+    </tr>
+    <tr>
+      <th id="T_7fa99_level0_row19" class="row_heading level0 row19">20</th>
+      <td id="T_7fa99_row19_col0" class="data row19 col0">education</td>
+      <td id="T_7fa99_row19_col1" class="data row19 col1">k12</td>
+      <td id="T_7fa99_row19_col2" class="data row19 col2">7</td>
+      <td id="T_7fa99_row19_col3" class="data row19 col3">7,353</td>
+      <td id="T_7fa99_row19_col4" class="data row19 col4">0.1%</td>
+      <td id="T_7fa99_row19_col5" class="data row19 col5">95.8%</td>
+    </tr>
+    <tr>
+      <th id="T_7fa99_level0_row20" class="row_heading level0 row20">21</th>
+      <td id="T_7fa99_row20_col0" class="data row20 col0">Others:</td>
+      <td id="T_7fa99_row20_col1" class="data row20 col1"></td>
+      <td id="T_7fa99_row20_col2" class="data row20 col2">324</td>
+      <td id="T_7fa99_row20_col3" class="data row20 col3">7,677</td>
+      <td id="T_7fa99_row20_col4" class="data row20 col4">4.2%</td>
+      <td id="T_7fa99_row20_col5" class="data row20 col5">100.0%</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</section>
+</section>
+<section id="change-the-size-of-table-size" class="level2">
+<h2 class="anchored" data-anchor-id="change-the-size-of-table-size">Change the size of table: <code>size</code></h2>
+<div id="cell-22" class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1"></a>value_counts_plus(colors, size<span class="op">=</span><span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<style type="text/css">
+#T_af0a0_row0_col1, #T_af0a0_row0_col2, #T_af0a0_row0_col3, #T_af0a0_row0_col4, #T_af0a0_row1_col1, #T_af0a0_row1_col3, #T_af0a0_row2_col1, #T_af0a0_row2_col3, #T_af0a0_row3_col1, #T_af0a0_row3_col3, #T_af0a0_row4_col1, #T_af0a0_row4_col3, #T_af0a0_row5_col1, #T_af0a0_row5_col3, #T_af0a0_row6_col1, #T_af0a0_row6_col3, #T_af0a0_row7_col1, #T_af0a0_row7_col3, #T_af0a0_row8_col1, #T_af0a0_row8_col3, #T_af0a0_row9_col1, #T_af0a0_row9_col3 {
+  background-color: #00224e;
+  color: #f1f1f1;
+}
+#T_af0a0_row1_col2, #T_af0a0_row1_col4 {
+  background-color: #002758;
+  color: #f1f1f1;
+}
+#T_af0a0_row2_col2, #T_af0a0_row2_col4 {
+  background-color: #002c64;
+  color: #f1f1f1;
+}
+#T_af0a0_row3_col2, #T_af0a0_row3_col4 {
+  background-color: #00306f;
+  color: #f1f1f1;
+}
+#T_af0a0_row4_col2, #T_af0a0_row4_col4 {
+  background-color: #083370;
+  color: #f1f1f1;
+}
+#T_af0a0_row5_col2, #T_af0a0_row5_col4 {
+  background-color: #1a386f;
+  color: #f1f1f1;
+}
+#T_af0a0_row6_col2, #T_af0a0_row6_col4 {
+  background-color: #243c6e;
+  color: #f1f1f1;
+}
+#T_af0a0_row7_col2, #T_af0a0_row7_col4 {
+  background-color: #2d416d;
+  color: #f1f1f1;
+}
+#T_af0a0_row8_col2, #T_af0a0_row8_col4 {
+  background-color: #34456c;
+  color: #f1f1f1;
+}
+#T_af0a0_row9_col2, #T_af0a0_row9_col4 {
+  background-color: #3c4a6c;
+  color: #f1f1f1;
+}
+#T_af0a0_row10_col1, #T_af0a0_row10_col2, #T_af0a0_row10_col3, #T_af0a0_row10_col4 {
+  background-color: #fee838;
+  color: #000000;
+}
+</style>
+<table id="T_af0a0" style="font-size:5pt;">
+  <caption><h2 class="anchored">Counts of <b>data</b></h2></caption>
+  <thead>
+    <tr>
+      <th class="blank level0">&nbsp;</th>
+      <th id="T_af0a0_level0_col0" class="col_heading level0 col0">data</th>
+      <th id="T_af0a0_level0_col1" class="col_heading level0 col1">count</th>
+      <th id="T_af0a0_level0_col2" class="col_heading level0 col2">cum. count</th>
+      <th id="T_af0a0_level0_col3" class="col_heading level0 col3">%</th>
+      <th id="T_af0a0_level0_col4" class="col_heading level0 col4">cum. %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_af0a0_level0_row0" class="row_heading level0 row0">1</th>
+      <td id="T_af0a0_row0_col0" class="data row0 col0">lightseagreen</td>
+      <td id="T_af0a0_row0_col1" class="data row0 col1">258</td>
+      <td id="T_af0a0_row0_col2" class="data row0 col2">258</td>
+      <td id="T_af0a0_row0_col3" class="data row0 col3">2.5%</td>
+      <td id="T_af0a0_row0_col4" class="data row0 col4">2.5%</td>
+    </tr>
+    <tr>
+      <th id="T_af0a0_level0_row1" class="row_heading level0 row1">2</th>
+      <td id="T_af0a0_row1_col0" class="data row1 col0">burlywood</td>
+      <td id="T_af0a0_row1_col1" class="data row1 col1">255</td>
+      <td id="T_af0a0_row1_col2" class="data row1 col2">513</td>
+      <td id="T_af0a0_row1_col3" class="data row1 col3">2.5%</td>
+      <td id="T_af0a0_row1_col4" class="data row1 col4">5.0%</td>
+    </tr>
+    <tr>
+      <th id="T_af0a0_level0_row2" class="row_heading level0 row2">3</th>
+      <td id="T_af0a0_row2_col0" class="data row2 col0">cyan</td>
+      <td id="T_af0a0_row2_col1" class="data row2 col1">252</td>
+      <td id="T_af0a0_row2_col2" class="data row2 col2">765</td>
+      <td id="T_af0a0_row2_col3" class="data row2 col3">2.5%</td>
+      <td id="T_af0a0_row2_col4" class="data row2 col4">7.5%</td>
+    </tr>
+    <tr>
+      <th id="T_af0a0_level0_row3" class="row_heading level0 row3">4</th>
+      <td id="T_af0a0_row3_col0" class="data row3 col0">slategray</td>
+      <td id="T_af0a0_row3_col1" class="data row3 col1">252</td>
+      <td id="T_af0a0_row3_col2" class="data row3 col2">1,017</td>
+      <td id="T_af0a0_row3_col3" class="data row3 col3">2.5%</td>
+      <td id="T_af0a0_row3_col4" class="data row3 col4">9.9%</td>
+    </tr>
+    <tr>
+      <th id="T_af0a0_level0_row4" class="row_heading level0 row4">5</th>
+      <td id="T_af0a0_row4_col0" class="data row4 col0">lightsteelblue</td>
+      <td id="T_af0a0_row4_col1" class="data row4 col1">251</td>
+      <td id="T_af0a0_row4_col2" class="data row4 col2">1,268</td>
+      <td id="T_af0a0_row4_col3" class="data row4 col3">2.5%</td>
+      <td id="T_af0a0_row4_col4" class="data row4 col4">12.4%</td>
+    </tr>
+    <tr>
+      <th id="T_af0a0_level0_row5" class="row_heading level0 row5">6</th>
+      <td id="T_af0a0_row5_col0" class="data row5 col0">aliceblue</td>
+      <td id="T_af0a0_row5_col1" class="data row5 col1">245</td>
+      <td id="T_af0a0_row5_col2" class="data row5 col2">1,513</td>
+      <td id="T_af0a0_row5_col3" class="data row5 col3">2.4%</td>
+      <td id="T_af0a0_row5_col4" class="data row5 col4">14.8%</td>
+    </tr>
+    <tr>
+      <th id="T_af0a0_level0_row6" class="row_heading level0 row6">7</th>
+      <td id="T_af0a0_row6_col0" class="data row6 col0">steelblue</td>
+      <td id="T_af0a0_row6_col1" class="data row6 col1">243</td>
+      <td id="T_af0a0_row6_col2" class="data row6 col2">1,756</td>
+      <td id="T_af0a0_row6_col3" class="data row6 col3">2.4%</td>
+      <td id="T_af0a0_row6_col4" class="data row6 col4">17.1%</td>
+    </tr>
+    <tr>
+      <th id="T_af0a0_level0_row7" class="row_heading level0 row7">8</th>
+      <td id="T_af0a0_row7_col0" class="data row7 col0">azure</td>
+      <td id="T_af0a0_row7_col1" class="data row7 col1">242</td>
+      <td id="T_af0a0_row7_col2" class="data row7 col2">1,998</td>
+      <td id="T_af0a0_row7_col3" class="data row7 col3">2.4%</td>
+      <td id="T_af0a0_row7_col4" class="data row7 col4">19.5%</td>
+    </tr>
+    <tr>
+      <th id="T_af0a0_level0_row8" class="row_heading level0 row8">9</th>
+      <td id="T_af0a0_row8_col0" class="data row8 col0">sienna</td>
+      <td id="T_af0a0_row8_col1" class="data row8 col1">242</td>
+      <td id="T_af0a0_row8_col2" class="data row8 col2">2,240</td>
+      <td id="T_af0a0_row8_col3" class="data row8 col3">2.4%</td>
+      <td id="T_af0a0_row8_col4" class="data row8 col4">21.9%</td>
+    </tr>
+    <tr>
+      <th id="T_af0a0_level0_row9" class="row_heading level0 row9">10</th>
+      <td id="T_af0a0_row9_col0" class="data row9 col0">indigo</td>
+      <td id="T_af0a0_row9_col1" class="data row9 col1">241</td>
+      <td id="T_af0a0_row9_col2" class="data row9 col2">2,481</td>
+      <td id="T_af0a0_row9_col3" class="data row9 col3">2.4%</td>
+      <td id="T_af0a0_row9_col4" class="data row9 col4">24.2%</td>
+    </tr>
+    <tr>
+      <th id="T_af0a0_level0_row10" class="row_heading level0 row10">11</th>
+      <td id="T_af0a0_row10_col0" class="data row10 col0">Others:</td>
+      <td id="T_af0a0_row10_col1" class="data row10 col1">7,759</td>
+      <td id="T_af0a0_row10_col2" class="data row10 col2">10,240</td>
+      <td id="T_af0a0_row10_col3" class="data row10 col3">75.8%</td>
+      <td id="T_af0a0_row10_col4" class="data row10 col4">100.0%</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+<div id="cell-23" class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1"></a>value_counts_plus(colors, size<span class="op">=</span><span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<style type="text/css">
+#T_43c0a_row0_col1, #T_43c0a_row0_col2, #T_43c0a_row0_col3, #T_43c0a_row0_col4, #T_43c0a_row1_col1, #T_43c0a_row1_col3, #T_43c0a_row2_col1, #T_43c0a_row2_col3, #T_43c0a_row3_col1, #T_43c0a_row3_col3, #T_43c0a_row4_col1, #T_43c0a_row4_col3, #T_43c0a_row5_col1, #T_43c0a_row5_col3, #T_43c0a_row6_col1, #T_43c0a_row6_col3, #T_43c0a_row7_col1, #T_43c0a_row7_col3, #T_43c0a_row8_col1, #T_43c0a_row8_col3, #T_43c0a_row9_col1, #T_43c0a_row9_col3 {
+  background-color: #00224e;
+  color: #f1f1f1;
+}
+#T_43c0a_row1_col2, #T_43c0a_row1_col4 {
+  background-color: #002758;
+  color: #f1f1f1;
+}
+#T_43c0a_row2_col2, #T_43c0a_row2_col4 {
+  background-color: #002c64;
+  color: #f1f1f1;
+}
+#T_43c0a_row3_col2, #T_43c0a_row3_col4 {
+  background-color: #00306f;
+  color: #f1f1f1;
+}
+#T_43c0a_row4_col2, #T_43c0a_row4_col4 {
+  background-color: #083370;
+  color: #f1f1f1;
+}
+#T_43c0a_row5_col2, #T_43c0a_row5_col4 {
+  background-color: #1a386f;
+  color: #f1f1f1;
+}
+#T_43c0a_row6_col2, #T_43c0a_row6_col4 {
+  background-color: #243c6e;
+  color: #f1f1f1;
+}
+#T_43c0a_row7_col2, #T_43c0a_row7_col4 {
+  background-color: #2d416d;
+  color: #f1f1f1;
+}
+#T_43c0a_row8_col2, #T_43c0a_row8_col4 {
+  background-color: #34456c;
+  color: #f1f1f1;
+}
+#T_43c0a_row9_col2, #T_43c0a_row9_col4 {
+  background-color: #3c4a6c;
+  color: #f1f1f1;
+}
+#T_43c0a_row10_col1, #T_43c0a_row10_col2, #T_43c0a_row10_col3, #T_43c0a_row10_col4 {
+  background-color: #fee838;
+  color: #000000;
+}
+</style>
+<table id="T_43c0a" style="font-size:20pt;">
+  <caption><h2 class="anchored">Counts of <b>data</b></h2></caption>
+  <thead>
+    <tr>
+      <th class="blank level0">&nbsp;</th>
+      <th id="T_43c0a_level0_col0" class="col_heading level0 col0">data</th>
+      <th id="T_43c0a_level0_col1" class="col_heading level0 col1">count</th>
+      <th id="T_43c0a_level0_col2" class="col_heading level0 col2">cum. count</th>
+      <th id="T_43c0a_level0_col3" class="col_heading level0 col3">%</th>
+      <th id="T_43c0a_level0_col4" class="col_heading level0 col4">cum. %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_43c0a_level0_row0" class="row_heading level0 row0">1</th>
+      <td id="T_43c0a_row0_col0" class="data row0 col0">lightseagreen</td>
+      <td id="T_43c0a_row0_col1" class="data row0 col1">258</td>
+      <td id="T_43c0a_row0_col2" class="data row0 col2">258</td>
+      <td id="T_43c0a_row0_col3" class="data row0 col3">2.5%</td>
+      <td id="T_43c0a_row0_col4" class="data row0 col4">2.5%</td>
+    </tr>
+    <tr>
+      <th id="T_43c0a_level0_row1" class="row_heading level0 row1">2</th>
+      <td id="T_43c0a_row1_col0" class="data row1 col0">burlywood</td>
+      <td id="T_43c0a_row1_col1" class="data row1 col1">255</td>
+      <td id="T_43c0a_row1_col2" class="data row1 col2">513</td>
+      <td id="T_43c0a_row1_col3" class="data row1 col3">2.5%</td>
+      <td id="T_43c0a_row1_col4" class="data row1 col4">5.0%</td>
+    </tr>
+    <tr>
+      <th id="T_43c0a_level0_row2" class="row_heading level0 row2">3</th>
+      <td id="T_43c0a_row2_col0" class="data row2 col0">cyan</td>
+      <td id="T_43c0a_row2_col1" class="data row2 col1">252</td>
+      <td id="T_43c0a_row2_col2" class="data row2 col2">765</td>
+      <td id="T_43c0a_row2_col3" class="data row2 col3">2.5%</td>
+      <td id="T_43c0a_row2_col4" class="data row2 col4">7.5%</td>
+    </tr>
+    <tr>
+      <th id="T_43c0a_level0_row3" class="row_heading level0 row3">4</th>
+      <td id="T_43c0a_row3_col0" class="data row3 col0">slategray</td>
+      <td id="T_43c0a_row3_col1" class="data row3 col1">252</td>
+      <td id="T_43c0a_row3_col2" class="data row3 col2">1,017</td>
+      <td id="T_43c0a_row3_col3" class="data row3 col3">2.5%</td>
+      <td id="T_43c0a_row3_col4" class="data row3 col4">9.9%</td>
+    </tr>
+    <tr>
+      <th id="T_43c0a_level0_row4" class="row_heading level0 row4">5</th>
+      <td id="T_43c0a_row4_col0" class="data row4 col0">lightsteelblue</td>
+      <td id="T_43c0a_row4_col1" class="data row4 col1">251</td>
+      <td id="T_43c0a_row4_col2" class="data row4 col2">1,268</td>
+      <td id="T_43c0a_row4_col3" class="data row4 col3">2.5%</td>
+      <td id="T_43c0a_row4_col4" class="data row4 col4">12.4%</td>
+    </tr>
+    <tr>
+      <th id="T_43c0a_level0_row5" class="row_heading level0 row5">6</th>
+      <td id="T_43c0a_row5_col0" class="data row5 col0">aliceblue</td>
+      <td id="T_43c0a_row5_col1" class="data row5 col1">245</td>
+      <td id="T_43c0a_row5_col2" class="data row5 col2">1,513</td>
+      <td id="T_43c0a_row5_col3" class="data row5 col3">2.4%</td>
+      <td id="T_43c0a_row5_col4" class="data row5 col4">14.8%</td>
+    </tr>
+    <tr>
+      <th id="T_43c0a_level0_row6" class="row_heading level0 row6">7</th>
+      <td id="T_43c0a_row6_col0" class="data row6 col0">steelblue</td>
+      <td id="T_43c0a_row6_col1" class="data row6 col1">243</td>
+      <td id="T_43c0a_row6_col2" class="data row6 col2">1,756</td>
+      <td id="T_43c0a_row6_col3" class="data row6 col3">2.4%</td>
+      <td id="T_43c0a_row6_col4" class="data row6 col4">17.1%</td>
+    </tr>
+    <tr>
+      <th id="T_43c0a_level0_row7" class="row_heading level0 row7">8</th>
+      <td id="T_43c0a_row7_col0" class="data row7 col0">azure</td>
+      <td id="T_43c0a_row7_col1" class="data row7 col1">242</td>
+      <td id="T_43c0a_row7_col2" class="data row7 col2">1,998</td>
+      <td id="T_43c0a_row7_col3" class="data row7 col3">2.4%</td>
+      <td id="T_43c0a_row7_col4" class="data row7 col4">19.5%</td>
+    </tr>
+    <tr>
+      <th id="T_43c0a_level0_row8" class="row_heading level0 row8">9</th>
+      <td id="T_43c0a_row8_col0" class="data row8 col0">sienna</td>
+      <td id="T_43c0a_row8_col1" class="data row8 col1">242</td>
+      <td id="T_43c0a_row8_col2" class="data row8 col2">2,240</td>
+      <td id="T_43c0a_row8_col3" class="data row8 col3">2.4%</td>
+      <td id="T_43c0a_row8_col4" class="data row8 col4">21.9%</td>
+    </tr>
+    <tr>
+      <th id="T_43c0a_level0_row9" class="row_heading level0 row9">10</th>
+      <td id="T_43c0a_row9_col0" class="data row9 col0">indigo</td>
+      <td id="T_43c0a_row9_col1" class="data row9 col1">241</td>
+      <td id="T_43c0a_row9_col2" class="data row9 col2">2,481</td>
+      <td id="T_43c0a_row9_col3" class="data row9 col3">2.4%</td>
+      <td id="T_43c0a_row9_col4" class="data row9 col4">24.2%</td>
+    </tr>
+    <tr>
+      <th id="T_43c0a_level0_row10" class="row_heading level0 row10">11</th>
+      <td id="T_43c0a_row10_col0" class="data row10 col0">Others:</td>
+      <td id="T_43c0a_row10_col1" class="data row10 col1">7,759</td>
+      <td id="T_43c0a_row10_col2" class="data row10 col2">10,240</td>
+      <td id="T_43c0a_row10_col3" class="data row10 col3">75.8%</td>
+      <td id="T_43c0a_row10_col4" class="data row10 col4">100.0%</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="completely-change-the-caption-using-an-html-string-with-set_caption" class="level2">
+<h2 class="anchored" data-anchor-id="completely-change-the-caption-using-an-html-string-with-set_caption">Completely change the caption using an HTML string with <code>set_caption</code></h2>
+<div id="cell-25" class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1"></a>caption <span class="op">=</span> <span class="st">'&lt;h4&gt;Status codes&lt;/h4&gt;Top 5 values &lt;a href="https://example.com"&gt;raw data&lt;/a&gt;'</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a>value_counts_plus(</span>
+<span id="cb16-3"><a href="#cb16-3"></a>    colors,</span>
+<span id="cb16-4"><a href="#cb16-4"></a>    name<span class="op">=</span><span class="st">'Statuses'</span>,</span>
+<span id="cb16-5"><a href="#cb16-5"></a>    show_top<span class="op">=</span><span class="dv">5</span>).set_caption(caption)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<style type="text/css">
+#T_0c2b5_row0_col1, #T_0c2b5_row0_col2, #T_0c2b5_row0_col3, #T_0c2b5_row0_col4, #T_0c2b5_row1_col1, #T_0c2b5_row1_col3, #T_0c2b5_row2_col1, #T_0c2b5_row2_col3, #T_0c2b5_row3_col1, #T_0c2b5_row3_col3, #T_0c2b5_row4_col1, #T_0c2b5_row4_col3 {
+  background-color: #00224e;
+  color: #f1f1f1;
+}
+#T_0c2b5_row1_col2, #T_0c2b5_row1_col4 {
+  background-color: #002758;
+  color: #f1f1f1;
+}
+#T_0c2b5_row2_col2, #T_0c2b5_row2_col4 {
+  background-color: #002c64;
+  color: #f1f1f1;
+}
+#T_0c2b5_row3_col2, #T_0c2b5_row3_col4 {
+  background-color: #00306f;
+  color: #f1f1f1;
+}
+#T_0c2b5_row4_col2, #T_0c2b5_row4_col4 {
+  background-color: #083370;
+  color: #f1f1f1;
+}
+#T_0c2b5_row5_col1, #T_0c2b5_row5_col2, #T_0c2b5_row5_col3, #T_0c2b5_row5_col4 {
+  background-color: #fee838;
+  color: #000000;
+}
+</style>
+<table id="T_0c2b5" style="font-size:15pt;">
+  <caption><h4 class="anchored">Status codes</h4>Top 5 values <a href="https://example.com">raw data</a></caption>
+  <thead>
+    <tr>
+      <th class="blank level0">&nbsp;</th>
+      <th id="T_0c2b5_level0_col0" class="col_heading level0 col0">Statuses</th>
+      <th id="T_0c2b5_level0_col1" class="col_heading level0 col1">count</th>
+      <th id="T_0c2b5_level0_col2" class="col_heading level0 col2">cum. count</th>
+      <th id="T_0c2b5_level0_col3" class="col_heading level0 col3">%</th>
+      <th id="T_0c2b5_level0_col4" class="col_heading level0 col4">cum. %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_0c2b5_level0_row0" class="row_heading level0 row0">1</th>
+      <td id="T_0c2b5_row0_col0" class="data row0 col0">lightseagreen</td>
+      <td id="T_0c2b5_row0_col1" class="data row0 col1">258</td>
+      <td id="T_0c2b5_row0_col2" class="data row0 col2">258</td>
+      <td id="T_0c2b5_row0_col3" class="data row0 col3">2.5%</td>
+      <td id="T_0c2b5_row0_col4" class="data row0 col4">2.5%</td>
+    </tr>
+    <tr>
+      <th id="T_0c2b5_level0_row1" class="row_heading level0 row1">2</th>
+      <td id="T_0c2b5_row1_col0" class="data row1 col0">burlywood</td>
+      <td id="T_0c2b5_row1_col1" class="data row1 col1">255</td>
+      <td id="T_0c2b5_row1_col2" class="data row1 col2">513</td>
+      <td id="T_0c2b5_row1_col3" class="data row1 col3">2.5%</td>
+      <td id="T_0c2b5_row1_col4" class="data row1 col4">5.0%</td>
+    </tr>
+    <tr>
+      <th id="T_0c2b5_level0_row2" class="row_heading level0 row2">3</th>
+      <td id="T_0c2b5_row2_col0" class="data row2 col0">cyan</td>
+      <td id="T_0c2b5_row2_col1" class="data row2 col1">252</td>
+      <td id="T_0c2b5_row2_col2" class="data row2 col2">765</td>
+      <td id="T_0c2b5_row2_col3" class="data row2 col3">2.5%</td>
+      <td id="T_0c2b5_row2_col4" class="data row2 col4">7.5%</td>
+    </tr>
+    <tr>
+      <th id="T_0c2b5_level0_row3" class="row_heading level0 row3">4</th>
+      <td id="T_0c2b5_row3_col0" class="data row3 col0">slategray</td>
+      <td id="T_0c2b5_row3_col1" class="data row3 col1">252</td>
+      <td id="T_0c2b5_row3_col2" class="data row3 col2">1,017</td>
+      <td id="T_0c2b5_row3_col3" class="data row3 col3">2.5%</td>
+      <td id="T_0c2b5_row3_col4" class="data row3 col4">9.9%</td>
+    </tr>
+    <tr>
+      <th id="T_0c2b5_level0_row4" class="row_heading level0 row4">5</th>
+      <td id="T_0c2b5_row4_col0" class="data row4 col0">lightsteelblue</td>
+      <td id="T_0c2b5_row4_col1" class="data row4 col1">251</td>
+      <td id="T_0c2b5_row4_col2" class="data row4 col2">1,268</td>
+      <td id="T_0c2b5_row4_col3" class="data row4 col3">2.5%</td>
+      <td id="T_0c2b5_row4_col4" class="data row4 col4">12.4%</td>
+    </tr>
+    <tr>
+      <th id="T_0c2b5_level0_row5" class="row_heading level0 row5">6</th>
+      <td id="T_0c2b5_row5_col0" class="data row5 col0">Others:</td>
+      <td id="T_0c2b5_row5_col1" class="data row5 col1">8,972</td>
+      <td id="T_0c2b5_row5_col2" class="data row5 col2">10,240</td>
+      <td id="T_0c2b5_row5_col3" class="data row5 col3">87.6%</td>
+      <td id="T_0c2b5_row5_col4" class="data row5 col4">100.0%</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+<section id="removing-table-styling-if-you-want-a-pure-dataframe" class="level3">
+<h3 class="anchored" data-anchor-id="removing-table-styling-if-you-want-a-pure-dataframe">Removing table styling if you want a pure <code>DataFrame</code>:</h3>
+<ul>
+<li>Counting in non-styled DataFrames is 0-based in case you want to further process it</li>
+<li>Columns are displayed in a slightly different manner</li>
+</ul>
+<div id="cell-27" class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1"></a>value_counts_plus(colors, style<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+
+<table class="dataframe table table-sm table-striped small">
+  <thead>
+    <tr>
+      <th></th>
+      <th>data</th>
+      <th>count</th>
+      <th>cum_count</th>
+      <th>perc</th>
+      <th>cum_perc</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>lightseagreen</td>
+      <td>258</td>
+      <td>258</td>
+      <td>0.025195</td>
+      <td>0.025195</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>burlywood</td>
+      <td>255</td>
+      <td>513</td>
+      <td>0.024902</td>
+      <td>0.050098</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>cyan</td>
+      <td>252</td>
+      <td>765</td>
+      <td>0.024609</td>
+      <td>0.074707</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>slategray</td>
+      <td>252</td>
+      <td>1017</td>
+      <td>0.024609</td>
+      <td>0.099316</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>lightsteelblue</td>
+      <td>251</td>
+      <td>1268</td>
+      <td>0.024512</td>
+      <td>0.123828</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>aliceblue</td>
+      <td>245</td>
+      <td>1513</td>
+      <td>0.023926</td>
+      <td>0.147754</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>steelblue</td>
+      <td>243</td>
+      <td>1756</td>
+      <td>0.023730</td>
+      <td>0.171484</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>azure</td>
+      <td>242</td>
+      <td>1998</td>
+      <td>0.023633</td>
+      <td>0.195117</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>sienna</td>
+      <td>242</td>
+      <td>2240</td>
+      <td>0.023633</td>
+      <td>0.218750</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>indigo</td>
+      <td>241</td>
+      <td>2481</td>
+      <td>0.023535</td>
+      <td>0.242285</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>Others:</td>
+      <td>7759</td>
+      <td>10240</td>
+      <td>0.757715</td>
+      <td>1.000000</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="counting-continuous-data" class="level2">
+<h2 class="anchored" data-anchor-id="counting-continuous-data">Counting continuous data</h2>
+<p>We can easily make continuous data discrete by binning them. One easy way to do that is the <code>pandas.cut</code> function.</p>
+<p>For example, if we want to count countries’ populations, we can first bin them under 50M intervals, and run <a href="https://eliasdabbas.github.io/adviz/value_counts_plus.html#value_counts_plus"><code>value_counts_plus</code></a>.</p>
+<div id="cell-29" class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1"></a>gm <span class="op">=</span> px.data.gapminder().query(<span class="st">'year == 2007'</span>)</span>
+<span id="cb18-2"><a href="#cb18-2"></a>gm[<span class="st">'pop_interval'</span>] <span class="op">=</span> pd.cut(gm[<span class="st">'pop'</span>], <span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">1_500_000_000</span>, <span class="dv">50_000_000</span>))</span>
+<span id="cb18-3"><a href="#cb18-3"></a>gm.sort_values(<span class="st">'pop'</span>, ascending<span class="op">=</span><span class="va">False</span>).head(<span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+
+<table class="dataframe table table-sm table-striped small">
+  <thead>
+    <tr>
+      <th></th>
+      <th>country</th>
+      <th>continent</th>
+      <th>year</th>
+      <th>lifeExp</th>
+      <th>pop</th>
+      <th>gdpPercap</th>
+      <th>iso_alpha</th>
+      <th>iso_num</th>
+      <th>pop_interval</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>299</th>
+      <td>China</td>
+      <td>Asia</td>
+      <td>2007</td>
+      <td>72.961</td>
+      <td>1318683096</td>
+      <td>4959.114854</td>
+      <td>CHN</td>
+      <td>156</td>
+      <td>(1300000000, 1350000000]</td>
+    </tr>
+    <tr>
+      <th>707</th>
+      <td>India</td>
+      <td>Asia</td>
+      <td>2007</td>
+      <td>64.698</td>
+      <td>1110396331</td>
+      <td>2452.210407</td>
+      <td>IND</td>
+      <td>356</td>
+      <td>(1100000000, 1150000000]</td>
+    </tr>
+    <tr>
+      <th>1619</th>
+      <td>United States</td>
+      <td>Americas</td>
+      <td>2007</td>
+      <td>78.242</td>
+      <td>301139947</td>
+      <td>42951.653090</td>
+      <td>USA</td>
+      <td>840</td>
+      <td>(300000000, 350000000]</td>
+    </tr>
+    <tr>
+      <th>719</th>
+      <td>Indonesia</td>
+      <td>Asia</td>
+      <td>2007</td>
+      <td>70.650</td>
+      <td>223547000</td>
+      <td>3540.651564</td>
+      <td>IDN</td>
+      <td>360</td>
+      <td>(200000000, 250000000]</td>
+    </tr>
+    <tr>
+      <th>179</th>
+      <td>Brazil</td>
+      <td>Americas</td>
+      <td>2007</td>
+      <td>72.390</td>
+      <td>190010647</td>
+      <td>9065.800825</td>
+      <td>BRA</td>
+      <td>76</td>
+      <td>(150000000, 200000000]</td>
+    </tr>
+    <tr>
+      <th>1175</th>
+      <td>Pakistan</td>
+      <td>Asia</td>
+      <td>2007</td>
+      <td>65.483</td>
+      <td>169270617</td>
+      <td>2605.947580</td>
+      <td>PAK</td>
+      <td>586</td>
+      <td>(150000000, 200000000]</td>
+    </tr>
+    <tr>
+      <th>107</th>
+      <td>Bangladesh</td>
+      <td>Asia</td>
+      <td>2007</td>
+      <td>64.062</td>
+      <td>150448339</td>
+      <td>1391.253792</td>
+      <td>BGD</td>
+      <td>50</td>
+      <td>(150000000, 200000000]</td>
+    </tr>
+    <tr>
+      <th>1139</th>
+      <td>Nigeria</td>
+      <td>Africa</td>
+      <td>2007</td>
+      <td>46.859</td>
+      <td>135031164</td>
+      <td>2013.977305</td>
+      <td>NGA</td>
+      <td>566</td>
+      <td>(100000000, 150000000]</td>
+    </tr>
+    <tr>
+      <th>803</th>
+      <td>Japan</td>
+      <td>Asia</td>
+      <td>2007</td>
+      <td>82.603</td>
+      <td>127467972</td>
+      <td>31656.068060</td>
+      <td>JPN</td>
+      <td>392</td>
+      <td>(100000000, 150000000]</td>
+    </tr>
+    <tr>
+      <th>995</th>
+      <td>Mexico</td>
+      <td>Americas</td>
+      <td>2007</td>
+      <td>76.195</td>
+      <td>108700891</td>
+      <td>11977.574960</td>
+      <td>MEX</td>
+      <td>484</td>
+      <td>(100000000, 150000000]</td>
+    </tr>
+    <tr>
+      <th>1223</th>
+      <td>Philippines</td>
+      <td>Asia</td>
+      <td>2007</td>
+      <td>71.688</td>
+      <td>91077287</td>
+      <td>3190.481016</td>
+      <td>PHL</td>
+      <td>608</td>
+      <td>(50000000, 100000000]</td>
+    </tr>
+    <tr>
+      <th>1655</th>
+      <td>Vietnam</td>
+      <td>Asia</td>
+      <td>2007</td>
+      <td>74.249</td>
+      <td>85262356</td>
+      <td>2441.576404</td>
+      <td>VNM</td>
+      <td>704</td>
+      <td>(50000000, 100000000]</td>
+    </tr>
+    <tr>
+      <th>575</th>
+      <td>Germany</td>
+      <td>Europe</td>
+      <td>2007</td>
+      <td>79.406</td>
+      <td>82400996</td>
+      <td>32170.374420</td>
+      <td>DEU</td>
+      <td>276</td>
+      <td>(50000000, 100000000]</td>
+    </tr>
+    <tr>
+      <th>467</th>
+      <td>Egypt</td>
+      <td>Africa</td>
+      <td>2007</td>
+      <td>71.338</td>
+      <td>80264543</td>
+      <td>5581.180998</td>
+      <td>EGY</td>
+      <td>818</td>
+      <td>(50000000, 100000000]</td>
+    </tr>
+    <tr>
+      <th>515</th>
+      <td>Ethiopia</td>
+      <td>Africa</td>
+      <td>2007</td>
+      <td>52.947</td>
+      <td>76511887</td>
+      <td>690.805576</td>
+      <td>ETH</td>
+      <td>231</td>
+      <td>(50000000, 100000000]</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="cell-30" class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1"></a>value_counts_plus(</span>
+<span id="cb19-2"><a href="#cb19-2"></a>    gm[<span class="st">'pop_interval'</span>],</span>
+<span id="cb19-3"><a href="#cb19-3"></a>    name<span class="op">=</span><span class="st">'Population intervals - 2007'</span>,</span>
+<span id="cb19-4"><a href="#cb19-4"></a>    background_gradient<span class="op">=</span><span class="st">'RdBu'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<style type="text/css">
+#T_53506_row0_col1, #T_53506_row0_col3, #T_53506_row7_col2, #T_53506_row7_col4, #T_53506_row8_col2, #T_53506_row8_col4, #T_53506_row9_col2, #T_53506_row9_col4, #T_53506_row10_col2, #T_53506_row10_col4 {
+  background-color: #053061;
+  color: #f1f1f1;
+}
+#T_53506_row0_col2, #T_53506_row0_col4, #T_53506_row8_col1, #T_53506_row8_col3, #T_53506_row9_col1, #T_53506_row9_col3, #T_53506_row10_col1, #T_53506_row10_col3 {
+  background-color: #67001f;
+  color: #f1f1f1;
+}
+#T_53506_row1_col1, #T_53506_row1_col3 {
+  background-color: #b1182b;
+  color: #f1f1f1;
+}
+#T_53506_row1_col2, #T_53506_row1_col4 {
+  background-color: #e6eff4;
+  color: #000000;
+}
+#T_53506_row2_col1, #T_53506_row2_col3, #T_53506_row3_col1, #T_53506_row3_col3 {
+  background-color: #790622;
+  color: #f1f1f1;
+}
+#T_53506_row2_col2, #T_53506_row2_col4 {
+  background-color: #9dcbe1;
+  color: #000000;
+}
+#T_53506_row3_col2, #T_53506_row3_col4 {
+  background-color: #3c8abe;
+  color: #f1f1f1;
+}
+#T_53506_row4_col1, #T_53506_row4_col3, #T_53506_row5_col1, #T_53506_row5_col3, #T_53506_row6_col1, #T_53506_row6_col3, #T_53506_row7_col1, #T_53506_row7_col3 {
+  background-color: #6d0220;
+  color: #f1f1f1;
+}
+#T_53506_row4_col2, #T_53506_row4_col4 {
+  background-color: #2c75b4;
+  color: #f1f1f1;
+}
+#T_53506_row5_col2, #T_53506_row5_col4 {
+  background-color: #1e61a5;
+  color: #f1f1f1;
+}
+#T_53506_row6_col2, #T_53506_row6_col4 {
+  background-color: #114781;
+  color: #f1f1f1;
+}
+</style>
+<table id="T_53506" style="font-size:15pt;">
+  <caption><h2 class="anchored">Counts of <b>Population intervals - 2007</b></h2></caption>
+  <thead>
+    <tr>
+      <th class="blank level0">&nbsp;</th>
+      <th id="T_53506_level0_col0" class="col_heading level0 col0">pop_interval</th>
+      <th id="T_53506_level0_col1" class="col_heading level0 col1">count</th>
+      <th id="T_53506_level0_col2" class="col_heading level0 col2">cum. count</th>
+      <th id="T_53506_level0_col3" class="col_heading level0 col3">%</th>
+      <th id="T_53506_level0_col4" class="col_heading level0 col4">cum. %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_53506_level0_row0" class="row_heading level0 row0">1</th>
+      <td id="T_53506_row0_col0" class="data row0 col0">(0, 50000000]</td>
+      <td id="T_53506_row0_col1" class="data row0 col1">120</td>
+      <td id="T_53506_row0_col2" class="data row0 col2">120</td>
+      <td id="T_53506_row0_col3" class="data row0 col3">84.5%</td>
+      <td id="T_53506_row0_col4" class="data row0 col4">84.5%</td>
+    </tr>
+    <tr>
+      <th id="T_53506_level0_row1" class="row_heading level0 row1">2</th>
+      <td id="T_53506_row1_col0" class="data row1 col0">(50000000, 100000000]</td>
+      <td id="T_53506_row1_col1" class="data row1 col1">12</td>
+      <td id="T_53506_row1_col2" class="data row1 col2">132</td>
+      <td id="T_53506_row1_col3" class="data row1 col3">8.5%</td>
+      <td id="T_53506_row1_col4" class="data row1 col4">93.0%</td>
+    </tr>
+    <tr>
+      <th id="T_53506_level0_row2" class="row_heading level0 row2">3</th>
+      <td id="T_53506_row2_col0" class="data row2 col0">(100000000, 150000000]</td>
+      <td id="T_53506_row2_col1" class="data row2 col1">3</td>
+      <td id="T_53506_row2_col2" class="data row2 col2">135</td>
+      <td id="T_53506_row2_col3" class="data row2 col3">2.1%</td>
+      <td id="T_53506_row2_col4" class="data row2 col4">95.1%</td>
+    </tr>
+    <tr>
+      <th id="T_53506_level0_row3" class="row_heading level0 row3">4</th>
+      <td id="T_53506_row3_col0" class="data row3 col0">(150000000, 200000000]</td>
+      <td id="T_53506_row3_col1" class="data row3 col1">3</td>
+      <td id="T_53506_row3_col2" class="data row3 col2">138</td>
+      <td id="T_53506_row3_col3" class="data row3 col3">2.1%</td>
+      <td id="T_53506_row3_col4" class="data row3 col4">97.2%</td>
+    </tr>
+    <tr>
+      <th id="T_53506_level0_row4" class="row_heading level0 row4">5</th>
+      <td id="T_53506_row4_col0" class="data row4 col0">(1100000000, 1150000000]</td>
+      <td id="T_53506_row4_col1" class="data row4 col1">1</td>
+      <td id="T_53506_row4_col2" class="data row4 col2">139</td>
+      <td id="T_53506_row4_col3" class="data row4 col3">0.7%</td>
+      <td id="T_53506_row4_col4" class="data row4 col4">97.9%</td>
+    </tr>
+    <tr>
+      <th id="T_53506_level0_row5" class="row_heading level0 row5">6</th>
+      <td id="T_53506_row5_col0" class="data row5 col0">(200000000, 250000000]</td>
+      <td id="T_53506_row5_col1" class="data row5 col1">1</td>
+      <td id="T_53506_row5_col2" class="data row5 col2">140</td>
+      <td id="T_53506_row5_col3" class="data row5 col3">0.7%</td>
+      <td id="T_53506_row5_col4" class="data row5 col4">98.6%</td>
+    </tr>
+    <tr>
+      <th id="T_53506_level0_row6" class="row_heading level0 row6">7</th>
+      <td id="T_53506_row6_col0" class="data row6 col0">(300000000, 350000000]</td>
+      <td id="T_53506_row6_col1" class="data row6 col1">1</td>
+      <td id="T_53506_row6_col2" class="data row6 col2">141</td>
+      <td id="T_53506_row6_col3" class="data row6 col3">0.7%</td>
+      <td id="T_53506_row6_col4" class="data row6 col4">99.3%</td>
+    </tr>
+    <tr>
+      <th id="T_53506_level0_row7" class="row_heading level0 row7">8</th>
+      <td id="T_53506_row7_col0" class="data row7 col0">(1300000000, 1350000000]</td>
+      <td id="T_53506_row7_col1" class="data row7 col1">1</td>
+      <td id="T_53506_row7_col2" class="data row7 col2">142</td>
+      <td id="T_53506_row7_col3" class="data row7 col3">0.7%</td>
+      <td id="T_53506_row7_col4" class="data row7 col4">100.0%</td>
+    </tr>
+    <tr>
+      <th id="T_53506_level0_row8" class="row_heading level0 row8">9</th>
+      <td id="T_53506_row8_col0" class="data row8 col0">(950000000, 1000000000]</td>
+      <td id="T_53506_row8_col1" class="data row8 col1">0</td>
+      <td id="T_53506_row8_col2" class="data row8 col2">142</td>
+      <td id="T_53506_row8_col3" class="data row8 col3">0.0%</td>
+      <td id="T_53506_row8_col4" class="data row8 col4">100.0%</td>
+    </tr>
+    <tr>
+      <th id="T_53506_level0_row9" class="row_heading level0 row9">10</th>
+      <td id="T_53506_row9_col0" class="data row9 col0">(1000000000, 1050000000]</td>
+      <td id="T_53506_row9_col1" class="data row9 col1">0</td>
+      <td id="T_53506_row9_col2" class="data row9 col2">142</td>
+      <td id="T_53506_row9_col3" class="data row9 col3">0.0%</td>
+      <td id="T_53506_row9_col4" class="data row9 col4">100.0%</td>
+    </tr>
+    <tr>
+      <th id="T_53506_level0_row10" class="row_heading level0 row10">11</th>
+      <td id="T_53506_row10_col0" class="data row10 col0">Others:</td>
+      <td id="T_53506_row10_col1" class="data row10 col1">0</td>
+      <td id="T_53506_row10_col2" class="data row10 col2">142</td>
+      <td id="T_53506_row10_col3" class="data row10 col3">0.0%</td>
+      <td id="T_53506_row10_col4" class="data row10 col4">100.0%</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+<p>Now we can see that there are 120 countries with a population less than 50M. You can play around with the bin interval to get an appropriate value for your data.</p>
+<section id="changing-the-theme-used-with-theme" class="level3">
+<h3 class="anchored">Changing the theme used with <code>theme</code></h3>
+<div id="cell-33" class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1"></a>value_counts_plus(colors, background_gradient<span class="op">=</span><span class="st">'Greens'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<style type="text/css">
+#T_02ea8_row0_col1, #T_02ea8_row0_col2, #T_02ea8_row0_col3, #T_02ea8_row0_col4, #T_02ea8_row1_col1, #T_02ea8_row1_col3, #T_02ea8_row2_col1, #T_02ea8_row2_col3, #T_02ea8_row3_col1, #T_02ea8_row3_col3, #T_02ea8_row4_col1, #T_02ea8_row4_col3, #T_02ea8_row5_col1, #T_02ea8_row5_col3, #T_02ea8_row6_col1, #T_02ea8_row6_col3, #T_02ea8_row7_col1, #T_02ea8_row7_col3, #T_02ea8_row8_col1, #T_02ea8_row8_col3, #T_02ea8_row9_col1, #T_02ea8_row9_col3 {
+  background-color: #f7fcf5;
+  color: #000000;
+}
+#T_02ea8_row1_col2, #T_02ea8_row1_col4 {
+  background-color: #f4fbf1;
+  color: #000000;
+}
+#T_02ea8_row2_col2, #T_02ea8_row2_col4 {
+  background-color: #f0f9ec;
+  color: #000000;
+}
+#T_02ea8_row3_col2, #T_02ea8_row3_col4 {
+  background-color: #ecf8e8;
+  color: #000000;
+}
+#T_02ea8_row4_col2, #T_02ea8_row4_col4 {
+  background-color: #e9f7e5;
+  color: #000000;
+}
+#T_02ea8_row5_col2, #T_02ea8_row5_col4 {
+  background-color: #e5f5e0;
+  color: #000000;
+}
+#T_02ea8_row6_col2, #T_02ea8_row6_col4 {
+  background-color: #dff3da;
+  color: #000000;
+}
+#T_02ea8_row7_col2, #T_02ea8_row7_col4 {
+  background-color: #daf0d4;
+  color: #000000;
+}
+#T_02ea8_row8_col2, #T_02ea8_row8_col4 {
+  background-color: #d4eece;
+  color: #000000;
+}
+#T_02ea8_row9_col2, #T_02ea8_row9_col4 {
+  background-color: #cdecc7;
+  color: #000000;
+}
+#T_02ea8_row10_col1, #T_02ea8_row10_col2, #T_02ea8_row10_col3, #T_02ea8_row10_col4 {
+  background-color: #00441b;
+  color: #f1f1f1;
+}
+</style>
+<table id="T_02ea8" style="font-size:15pt;">
+  <caption><h2 class="anchored" data-anchor-id="changing-the-theme-used-with-theme">Counts of <b>data</b></h2></caption>
+  <thead>
+    <tr>
+      <th class="blank level0">&nbsp;</th>
+      <th id="T_02ea8_level0_col0" class="col_heading level0 col0">data</th>
+      <th id="T_02ea8_level0_col1" class="col_heading level0 col1">count</th>
+      <th id="T_02ea8_level0_col2" class="col_heading level0 col2">cum. count</th>
+      <th id="T_02ea8_level0_col3" class="col_heading level0 col3">%</th>
+      <th id="T_02ea8_level0_col4" class="col_heading level0 col4">cum. %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_02ea8_level0_row0" class="row_heading level0 row0">1</th>
+      <td id="T_02ea8_row0_col0" class="data row0 col0">lightseagreen</td>
+      <td id="T_02ea8_row0_col1" class="data row0 col1">258</td>
+      <td id="T_02ea8_row0_col2" class="data row0 col2">258</td>
+      <td id="T_02ea8_row0_col3" class="data row0 col3">2.5%</td>
+      <td id="T_02ea8_row0_col4" class="data row0 col4">2.5%</td>
+    </tr>
+    <tr>
+      <th id="T_02ea8_level0_row1" class="row_heading level0 row1">2</th>
+      <td id="T_02ea8_row1_col0" class="data row1 col0">burlywood</td>
+      <td id="T_02ea8_row1_col1" class="data row1 col1">255</td>
+      <td id="T_02ea8_row1_col2" class="data row1 col2">513</td>
+      <td id="T_02ea8_row1_col3" class="data row1 col3">2.5%</td>
+      <td id="T_02ea8_row1_col4" class="data row1 col4">5.0%</td>
+    </tr>
+    <tr>
+      <th id="T_02ea8_level0_row2" class="row_heading level0 row2">3</th>
+      <td id="T_02ea8_row2_col0" class="data row2 col0">cyan</td>
+      <td id="T_02ea8_row2_col1" class="data row2 col1">252</td>
+      <td id="T_02ea8_row2_col2" class="data row2 col2">765</td>
+      <td id="T_02ea8_row2_col3" class="data row2 col3">2.5%</td>
+      <td id="T_02ea8_row2_col4" class="data row2 col4">7.5%</td>
+    </tr>
+    <tr>
+      <th id="T_02ea8_level0_row3" class="row_heading level0 row3">4</th>
+      <td id="T_02ea8_row3_col0" class="data row3 col0">slategray</td>
+      <td id="T_02ea8_row3_col1" class="data row3 col1">252</td>
+      <td id="T_02ea8_row3_col2" class="data row3 col2">1,017</td>
+      <td id="T_02ea8_row3_col3" class="data row3 col3">2.5%</td>
+      <td id="T_02ea8_row3_col4" class="data row3 col4">9.9%</td>
+    </tr>
+    <tr>
+      <th id="T_02ea8_level0_row4" class="row_heading level0 row4">5</th>
+      <td id="T_02ea8_row4_col0" class="data row4 col0">lightsteelblue</td>
+      <td id="T_02ea8_row4_col1" class="data row4 col1">251</td>
+      <td id="T_02ea8_row4_col2" class="data row4 col2">1,268</td>
+      <td id="T_02ea8_row4_col3" class="data row4 col3">2.5%</td>
+      <td id="T_02ea8_row4_col4" class="data row4 col4">12.4%</td>
+    </tr>
+    <tr>
+      <th id="T_02ea8_level0_row5" class="row_heading level0 row5">6</th>
+      <td id="T_02ea8_row5_col0" class="data row5 col0">aliceblue</td>
+      <td id="T_02ea8_row5_col1" class="data row5 col1">245</td>
+      <td id="T_02ea8_row5_col2" class="data row5 col2">1,513</td>
+      <td id="T_02ea8_row5_col3" class="data row5 col3">2.4%</td>
+      <td id="T_02ea8_row5_col4" class="data row5 col4">14.8%</td>
+    </tr>
+    <tr>
+      <th id="T_02ea8_level0_row6" class="row_heading level0 row6">7</th>
+      <td id="T_02ea8_row6_col0" class="data row6 col0">steelblue</td>
+      <td id="T_02ea8_row6_col1" class="data row6 col1">243</td>
+      <td id="T_02ea8_row6_col2" class="data row6 col2">1,756</td>
+      <td id="T_02ea8_row6_col3" class="data row6 col3">2.4%</td>
+      <td id="T_02ea8_row6_col4" class="data row6 col4">17.1%</td>
+    </tr>
+    <tr>
+      <th id="T_02ea8_level0_row7" class="row_heading level0 row7">8</th>
+      <td id="T_02ea8_row7_col0" class="data row7 col0">azure</td>
+      <td id="T_02ea8_row7_col1" class="data row7 col1">242</td>
+      <td id="T_02ea8_row7_col2" class="data row7 col2">1,998</td>
+      <td id="T_02ea8_row7_col3" class="data row7 col3">2.4%</td>
+      <td id="T_02ea8_row7_col4" class="data row7 col4">19.5%</td>
+    </tr>
+    <tr>
+      <th id="T_02ea8_level0_row8" class="row_heading level0 row8">9</th>
+      <td id="T_02ea8_row8_col0" class="data row8 col0">sienna</td>
+      <td id="T_02ea8_row8_col1" class="data row8 col1">242</td>
+      <td id="T_02ea8_row8_col2" class="data row8 col2">2,240</td>
+      <td id="T_02ea8_row8_col3" class="data row8 col3">2.4%</td>
+      <td id="T_02ea8_row8_col4" class="data row8 col4">21.9%</td>
+    </tr>
+    <tr>
+      <th id="T_02ea8_level0_row9" class="row_heading level0 row9">10</th>
+      <td id="T_02ea8_row9_col0" class="data row9 col0">indigo</td>
+      <td id="T_02ea8_row9_col1" class="data row9 col1">241</td>
+      <td id="T_02ea8_row9_col2" class="data row9 col2">2,481</td>
+      <td id="T_02ea8_row9_col3" class="data row9 col3">2.4%</td>
+      <td id="T_02ea8_row9_col4" class="data row9 col4">24.2%</td>
+    </tr>
+    <tr>
+      <th id="T_02ea8_level0_row10" class="row_heading level0 row10">11</th>
+      <td id="T_02ea8_row10_col0" class="data row10 col0">Others:</td>
+      <td id="T_02ea8_row10_col1" class="data row10 col1">7,759</td>
+      <td id="T_02ea8_row10_col2" class="data row10 col2">10,240</td>
+      <td id="T_02ea8_row10_col3" class="data row10 col3">75.8%</td>
+      <td id="T_02ea8_row10_col4" class="data row10 col4">100.0%</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+<div id="cell-34" class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1"></a>value_counts_plus(colors, background_gradient<span class="op">=</span><span class="st">'cool'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<style type="text/css">
+#T_4e726_row0_col1, #T_4e726_row0_col2, #T_4e726_row0_col3, #T_4e726_row0_col4, #T_4e726_row1_col1, #T_4e726_row1_col3, #T_4e726_row2_col1, #T_4e726_row2_col3, #T_4e726_row3_col1, #T_4e726_row3_col3, #T_4e726_row4_col1, #T_4e726_row4_col3, #T_4e726_row5_col1, #T_4e726_row5_col3, #T_4e726_row6_col1, #T_4e726_row6_col3, #T_4e726_row7_col1, #T_4e726_row7_col3, #T_4e726_row8_col1, #T_4e726_row8_col3, #T_4e726_row9_col1, #T_4e726_row9_col3 {
+  background-color: #00ffff;
+  color: #000000;
+}
+#T_4e726_row1_col2, #T_4e726_row1_col4 {
+  background-color: #06f9ff;
+  color: #000000;
+}
+#T_4e726_row2_col2, #T_4e726_row2_col4 {
+  background-color: #0df2ff;
+  color: #000000;
+}
+#T_4e726_row3_col2, #T_4e726_row3_col4 {
+  background-color: #13ecff;
+  color: #000000;
+}
+#T_4e726_row4_col2, #T_4e726_row4_col4 {
+  background-color: #19e6ff;
+  color: #000000;
+}
+#T_4e726_row5_col2, #T_4e726_row5_col4 {
+  background-color: #20dfff;
+  color: #000000;
+}
+#T_4e726_row6_col2, #T_4e726_row6_col4 {
+  background-color: #26d9ff;
+  color: #000000;
+}
+#T_4e726_row7_col2, #T_4e726_row7_col4 {
+  background-color: #2cd3ff;
+  color: #000000;
+}
+#T_4e726_row8_col2, #T_4e726_row8_col4 {
+  background-color: #32cdff;
+  color: #000000;
+}
+#T_4e726_row9_col2, #T_4e726_row9_col4 {
+  background-color: #39c6ff;
+  color: #000000;
+}
+#T_4e726_row10_col1, #T_4e726_row10_col2, #T_4e726_row10_col3, #T_4e726_row10_col4 {
+  background-color: #ff00ff;
+  color: #f1f1f1;
+}
+</style>
+<table id="T_4e726" style="font-size:15pt;">
+  <caption><h2 class="anchored">Counts of <b>data</b></h2></caption>
+  <thead>
+    <tr>
+      <th class="blank level0">&nbsp;</th>
+      <th id="T_4e726_level0_col0" class="col_heading level0 col0">data</th>
+      <th id="T_4e726_level0_col1" class="col_heading level0 col1">count</th>
+      <th id="T_4e726_level0_col2" class="col_heading level0 col2">cum. count</th>
+      <th id="T_4e726_level0_col3" class="col_heading level0 col3">%</th>
+      <th id="T_4e726_level0_col4" class="col_heading level0 col4">cum. %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th id="T_4e726_level0_row0" class="row_heading level0 row0">1</th>
+      <td id="T_4e726_row0_col0" class="data row0 col0">lightseagreen</td>
+      <td id="T_4e726_row0_col1" class="data row0 col1">258</td>
+      <td id="T_4e726_row0_col2" class="data row0 col2">258</td>
+      <td id="T_4e726_row0_col3" class="data row0 col3">2.5%</td>
+      <td id="T_4e726_row0_col4" class="data row0 col4">2.5%</td>
+    </tr>
+    <tr>
+      <th id="T_4e726_level0_row1" class="row_heading level0 row1">2</th>
+      <td id="T_4e726_row1_col0" class="data row1 col0">burlywood</td>
+      <td id="T_4e726_row1_col1" class="data row1 col1">255</td>
+      <td id="T_4e726_row1_col2" class="data row1 col2">513</td>
+      <td id="T_4e726_row1_col3" class="data row1 col3">2.5%</td>
+      <td id="T_4e726_row1_col4" class="data row1 col4">5.0%</td>
+    </tr>
+    <tr>
+      <th id="T_4e726_level0_row2" class="row_heading level0 row2">3</th>
+      <td id="T_4e726_row2_col0" class="data row2 col0">cyan</td>
+      <td id="T_4e726_row2_col1" class="data row2 col1">252</td>
+      <td id="T_4e726_row2_col2" class="data row2 col2">765</td>
+      <td id="T_4e726_row2_col3" class="data row2 col3">2.5%</td>
+      <td id="T_4e726_row2_col4" class="data row2 col4">7.5%</td>
+    </tr>
+    <tr>
+      <th id="T_4e726_level0_row3" class="row_heading level0 row3">4</th>
+      <td id="T_4e726_row3_col0" class="data row3 col0">slategray</td>
+      <td id="T_4e726_row3_col1" class="data row3 col1">252</td>
+      <td id="T_4e726_row3_col2" class="data row3 col2">1,017</td>
+      <td id="T_4e726_row3_col3" class="data row3 col3">2.5%</td>
+      <td id="T_4e726_row3_col4" class="data row3 col4">9.9%</td>
+    </tr>
+    <tr>
+      <th id="T_4e726_level0_row4" class="row_heading level0 row4">5</th>
+      <td id="T_4e726_row4_col0" class="data row4 col0">lightsteelblue</td>
+      <td id="T_4e726_row4_col1" class="data row4 col1">251</td>
+      <td id="T_4e726_row4_col2" class="data row4 col2">1,268</td>
+      <td id="T_4e726_row4_col3" class="data row4 col3">2.5%</td>
+      <td id="T_4e726_row4_col4" class="data row4 col4">12.4%</td>
+    </tr>
+    <tr>
+      <th id="T_4e726_level0_row5" class="row_heading level0 row5">6</th>
+      <td id="T_4e726_row5_col0" class="data row5 col0">aliceblue</td>
+      <td id="T_4e726_row5_col1" class="data row5 col1">245</td>
+      <td id="T_4e726_row5_col2" class="data row5 col2">1,513</td>
+      <td id="T_4e726_row5_col3" class="data row5 col3">2.4%</td>
+      <td id="T_4e726_row5_col4" class="data row5 col4">14.8%</td>
+    </tr>
+    <tr>
+      <th id="T_4e726_level0_row6" class="row_heading level0 row6">7</th>
+      <td id="T_4e726_row6_col0" class="data row6 col0">steelblue</td>
+      <td id="T_4e726_row6_col1" class="data row6 col1">243</td>
+      <td id="T_4e726_row6_col2" class="data row6 col2">1,756</td>
+      <td id="T_4e726_row6_col3" class="data row6 col3">2.4%</td>
+      <td id="T_4e726_row6_col4" class="data row6 col4">17.1%</td>
+    </tr>
+    <tr>
+      <th id="T_4e726_level0_row7" class="row_heading level0 row7">8</th>
+      <td id="T_4e726_row7_col0" class="data row7 col0">azure</td>
+      <td id="T_4e726_row7_col1" class="data row7 col1">242</td>
+      <td id="T_4e726_row7_col2" class="data row7 col2">1,998</td>
+      <td id="T_4e726_row7_col3" class="data row7 col3">2.4%</td>
+      <td id="T_4e726_row7_col4" class="data row7 col4">19.5%</td>
+    </tr>
+    <tr>
+      <th id="T_4e726_level0_row8" class="row_heading level0 row8">9</th>
+      <td id="T_4e726_row8_col0" class="data row8 col0">sienna</td>
+      <td id="T_4e726_row8_col1" class="data row8 col1">242</td>
+      <td id="T_4e726_row8_col2" class="data row8 col2">2,240</td>
+      <td id="T_4e726_row8_col3" class="data row8 col3">2.4%</td>
+      <td id="T_4e726_row8_col4" class="data row8 col4">21.9%</td>
+    </tr>
+    <tr>
+      <th id="T_4e726_level0_row9" class="row_heading level0 row9">10</th>
+      <td id="T_4e726_row9_col0" class="data row9 col0">indigo</td>
+      <td id="T_4e726_row9_col1" class="data row9 col1">241</td>
+      <td id="T_4e726_row9_col2" class="data row9 col2">2,481</td>
+      <td id="T_4e726_row9_col3" class="data row9 col3">2.4%</td>
+      <td id="T_4e726_row9_col4" class="data row9 col4">24.2%</td>
+    </tr>
+    <tr>
+      <th id="T_4e726_level0_row10" class="row_heading level0 row10">11</th>
+      <td id="T_4e726_row10_col0" class="data row10 col0">Others:</td>
+      <td id="T_4e726_row10_col1" class="data row10 col1">7,759</td>
+      <td id="T_4e726_row10_col2" class="data row10 col2">10,240</td>
+      <td id="T_4e726_row10_col3" class="data row10 col3">75.8%</td>
+      <td id="T_4e726_row10_col4" class="data row10 col4">100.0%</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="convert-the-table-to-raw-html-for-embedding-in-a-blog-or-web-page" class="level3">
+<h3 class="anchored" data-anchor-id="convert-the-table-to-raw-html-for-embedding-in-a-blog-or-web-page">Convert the table to raw HTML for embedding in a blog or web page</h3>
+<div id="cell-36" class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1"></a><span class="bu">print</span>(value_counts_plus(colors).to_html()[:<span class="dv">700</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;style type="text/css"&gt;
+#T_c9396_row0_col1, #T_c9396_row0_col2, #T_c9396_row0_col3, #T_c9396_row0_col4, #T_c9396_row1_col1, #T_c9396_row1_col3, #T_c9396_row2_col1, #T_c9396_row2_col3, #T_c9396_row3_col1, #T_c9396_row3_col3, #T_c9396_row4_col1, #T_c9396_row4_col3, #T_c9396_row5_col1, #T_c9396_row5_col3, #T_c9396_row6_col1, #T_c9396_row6_col3, #T_c9396_row7_col1, #T_c9396_row7_col3, #T_c9396_row8_col1, #T_c9396_row8_col3, #T_c9396_row9_col1, #T_c9396_row9_col3 {
+  background-color: #00224e;
+  color: #f1f1f1;
+}
+#T_c9396_row1_col2, #T_c9396_row1_col4 {
+  background-color: #002758;
+  color: #f1f1f1;
+}
+#T_c9396_row2_col2, #T_c9396_row2_col4 {
+  background-color: #002c64;
+  color: #f1f1f1;
+}
+#T_c93</code></pre>
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/eliasdabbas\.github\.io\/adviz");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/eliasdabbas/adviz/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

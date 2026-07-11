@@ -6,48 +6,50 @@
 __all__ = ['serp_heatmap']
 
 # %% ../nbs/06_serp_heatmap.ipynb 5
-import plotly.graph_objects as go
+import inspect
+
 import pandas as pd
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 pd.options.display.max_columns = None
 
 # %% ../nbs/06_serp_heatmap.ipynb 6
-def _concat(text):
-    return "<br>".join(sorted(text))
+def _concat(text, col_size=20):
+    items = sorted(text)
+    ncols = -(-len(items) // col_size)  # ceil division
+    if ncols <= 1:
+        return "<br>".join(items)
+    pad = "\u00a0"
+    width = max(len(s) for s in items)
+    columns = [items[i * col_size : (i + 1) * col_size] for i in range(ncols)]
+    nrows = max(len(col) for col in columns)
+    lines = []
+    for r in range(nrows):
+        cells = [
+            (col[r] if r < len(col) else "").replace(" ", pad).ljust(width, pad)
+            for col in columns
+        ]
+        lines.append((pad * 3).join(cells))
+    return "<br>".join(lines)
 
 # %% ../nbs/06_serp_heatmap.ipynb 7
-def serp_heatmap(
-    serp_df,
-    num_domains=10,
-    height=650,
-    width=None,
-    title="SERP Heatmap",
-    template="none",
-):
-    """Create a heatmap for visualizing domain positions on SERPs.
+def _serp_heatmap_panel(serp_df, queries_col, domains_col, ranks_col, num_domains=10):
+    """Build a single (non-faceted) SERP heatmap ``go.Figure``.
 
-    Parameters
-    ----------
-
-    serp_df : pandas.DataFrame
-      A DataFrame retreived from running advertools.serp_goog or advertools.serp_youtube. Any similar SERP
-      DataFrame would do, with the simple requirement of containing three columns: searchTerms, displayLink, and rank.
-    num_domains : int
-      The number of domains to display in the chart, default 10.
-    height : int
-      The height in pixels of the chart.
-    width : int
-      The width in pixels of the chart.
-    title : str
-      The title of the chart.
-    template : str
-      The template to apply to the chart.
-
-    Returns
-    -------
-    heatmap_fig : plotly.graph_objects.Figure
+    This contains the core charting logic and is used both for the standalone
+    chart and for each cell of a faceted grid. Layout options that apply to the
+    whole figure (title, template, height, width, etc.) are set by the public
+    ``serp_heatmap`` wrapper.
     """
-    df = serp_df[["searchTerms", "rank", "displayLink"]]
+    df = serp_df[[queries_col, ranks_col, domains_col]].rename(
+        columns={
+            queries_col: "searchTerms",
+            ranks_col: "rank",
+            domains_col: "displayLink",
+        }
+    )
+    df["displayLink"] = df["displayLink"].str.replace(r"^www\.", "", regex=True)
     top_domains = df["displayLink"].value_counts()[:num_domains].index.tolist()
     top_df = df[df["displayLink"].isin(top_domains) & df["displayLink"].ne("")]
     top_df_counts_means = top_df.groupby("displayLink", as_index=False).agg(
@@ -64,29 +66,17 @@ def serp_heatmap(
         top_df.groupby(["displayLink", "rank"]).agg({"rank": ["count"]}).reset_index()
     )
     rank_counts.columns = ["displayLink", "rank", "count"]
-    summary = (
-        df.groupby(["displayLink"], as_index=False)
-        .agg({"rank": ["count", "mean"]})
-        .sort_values(("rank", "count"), ascending=False)
-        .assign(
-            coverage=lambda df: (df[("rank", "count")].div(df[("rank", "count")].sum()))
-        )
-    )
-    summary.columns = ["displayLink", "count", "avg_pos", "coverage"]
-    summary["displayLink"] = summary["displayLink"].str.replace("www.", "", regex=True)
-    summary["avg_pos"] = summary["avg_pos"].round(1)
-    summary["coverage"] = summary["coverage"].mul(100).round(1).astype(str).add("%")
     num_queries = df["searchTerms"].nunique()
     fig = go.Figure()
     fig.add_scatter(
-        x=top_df["displayLink"].str.replace(r"www\.", "", regex=True),
+        x=top_df["displayLink"],
         y=top_df["rank"],
         mode="markers",
         hovertext=top_df["searchTerms"],
         marker={"size": 30, "opacity": 1 / rank_counts["count"].max()},
     )
     fig.add_scatter(
-        x=rank_counts["displayLink"].str.replace(r"www\.", "", regex=True),
+        x=rank_counts["displayLink"],
         y=rank_counts["rank"],
         mode="text",
         text=rank_counts["count"],
@@ -94,20 +84,20 @@ def serp_heatmap(
     for domain in rank_counts["displayLink"].unique():
         rank_counts_subset = rank_counts[rank_counts["displayLink"] == domain]
         fig.add_scatter(
-            x=[domain.replace("www.", "")],
+            x=[domain],
             y=[0],
             mode="text",
             marker={"size": 50},
             text=str(rank_counts_subset["count"].sum()),
         )
         fig.add_scatter(
-            x=[domain.replace("www.", "")],
+            x=[domain],
             y=[-1],
             mode="text",
             text=format(rank_counts_subset["count"].sum() / num_queries, ".1%"),
         )
         fig.add_scatter(
-            x=[domain.replace("www.", "")],
+            x=[domain],
             y=[-2],
             mode="text",
             marker={"size": 50},
@@ -120,11 +110,11 @@ def serp_heatmap(
             ),
         )
     fig.add_scatter(
-        x=hovertxt_df["displayLink"].str.replace(r"^www\.", "", regex=True),
+        x=hovertxt_df["displayLink"],
         y=hovertxt_df["rank"],
         name="",
         hovertemplate="<b>%{x}</b><br>%{hovertext}",
-        hoverlabel={"bgcolor": "#efefef"},
+        hoverlabel={"bgcolor": "#efefef", "font": {"family": "monospace"}},
         hovertext=hovertxt_df["searchTerms"],
         mode="markers",
         marker={"opacity": 0, "size": 30},
@@ -139,7 +129,6 @@ def serp_heatmap(
         "Coverage",
         "Total<br>appearances",
     ] + list(range(minrank, maxrank + 1))
-    fig.layout.height = max([600, 100 + ((maxrank - minrank) * 50)])
     fig.layout.yaxis.title = "SERP Rank<br>(number of appearances)"
     fig.layout.showlegend = False
     fig.layout.margin.r = 2
@@ -147,12 +136,153 @@ def serp_heatmap(
     fig.layout.margin.pad = 0
     fig.layout.yaxis.autorange = "reversed"
     fig.layout.yaxis.zeroline = False
-    fig.layout.template = template
-    fig.layout.title = title
-    fig.layout.height = height
-    fig.layout.width = width
     fig.layout.xaxis.showgrid = False
     fig.layout.yaxis.ticks = "inside"
     fig.layout.xaxis.ticks = "inside"
     fig.layout.yaxis.griddash = "dot"
     return fig
+
+
+def serp_heatmap(
+    serp_df,
+    queries_col,
+    domains_col,
+    ranks_col,
+    num_domains=10,
+    height=650,
+    width=None,
+    title="SERP Heatmap",
+    subtitle=None,
+    template="none",
+    facet_row=None,
+    facet_col=None,
+    **kwargs,
+):
+    """Create a heatmap for visualizing domain positions on SERPs.
+
+    Parameters
+    ----------
+
+    serp_df : pandas.DataFrame
+      A DataFrame containing SERP data, with one row per query-domain-rank
+      combination (the tidy shape produced by ``advertools.serp_goog``). Any
+      SERP-like DataFrame works, as long as you supply the names of the columns
+      holding the queries, domains, and ranks. Duplicate rows for the same
+      query-domain-rank will surface as the same query repeated in the hover
+      tooltip, a sign the data should be de-duplicated upstream.
+    queries_col : str
+      The name of the column holding the search queries/keywords.
+    domains_col : str
+      The name of the column holding the domains (display links).
+    ranks_col : str
+      The name of the column holding the rank/position of each result.
+    num_domains : int
+      The number of domains to display in the chart, default 10.
+    height : int
+      The height in pixels of the chart. When faceting, this is the height per
+      facet row (the total height scales with the number of rows).
+    width : int
+      The width in pixels of the chart.
+    title : str
+      The title of the chart.
+    subtitle : str
+      The subtitle of the chart.
+    template : str
+      The template to apply to the chart.
+    facet_row : str
+      The name of a categorical column to split the chart into one row per unique
+      value.
+    facet_col : str
+      The name of a categorical column to split the chart into one column per
+      unique value. Can be combined with ``facet_row`` to create a 2D grid.
+    **kwargs
+      Extra keyword arguments. Keys that are valid ``plotly.subplots.make_subplots``
+      parameters (e.g. ``horizontal_spacing``, ``vertical_spacing``,
+      ``shared_yaxes``, ``column_widths``, ``row_heights``) are forwarded to
+      ``make_subplots`` when faceting. All other keys are forwarded to
+      ``fig.update_layout``.
+
+    Returns
+    -------
+    heatmap_fig : plotly.graph_objects.Figure
+    """
+    required_cols = [queries_col, domains_col, ranks_col]
+    facet_cols = [c for c in (facet_row, facet_col) if c is not None]
+    missing = [c for c in required_cols + facet_cols if c not in serp_df.columns]
+    if missing:
+        raise ValueError(
+            f"Column(s) not found in serp_df: {missing}. "
+            f"Available columns: {serp_df.columns.tolist()}"
+        )
+
+    # Route kwargs: make_subplots params vs. layout params.
+    reserved = {"rows", "cols", "figure", "subplot_titles", "specs"}
+    subplot_param_names = set(inspect.signature(make_subplots).parameters) - reserved
+    subplot_kwargs = {
+        key: kwargs.pop(key) for key in list(kwargs) if key in subplot_param_names
+    }
+
+    def _apply_global_layout(fig, total_height):
+        fig.layout.showlegend = False
+        fig.layout.template = template
+        fig.layout.title = title
+        fig.layout.height = total_height
+        fig.layout.width = width
+        if subtitle is not None:
+            fig.layout.title.subtitle.text = subtitle
+        if kwargs:
+            fig.update_layout(**kwargs)
+        return fig
+
+    if not facet_cols:
+        fig = _serp_heatmap_panel(
+            serp_df, queries_col, domains_col, ranks_col, num_domains
+        )
+        return _apply_global_layout(fig, height)
+
+    row_vals = serp_df[facet_row].dropna().unique().tolist() if facet_row else [None]
+    col_vals = serp_df[facet_col].dropna().unique().tolist() if facet_col else [None]
+    nrows, ncols = len(row_vals), len(col_vals)
+
+    def _facet_title(row_val, col_val):
+        parts = []
+        if facet_row:
+            parts.append(f"{facet_row}: {row_val}")
+        if facet_col:
+            parts.append(f"{facet_col}: {col_val}")
+        return ", ".join(parts)
+
+    subplot_titles = [_facet_title(rv, cv) for rv in row_vals for cv in col_vals]
+    fig = make_subplots(
+        rows=nrows,
+        cols=ncols,
+        subplot_titles=subplot_titles,
+        **subplot_kwargs,
+    )
+    for r, row_val in enumerate(row_vals, start=1):
+        for c, col_val in enumerate(col_vals, start=1):
+            subset = serp_df
+            if facet_row:
+                subset = subset[subset[facet_row] == row_val]
+            if facet_col:
+                subset = subset[subset[facet_col] == col_val]
+            if subset.empty:
+                continue
+            panel = _serp_heatmap_panel(
+                subset, queries_col, domains_col, ranks_col, num_domains
+            )
+            fig.add_traces(panel.data, rows=r, cols=c)
+            fig.update_yaxes(
+                tickvals=panel.layout.yaxis.tickvals,
+                ticktext=panel.layout.yaxis.ticktext,
+                title="SERP Rank<br>(number of appearances)" if c == 1 else None,
+                autorange="reversed",
+                zeroline=False,
+                griddash="dot",
+                ticks="inside",
+                row=r,
+                col=c,
+            )
+            fig.update_xaxes(showgrid=False, ticks="inside", row=r, col=c)
+
+    return _apply_global_layout(fig, height * nrows)

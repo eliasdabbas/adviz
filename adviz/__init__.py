@@ -1,4 +1,4 @@
-__version__ = "0.0.25"
+__version__ = "0.0.26"
 
 from dash_bootstrap_templates import load_figure_template
 

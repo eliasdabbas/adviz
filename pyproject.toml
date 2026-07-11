@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "adviz"
+dynamic = ["version"]
+description = "advertools visualizations"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {text = "Apache-2.0"}
+authors = [{name = "Elias Dabbas", email = "eliasdabbas@gmail.com"}]
+keywords = ['nbdev', 'jupyter', 'notebook', 'python']
+classifiers = ["Natural Language :: English", "Intended Audience :: Developers", "Development Status :: 3 - Alpha", "Programming Language :: Python :: 3", "Programming Language :: Python :: 3 :: Only"]
+dependencies = ['pandas', 'matplotlib', 'advertools', 'plotly>=6.0.0', 'jinja2', 'dash_bootstrap_templates']
+
+[project.urls]
+Repository = "https://github.com/eliasdabbas/adviz"
+Documentation = "https://eliasdabbas.github.io/adviz"
+
+[project.entry-points.nbdev]
+adviz = "adviz._modidx:d"
+
+[project.optional-dependencies]
+dev = ['nbformat', 'kaleido']
+
+[tool.setuptools.dynamic]
+version = {attr = "adviz.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["adviz"]
+
+[tool.nbdev]
+jupyter_hooks = true
+custom_sidebar = true

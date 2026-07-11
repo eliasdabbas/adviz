@@ -146,68 +146,21 @@ def _serp_heatmap_panel(serp_df, queries_col, domains_col, ranks_col, num_domain
 
 
 def serp_heatmap(
-    serp_df,
-    queries_col,
-    domains_col,
-    ranks_col,
-    num_domains=10,
-    height=650,
-    width=None,
-    title="SERP Heatmap",
-    subtitle=None,
-    template="none",
-    facet_row=None,
-    facet_col=None,
-    **kwargs,
-):
-    """Create a heatmap for visualizing domain positions on SERPs.
-
-    Parameters
-    ----------
-
-    serp_df : pandas.DataFrame
-      A DataFrame containing SERP data, with one row per query-domain-rank
-      combination (the tidy shape produced by ``advertools.serp_goog``). Any
-      SERP-like DataFrame works, as long as you supply the names of the columns
-      holding the queries, domains, and ranks. Duplicate rows for the same
-      query-domain-rank will surface as the same query repeated in the hover
-      tooltip, a sign the data should be de-duplicated upstream.
-    queries_col : str
-      The name of the column holding the search queries/keywords.
-    domains_col : str
-      The name of the column holding the domains (display links).
-    ranks_col : str
-      The name of the column holding the rank/position of each result.
-    num_domains : int
-      The number of domains to display in the chart, default 10.
-    height : int
-      The height in pixels of the chart. When faceting, this is the height per
-      facet row (the total height scales with the number of rows).
-    width : int
-      The width in pixels of the chart.
-    title : str
-      The title of the chart.
-    subtitle : str
-      The subtitle of the chart.
-    template : str
-      The template to apply to the chart.
-    facet_row : str
-      The name of a categorical column to split the chart into one row per unique
-      value.
-    facet_col : str
-      The name of a categorical column to split the chart into one column per
-      unique value. Can be combined with ``facet_row`` to create a 2D grid.
-    **kwargs
-      Extra keyword arguments. Keys that are valid ``plotly.subplots.make_subplots``
-      parameters (e.g. ``horizontal_spacing``, ``vertical_spacing``,
-      ``shared_yaxes``, ``column_widths``, ``row_heights``) are forwarded to
-      ``make_subplots`` when faceting. All other keys are forwarded to
-      ``fig.update_layout``.
-
-    Returns
-    -------
-    heatmap_fig : plotly.graph_objects.Figure
-    """
+    serp_df,  # A tidy SERP `DataFrame`: one row per query-domain-rank (e.g. from `advertools.serp_goog`). Duplicate rows show up as the same query repeated in the hover tooltip.
+    queries_col,  # Name of the column holding the search queries/keywords.
+    domains_col,  # Name of the column holding the domains (display links).
+    ranks_col,  # Name of the column holding the rank/position of each result.
+    num_domains=10,  # Number of domains to display in the chart.
+    height=650,  # Height in pixels. When faceting, this is the height per facet row.
+    width=None,  # Width in pixels of the chart.
+    title="SERP Heatmap",  # Title of the chart.
+    subtitle=None,  # Subtitle of the chart.
+    template="none",  # Plotly template to apply.
+    facet_row=None,  # Categorical column to split the chart into one row per unique value.
+    facet_col=None,  # Categorical column to split into one column per unique value (combine with `facet_row` for a 2D grid).
+    **kwargs,  # Valid `make_subplots` params are forwarded to it when faceting; all others go to `fig.update_layout`.
+) -> go.Figure:  # A Plotly heatmap figure.
+    "Create a heatmap for visualizing domain positions on SERPs."
     required_cols = [queries_col, domains_col, ranks_col]
     facet_cols = [c for c in (facet_row, facet_col) if c is not None]
     missing = [c for c in required_cols + facet_cols if c not in serp_df.columns]

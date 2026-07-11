@@ -7,3 +7,8 @@ website:
   description: "advertools visualizations"
   repo-branch: main
   repo-url: "https://github.com/eliasdabbas/adviz"
+
+format-links:
+  - html
+  - format: commonmark
+    text: Markdown

@@ -33,3 +33,4 @@ include = ["adviz"]
 [tool.nbdev]
 jupyter_hooks = true
 custom_sidebar = true
+renderer = "adviz._renderer.TableRenderer"
